@@ -151,28 +151,58 @@ function formatDateLabel(dateStr) {
 .month-row {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 14px;
-  gap: 3px;
-  margin-bottom: 4px;
+  grid-auto-columns: 25px;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+.day-labels-spacer {
+  grid-column: 1;
+  width: 44px;
 }
 .month-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-family: var(--font-data);
+}
+.content-row {
+  display: flex;
+  gap: 10px;
+}
+.day-labels {
+  width: 34px;
+  flex-shrink: 0;
+  display: grid;
+  grid-template-rows: repeat(7, 20px);
+  gap: 5px;
+}
+.day-label-cell {
   font-size: 0.65rem;
-  color: #888;
+  color: var(--text-muted);
+  line-height: 20px;
+  text-align: right;
+  padding-right: 4px;
 }
 .heatmap-grid {
   display: grid;
   grid-auto-flow: column;
-  grid-template-rows: repeat(7, 14px);
-  grid-auto-columns: 14px;
-  gap: 3px;
+  grid-template-rows: repeat(7, 20px);
+  grid-auto-columns: 20px;
+  gap: 5px;
 }
 .day-cell {
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-  border: 1px solid #ddd;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   display: flex;
+  transition: transform 0.1s ease;
+}
+.day-cell:not(.padding):hover {
+  transform: scale(1.2);
+  z-index: 1;
 }
 .day-cell.padding {
   visibility: hidden;
@@ -180,25 +210,5 @@ function formatDateLabel(dateStr) {
 .day-segment {
   flex: 1;
   height: 100%;
-}
-.content-row {
-  display: flex;
-  gap: 6px;
-}
-.day-labels {
-  width: 24px;
-  display: grid;
-  grid-template-rows: repeat(7, 14px);
-  gap: 3px;
-}
-.day-label-cell {
-  font-size: 0.6rem;
-  color: #888;
-  line-height: 14px;
-  text-align: right;
-}
-.day-labels-spacer {
-  grid-column: 1;
-  width: 24px;
 }
 </style>

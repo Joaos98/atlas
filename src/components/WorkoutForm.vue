@@ -21,8 +21,8 @@
       <input type="number" v-model="form.calories" min="0" />
     </div>
     <button type="submit">Log workout</button>
-    <p v-if="success">Workout logged!</p>
-    <p v-if="error">Something went wrong.</p>
+    <p v-if="success" class="success">Workout logged!</p>
+    <p v-if="error" class="error">Something went wrong.</p>
   </form>
 </template>
 
@@ -68,3 +68,27 @@ async function handleSubmit() {
   }
 }
 </script>
+
+<style scoped>
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 320px;
+  margin-bottom: 24px;
+}
+label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+button[type="submit"] {
+  background: var(--blue);
+  color: var(--bg);
+  border: none;
+}
+p { font-size: 0.85rem; }
+.success { color: var(--green); }
+.error { color: var(--orange); }
+</style>
