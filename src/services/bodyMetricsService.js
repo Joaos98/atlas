@@ -7,3 +7,7 @@ export function getBodyMetrics() {
 export function logBodyMetrics(entry) {
   return api.post('/body-metrics', entry)
 }
+
+export function getLatestBodyMetrics() {
+  return api.get('/body-metrics')
+}
