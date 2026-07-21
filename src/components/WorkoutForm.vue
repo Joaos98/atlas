@@ -4,6 +4,7 @@
       <label>Date</label>
       <input type="date" v-model="form.logDate" required />
     </div>
+    
     <div>
       <label>Workout type</label>
       <select v-model="form.workoutTypeId" required>
@@ -12,17 +13,28 @@
         </option>
       </select>
     </div>
+    
     <div>
-      <label>Duration (minutes)</label>
-      <input type="number" v-model="form.durationMinutes" required min="1" />
+      <label>Duration</label>
+      <div class="input-wrapper">
+        <input type="number" v-model="form.durationMinutes" required min="1" />
+        <span class="unit">minutes</span>
+      </div>
     </div>
+    
     <div>
       <label>Calories (optional)</label>
-      <input type="number" v-model="form.calories" min="0" />
+      <div class="input-wrapper">
+        <input type="number" v-model="form.calories" min="0" />
+        <span class="unit">kcal</span>
+      </div>
     </div>
-    <button type="submit">Log workout</button>
-    <p v-if="success" class="success">Workout logged!</p>
-    <p v-if="error" class="error">Something went wrong.</p>
+    
+    <div class="actions">
+      <button type="submit">Add</button>
+      <p v-if="success" class="success">Workout added!</p>
+      <p v-if="error" class="error">Something went wrong.</p>
+    </div>
   </form>
 </template>
 
@@ -72,23 +84,73 @@ async function handleSubmit() {
 <style scoped>
 form {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 320px;
+  gap: 20px;
   margin-bottom: 24px;
+  flex-wrap: wrap;
+  align-items: flex-end;
 }
+
 label {
   display: block;
   font-size: 0.85rem;
   color: var(--text-muted);
   margin-bottom: 4px;
 }
+
+input {
+  max-width: 170px;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrapper input {
+  padding-right: 64px; /* Slightly wider here to accommodate "minutes" */
+  box-sizing: border-box;
+}
+
+.input-wrapper .unit {
+  position: absolute;
+  right: 12px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 button[type="submit"] {
   background: var(--blue);
-  color: var(--bg);
+  color: #1B2F52;
   border: none;
+  padding: 8px 16px;
+  cursor: pointer;
 }
-p { font-size: 0.85rem; }
+
+p { font-size: 0.85rem; margin: 0; }
 .success { color: var(--green); }
 .error { color: var(--orange); }
+
+/* -----------------------------------------
+   Hide Number Input Arrows (Spinners)
+----------------------------------------- */
+/* Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
 </style>

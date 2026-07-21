@@ -9,8 +9,8 @@
       </div>
     </section>
 
+    <h2>Workout activity</h2>
     <section class="card">
-      <h2>Workout activity</h2>
       <WorkoutHeatmap :refresh="0" />
     </section>
 

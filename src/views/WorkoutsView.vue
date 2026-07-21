@@ -1,9 +1,10 @@
 <template>
   <div>
     <h1>Workouts</h1>
+    <h2>Add New Workout</h2>
     <WorkoutForm @logged="onLogged" />
-    <div class="card">
-      <h2>Workout activity</h2>
+    <h2>Workout activity</h2>
+    <div class="card heatmap-card">
       <WorkoutHeatmap :refresh="refreshKey" />
     </div>
   </div>
@@ -20,3 +21,9 @@ function onLogged() {
   refreshKey.value++
 }
 </script>
+<style scoped>
+.heatmap-card {
+  max-width: 1000px;
+  display: block;
+}
+</style>

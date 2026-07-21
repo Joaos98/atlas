@@ -4,29 +4,52 @@
       <label>Date</label>
       <input type="date" v-model="form.measuredOn" required />
     </div>
+    
     <div>
-      <label>Weight (kg)</label>
-      <input type="number" step="0.1" v-model="form.weightKg" required />
+      <label>Weight</label>
+      <div class="input-wrapper">
+        <input type="number" step="0.1" v-model="form.weightKg" required />
+        <span class="unit">Kg</span>
+      </div>
     </div>
+    
     <div>
-      <label>Muscle mass (kg)</label>
-      <input type="number" step="0.1" v-model="form.muscleMassKg" required />
+      <label>Body Water</label>
+      <div class="input-wrapper">
+        <input type="number" step="0.1" v-model="form.waterLiters" required />
+        <span class="unit">L</span>
+      </div>
     </div>
+
     <div>
-      <label>Water (liters)</label>
-      <input type="number" step="0.1" v-model="form.waterLiters" required />
+      <label>Muscle Mass</label>
+      <div class="input-wrapper">
+        <input type="number" step="0.1" v-model="form.muscleMassKg" required />
+        <span class="unit">Kg</span>
+      </div>
     </div>
+    
     <div>
-      <label>Body fat (kg)</label>
-      <input type="number" step="0.1" v-model="form.bodyFatKg" required />
+      <label>Body Fat Mass</label>
+      <div class="input-wrapper">
+        <input type="number" step="0.1" v-model="form.bodyFatKg" required />
+        <span class="unit">Kg</span>
+      </div>
     </div>
+    
     <div>
-      <label>Body fat (%)</label>
-      <input type="number" step="0.1" v-model="form.bodyFatPct" required />
+      <label>Body Fat Percentage</label>
+      <div class="input-wrapper">
+        <input type="number" step="0.1" v-model="form.bodyFatPct" required />
+        <span class="unit">%</span>
+      </div>
     </div>
-    <button type="submit">Log measurement</button>
-    <p v-if="success" class="success">Measurement logged!</p>
-    <p v-if="error" class="error">Something went wrong.</p>
+    
+    <div class="actions">
+      <button type="submit">Add</button>
+      <p v-if="success" class="success">Measurement added!</p>
+      <p v-if="error" class="error">Something went wrong.</p>
+    </div>
   </form>
 </template>
 
@@ -59,25 +82,76 @@ async function handleSubmit() {
   }
 }
 </script>
+
 <style scoped>
 form {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 320px;
+  gap: 20px;
   margin-bottom: 24px;
+  flex-wrap: wrap;
+  align-items: flex-end;
 }
+
 label {
   display: block;
   font-size: 0.85rem;
   color: var(--text-muted);
   margin-bottom: 4px;
 }
+
+input {
+  max-width: 170px;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrapper input {
+  padding-right: 48px;
+  box-sizing: border-box;
+}
+
+.input-wrapper .unit {
+  position: absolute;
+  right: 12px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 button[type="submit"] {
   background: var(--blue);
   color: var(--bg);
   border: none;
+  padding: 8px 16px;
+  cursor: pointer;
 }
-.success { color: var(--green); }
-.error { color: var(--orange); }
+
+.success { color: var(--green); margin: 0; font-size: 0.85rem; }
+.error { color: var(--orange); margin: 0; font-size: 0.85rem; }
+
+/* -----------------------------------------
+   Hide Number Input Arrows (Spinners)
+----------------------------------------- */
+/* Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
 </style>

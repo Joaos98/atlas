@@ -1,30 +1,33 @@
 <template>
   <div>
     <h1>Body Metrics</h1>
+    <h2>Add New Measurement</h2>
     <BodyMetricsForm @logged="onLogged" />
 
     <h2>Progress</h2>
-    <MetricChart label="Weight (kg)" :entries="chartEntries('weightKg')" color="#4F8DFF" />
-    <MetricChart label="Muscle mass (kg)" :entries="chartEntries('muscleMassKg')" color="#3DD68C" />
-    <MetricChart label="Water (L)" :entries="chartEntries('waterLiters')" color="#2DD4BF" />
-    <MetricChart label="Body fat (kg)" :entries="chartEntries('bodyFatKg')" color="#FB923C" />
-    <MetricChart label="Body fat (%)" :entries="chartEntries('bodyFatPct')" color="#FB923C" />
+    <div class="charts-wrapper">
+      <MetricChart class="chart" label="Weight" :entries="chartEntries('weightKg')" color="#4F8DFF" unit="Kg" />
+      <MetricChart class="chart" label="Muscle Mass" :entries="chartEntries('muscleMassKg')" color="#3DD68C" unit="Kg" />
+      <MetricChart class="chart" label="Body Water" :entries="chartEntries('waterLiters')" color="#2DD4BF" unit="L" />
+      <MetricChart class="chart" label="Body Fat Mass" :entries="chartEntries('bodyFatKg')" color="#FB923C" unit="Kg" />
+      <MetricChart class="chart" label="Body Fat Percentage" :entries="chartEntries('bodyFatPct')" color="#FB3C3C" unit="%" />
+    </div>
 
     <h2>History & insights</h2>
     <table v-if="metrics.length">
       <thead>
         <tr>
-          <th>Date</th><th>Weight</th><th>Body Water</th><th>Muscle Mass (Kg)</th><th>Body Fat (Kg)</th><th>Body Fat (%)</th>
+          <th>Date</th><th>Weight</th><th>Body Water</th><th>Muscle Mass</th><th>Body Fat Mass</th><th>Body Fat Percentage</th>
           <th>Muscle Mass Insight</th><th>Body Fat Insight</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="m in [...metrics].reverse()" :key="m.id">
-          <td>{{ m.measuredOn }}</td>
+          <td>{{formatDateBr(m.measuredOn)}}</td>
           <td class="data-value">{{ m.weightKg }}Kg</td>
           <td class="data-value">{{ m.waterLiters }}L</td>
           <td class="data-value">{{ m.muscleMassKg }}Kg</td>
-          <td class="data-value">{{ m.bodyFatKg }}</td>
+          <td class="data-value">{{ m.bodyFatKg }}Kg</td>
           <td class="data-value">{{ m.bodyFatPct }}%</td>
           <td><InsightBadge :insight="m.muscleMassInsight" /></td>
           <td><InsightBadge :insight="m.bodyFatInsight" /></td>
@@ -57,4 +60,20 @@ function onLogged() {
 function chartEntries(field) {
   return metrics.value.map(m => ({ measuredOn: m.measuredOn, value: m[field] }))
 }
+function formatDateBr(dateString) {
+  if (!dateString) return '';
+  
+  const [year, month, day] = dateString.split('-');
+  return `${day}/${month}/${year}`;
+}
 </script>
+<style scoped>
+.charts-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.chart {
+  flex: 0 0 calc(33% - 20px); 
+}
+</style>
