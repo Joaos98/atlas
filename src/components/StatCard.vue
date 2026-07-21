@@ -1,6 +1,6 @@
 <template>
   <div class="stat-card" :style="{ borderLeftColor: `var(--${color})` }">
-    <p class="label">{{ label }}</p>
+    <p class="label"><component :is="icon" :size="14" class="icon" /> {{ label }}</p>
     <p class="value data-value">{{ value }}</p>
   </div>
 </template>
@@ -9,7 +9,8 @@
 defineProps({
   label: String,
   value: [String, Number],
-  color: { type: String, default: 'blue' }
+  color: { type: String, default: 'blue' },
+  icon: { type: [Object, Function], default: null }
 })
 </script>
 
@@ -31,4 +32,5 @@ defineProps({
   font-weight: 600;
   margin-top: 4px;
 }
+.icon { vertical-align: -2px; margin-right: 4px; color: var(--text-muted); }
 </style>

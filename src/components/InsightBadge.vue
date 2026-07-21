@@ -28,8 +28,8 @@ const messageText = computed(() => messages[props.insight?.messageType] || '')
   border-radius: 4px;
   font-size: 0.75rem;
 }
-.expected_dip { background: #eee; color: #555; }
-.nice_surprise { background: #d4f4dd; color: #1a7a3c; }
-.worth_investigating { background: #fde3d0; color: #a04a1a; }
-.on_track { background: #d4f4dd; color: #1a7a3c; }
+.expected_dip { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); }
+.nice_surprise { background: rgba(61, 214, 140, 0.15); color: var(--green); }
+.worth_investigating { background: rgba(251, 146, 60, 0.15); color: var(--orange); }
+.on_track { background: rgba(61, 214, 140, 0.15); color: var(--green); }
 </style>

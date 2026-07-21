@@ -1,10 +1,22 @@
 <template>
-  <form @submit.prevent="handleLogin">
-    <input v-model="username" placeholder="Username" />
-    <input v-model="password" type="password" placeholder="Password" />
-    <button type="submit">Log in</button>
-    <p v-if="error">{{ error }}</p>
-  </form>
+  <div class="login-page">
+    <div class="login-card">
+      <h1>AIO Fitness</h1>
+      <p class="subtitle">Log in to continue</p>
+      <form @submit.prevent="handleLogin">
+        <div>
+          <label>Username</label>
+          <input v-model="username" required />
+        </div>
+        <div>
+          <label>Password</label>
+          <input v-model="password" type="password" required />
+        </div>
+        <button type="submit">Log in</button>
+        <p v-if="error" class="error">{{ error }}</p>
+      </form>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -22,7 +34,7 @@ const auth = useAuthStore()
 async function handleLogin() {
   try {
     await api.get('/auth/me', {
-        auth: { username: username.value, password: password.value }
+      auth: { username: username.value, password: password.value }
     })
     auth.login(username.value, password.value)
     router.push('/')
@@ -31,3 +43,53 @@ async function handleLogin() {
   }
 }
 </script>
+
+<style scoped>
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 40px 36px;
+  width: 320px;
+}
+h1 {
+  font-size: 1.4rem;
+  margin: 0 0 4px;
+}
+.subtitle {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin: 0 0 24px;
+}
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+input {
+  width: 100%;
+}
+button[type="submit"] {
+  background: var(--blue);
+  color: var(--bg);
+  border: none;
+  margin-top: 6px;
+}
+.error {
+  color: var(--orange);
+  font-size: 0.85rem;
+  margin: 0;
+}
+</style>

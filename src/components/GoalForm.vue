@@ -19,8 +19,8 @@
       <input type="date" v-model="form.targetDate" />
     </div>
     <button type="submit">Add goal</button>
-    <p v-if="success">Goal added!</p>
-    <p v-if="error">Something went wrong.</p>
+    <p v-if="success" class="success">Goal added!</p>
+    <p v-if="error" class="error">Something went wrong.</p>
   </form>
 </template>
 
@@ -51,3 +51,25 @@ async function handleSubmit() {
   }
 }
 </script>
+<style scoped>
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 320px;
+  margin-bottom: 24px;
+}
+label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+button[type="submit"] {
+  background: var(--blue);
+  color: var(--bg);
+  border: none;
+}
+.success { color: var(--green); }
+.error { color: var(--orange); }
+</style>

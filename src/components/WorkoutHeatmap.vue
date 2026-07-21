@@ -2,21 +2,18 @@
   <div class="heatmap-wrapper">
     <div class="month-row">
       <span class="day-labels-spacer"></span>
-      <span
-        v-for="label in monthLabels"
-        :key="label.weekIndex"
-        class="month-label"
-        :style="{ gridColumnStart: label.weekIndex + 2 }"
-      >
-        {{ label.text }}
-      </span>
+      <div class="month-inner">
+        <span v-for="(week, weekIndex) in weeks" :key="weekIndex" class="month-slot">
+          {{ monthLabelMap[weekIndex] || '' }}
+        </span>
+      </div>
     </div>
     <div class="content-row">
       <div class="day-labels">
         <span v-for="d in ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']" :key="d" class="day-label-cell">{{ d }}</span>
       </div>
       <div class="heatmap-grid">
-        <template v-for="(week, weekIndex) in weeks" :key="weekIndex">
+        <div v-for="(week, weekIndex) in weeks" :key="weekIndex" class="week-column">
           <div
             v-for="(day, dayIndex) in week"
             :key="dayIndex"
@@ -31,7 +28,7 @@
               :style="{ backgroundColor: workout.colorHex }"
             />
           </div>
-        </template>
+        </div>
       </div>
     </div>
   </div>
@@ -49,17 +46,26 @@ const rawData = ref([])
 const startDate = ref(null)
 const endDate = ref(null)
 
+function toLocalDateStr(date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+function parseLocalDate(dateStr) {
+  const [year, month, day] = dateStr.split('-').map(Number)
+  return new Date(year, month - 1, day)
+}
+
 async function load() {
   const end = new Date()
   const start = new Date()
-  start.setMonth(start.getMonth() - 3)
+  start.setMonth(start.getMonth() - 6)
   endDate.value = end
   startDate.value = start
 
-  const response = await getHeatmap(
-    start.toISOString().split('T')[0],
-    end.toISOString().split('T')[0]
-  )
+  const response = await getHeatmap(toLocalDateStr(start), toLocalDateStr(end))
   rawData.value = response.data
 }
 
@@ -74,22 +80,21 @@ const dataByDate = computed(() => {
   return map
 })
 
-// build a Sunday-to-Saturday grid covering the full range
 const weeks = computed(() => {
   if (!startDate.value || !endDate.value) return []
 
   const gridStart = new Date(startDate.value)
-  gridStart.setDate(gridStart.getDate() - gridStart.getDay()) // back up to Sunday
+  gridStart.setDate(gridStart.getDate() - gridStart.getDay())
 
   const gridEnd = new Date(endDate.value)
-  gridEnd.setDate(gridEnd.getDate() + (6 - gridEnd.getDay())) // forward to Saturday
+  gridEnd.setDate(gridEnd.getDate() + (6 - gridEnd.getDay()))
 
   const result = []
   let currentWeek = []
   const cursor = new Date(gridStart)
 
   while (cursor <= gridEnd) {
-    const dateStr = cursor.toISOString().split('T')[0]
+    const dateStr = toLocalDateStr(cursor)
     const isPadding = cursor < startDate.value || cursor > endDate.value
 
     currentWeek.push({
@@ -108,24 +113,20 @@ const weeks = computed(() => {
   return result
 })
 
-// place a month label above the first week that starts a new month
-const monthLabels = computed(() => {
-  const labels = []
+const monthLabelMap = computed(() => {
+  const map = {}
   let lastMonth = null
 
   weeks.value.forEach((week, weekIndex) => {
-    const sunday = new Date(week[0].date)
+    const sunday = parseLocalDate(week[0].date)
     const month = sunday.getMonth()
     if (month !== lastMonth) {
-      labels.push({
-        weekIndex,
-        text: sunday.toLocaleDateString('en-GB', { month: 'short' })
-      })
+      map[weekIndex] = sunday.toLocaleDateString('en-GB', { month: 'short' })
       lastMonth = month
     }
   })
 
-  return labels
+  return map
 })
 
 function formatTooltip(day) {
@@ -138,31 +139,27 @@ function formatTooltip(day) {
 }
 
 function formatDateLabel(dateStr) {
-  return new Date(dateStr).toLocaleDateString('en-GB', {
+  return parseLocalDate(dateStr).toLocaleDateString('en-GB', {
     weekday: 'short', day: 'numeric', month: 'short'
   })
 }
 </script>
 
 <style scoped>
-.heatmap-wrapper {
-  display: inline-block;
-}
+.heatmap-wrapper { width: 100%; }
 .month-row {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 25px;
-  gap: 5px;
+  display: flex;
   margin-bottom: 8px;
 }
-.day-labels-spacer {
-  grid-column: 1;
-  width: 44px;
-}
-.month-label {
+.day-labels-spacer { width: 44px; flex-shrink: 0; }
+.month-inner { flex: 1; display: flex; gap: 5px; }
+.month-slot {
+  flex: 1;
   font-size: 0.7rem;
   color: var(--text-muted);
   font-family: var(--font-data);
+  white-space: nowrap;
+  overflow: hidden;
 }
 .content-row {
   display: flex;
@@ -171,27 +168,33 @@ function formatDateLabel(dateStr) {
 .day-labels {
   width: 34px;
   flex-shrink: 0;
-  display: grid;
-  grid-template-rows: repeat(7, 20px);
+  display: flex;
+  flex-direction: column;
   gap: 5px;
 }
 .day-label-cell {
+  flex: 1;
   font-size: 0.65rem;
   color: var(--text-muted);
-  line-height: 20px;
-  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   padding-right: 4px;
 }
 .heatmap-grid {
-  display: grid;
-  grid-auto-flow: column;
-  grid-template-rows: repeat(7, 20px);
-  grid-auto-columns: 20px;
+  flex: 1;
+  display: flex;
+  gap: 5px;
+}
+.week-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   gap: 5px;
 }
 .day-cell {
-  width: 20px;
-  height: 20px;
+  aspect-ratio: 1 / 1;
+  width: 100%;
   border-radius: 6px;
   background: var(--bg);
   border: 1px solid var(--border);
@@ -201,7 +204,7 @@ function formatDateLabel(dateStr) {
   transition: transform 0.1s ease;
 }
 .day-cell:not(.padding):hover {
-  transform: scale(1.2);
+  transform: scale(1.15);
   z-index: 1;
 }
 .day-cell.padding {

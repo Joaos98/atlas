@@ -4,26 +4,28 @@
     <BodyMetricsForm @logged="onLogged" />
 
     <h2>Progress</h2>
-    <MetricChart label="Weight (kg)" :entries="chartEntries('weightKg')" />
-    <MetricChart label="Muscle mass (kg)" :entries="chartEntries('muscleMassKg')" />
-    <MetricChart label="Water (L)" :entries="chartEntries('waterLiters')" />
-    <MetricChart label="Body fat (kg)" :entries="chartEntries('bodyFatKg')" />
-    <MetricChart label="Body fat (%)" :entries="chartEntries('bodyFatPct')" />
+    <MetricChart label="Weight (kg)" :entries="chartEntries('weightKg')" color="#4F8DFF" />
+    <MetricChart label="Muscle mass (kg)" :entries="chartEntries('muscleMassKg')" color="#3DD68C" />
+    <MetricChart label="Water (L)" :entries="chartEntries('waterLiters')" color="#2DD4BF" />
+    <MetricChart label="Body fat (kg)" :entries="chartEntries('bodyFatKg')" color="#FB923C" />
+    <MetricChart label="Body fat (%)" :entries="chartEntries('bodyFatPct')" color="#FB923C" />
 
     <h2>History & insights</h2>
     <table v-if="metrics.length">
       <thead>
         <tr>
-          <th>Date</th><th>Weight</th><th>Muscle mass</th><th>Body fat %</th>
-          <th>Muscle mass insight</th><th>Body fat insight</th>
+          <th>Date</th><th>Weight</th><th>Body Water</th><th>Muscle Mass (Kg)</th><th>Body Fat (Kg)</th><th>Body Fat (%)</th>
+          <th>Muscle Mass Insight</th><th>Body Fat Insight</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="m in [...metrics].reverse()" :key="m.id">
           <td>{{ m.measuredOn }}</td>
-          <td>{{ m.weightKg }}</td>
-          <td>{{ m.muscleMassKg }}</td>
-          <td>{{ m.bodyFatPct }}</td>
+          <td class="data-value">{{ m.weightKg }}Kg</td>
+          <td class="data-value">{{ m.waterLiters }}L</td>
+          <td class="data-value">{{ m.muscleMassKg }}Kg</td>
+          <td class="data-value">{{ m.bodyFatKg }}</td>
+          <td class="data-value">{{ m.bodyFatPct }}%</td>
           <td><InsightBadge :insight="m.muscleMassInsight" /></td>
           <td><InsightBadge :insight="m.bodyFatInsight" /></td>
         </tr>

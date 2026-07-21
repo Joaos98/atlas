@@ -1,7 +1,7 @@
 <template>
   <div class="app-shell">
     <NavBar v-if="auth.isAuthenticated" />
-    <main class="content"><router-view /></main>
+    <main class="content" :class="{ 'no-padding': !auth.isAuthenticated }"><router-view /></main>
   </div>
 </template>
 
@@ -14,4 +14,5 @@ const auth = useAuthStore()
 <style scoped>
 .app-shell { display: flex; }
 .content { flex: 1; padding: 24px 32px; }
+.content.no-padding { padding: 0; }
 </style>

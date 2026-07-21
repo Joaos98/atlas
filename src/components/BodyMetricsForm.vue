@@ -25,8 +25,8 @@
       <input type="number" step="0.1" v-model="form.bodyFatPct" required />
     </div>
     <button type="submit">Log measurement</button>
-    <p v-if="success">Measurement logged!</p>
-    <p v-if="error">Something went wrong.</p>
+    <p v-if="success" class="success">Measurement logged!</p>
+    <p v-if="error" class="error">Something went wrong.</p>
   </form>
 </template>
 
@@ -59,3 +59,25 @@ async function handleSubmit() {
   }
 }
 </script>
+<style scoped>
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 320px;
+  margin-bottom: 24px;
+}
+label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+button[type="submit"] {
+  background: var(--blue);
+  color: var(--bg);
+  border: none;
+}
+.success { color: var(--green); }
+.error { color: var(--orange); }
+</style>
