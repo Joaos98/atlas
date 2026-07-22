@@ -11,3 +11,7 @@ export function createGoal(goal) {
 export function updateGoalStatus(id, status) {
   return api.patch(`/goals/${id}/status`, null, { params: { status } })
 }
+
+export function deleteGoal(id) {
+  return api.delete(`/goals/${id}`)
+}

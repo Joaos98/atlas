@@ -1,68 +1,71 @@
 <template>
-  <form @submit.prevent="handleSubmit">
-    <div>
-      <label>Date</label>
-      <input type="date" v-model="form.measuredOn" required />
+  <form class="form-row compact" @submit.prevent="handleSubmit">
+    <div class="form-field">
+      <label><Calendar :size="14" /> Date</label>
+      <DatePicker v-model="form.measuredOn" />
     </div>
-    
-    <div>
-      <label>Weight</label>
+
+    <div class="form-field">
+      <label><Scale :size="14" /> Weight</label>
       <div class="input-wrapper">
-        <input type="number" step="0.1" v-model="form.weightKg" required />
+        <input type="number" step="0.1" v-model="form.weightKg" required placeholder="0" />
         <span class="unit">Kg</span>
       </div>
     </div>
-    
-    <div>
-      <label>Body Water</label>
+
+    <div class="form-field">
+      <label><Droplets :size="14" /> Body Water</label>
       <div class="input-wrapper">
-        <input type="number" step="0.1" v-model="form.waterLiters" required />
+        <input type="number" step="0.1" v-model="form.waterLiters" required placeholder="0" />
         <span class="unit">L</span>
       </div>
     </div>
 
-    <div>
-      <label>Muscle Mass</label>
+    <div class="form-field">
+      <label><Dumbbell :size="14" /> Muscle Mass</label>
       <div class="input-wrapper">
-        <input type="number" step="0.1" v-model="form.muscleMassKg" required />
+        <input type="number" step="0.1" v-model="form.muscleMassKg" required placeholder="0" />
         <span class="unit">Kg</span>
       </div>
     </div>
-    
-    <div>
-      <label>Body Fat Mass</label>
+
+    <div class="form-field">
+      <label><ChartPie :size="14" /> Body Fat Mass</label>
       <div class="input-wrapper">
-        <input type="number" step="0.1" v-model="form.bodyFatKg" required />
+        <input type="number" step="0.1" v-model="form.bodyFatKg" required placeholder="0" />
         <span class="unit">Kg</span>
       </div>
     </div>
-    
-    <div>
-      <label>Body Fat Percentage</label>
+
+    <div class="form-field">
+      <label><Percent :size="14" /> Body Fat Percentage</label>
       <div class="input-wrapper">
-        <input type="number" step="0.1" v-model="form.bodyFatPct" required />
+        <input type="number" step="0.1" v-model="form.bodyFatPct" required placeholder="0" />
         <span class="unit">%</span>
       </div>
     </div>
-    
-    <div class="actions">
-      <button type="submit">Add</button>
-      <p v-if="success" class="success">Measurement added!</p>
-      <p v-if="error" class="error">Something went wrong.</p>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-primary">Add</button>
     </div>
   </form>
+  <p v-if="success" class="form-success">Measurement added!</p>
+  <p v-if="error" class="form-error">Something went wrong.</p>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { logBodyMetrics } from '../services/bodyMetricsService'
+import { todayLocal } from '../utils/date'
+import DatePicker from './DatePicker.vue'
+import { Calendar, Scale, Droplets, Dumbbell, ChartPie, Percent } from 'lucide-vue-next'
 
 const success = ref(false)
 const error = ref(false)
 const emit = defineEmits(['logged'])
 
 const form = ref({
-  measuredOn: new Date().toISOString().split('T')[0],
+  measuredOn: todayLocal(),
   weightKg: null,
   muscleMassKg: null,
   waterLiters: null,
@@ -77,81 +80,8 @@ async function handleSubmit() {
     await logBodyMetrics(form.value)
     success.value = true
     emit('logged')
-  } catch (e) {
+  } catch {
     error.value = true
   }
 }
 </script>
-
-<style scoped>
-form {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-  align-items: flex-end;
-}
-
-label {
-  display: block;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-bottom: 4px;
-}
-
-input {
-  max-width: 170px;
-}
-
-.input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-wrapper input {
-  padding-right: 48px;
-  box-sizing: border-box;
-}
-
-.input-wrapper .unit {
-  position: absolute;
-  right: 12px;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  pointer-events: none;
-}
-
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-button[type="submit"] {
-  background: var(--blue);
-  color: var(--bg);
-  border: none;
-  padding: 8px 16px;
-  cursor: pointer;
-}
-
-.success { color: var(--green); margin: 0; font-size: 0.85rem; }
-.error { color: var(--orange); margin: 0; font-size: 0.85rem; }
-
-/* -----------------------------------------
-   Hide Number Input Arrows (Spinners)
------------------------------------------ */
-/* Chrome, Safari, Edge, Opera */
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-/* Firefox */
-input[type="number"] {
-  -moz-appearance: textfield;
-  appearance: textfield;
-}
-</style>

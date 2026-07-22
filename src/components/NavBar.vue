@@ -48,6 +48,8 @@ function handleLogout() {
   border-radius: 6px;
   font-weight: 500;
 }
+.nav-item:hover { background: var(--bg); color: var(--text); }
 .nav-item.router-link-active { color: var(--text); background: var(--bg); }
 .logout { display: flex; align-items: center; gap: 10px; margin-top: auto; background: transparent; }
+.logout:hover { color: var(--text); background: var(--bg); }
 </style>

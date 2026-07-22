@@ -38,7 +38,7 @@ async function handleLogin() {
     })
     auth.login(username.value, password.value)
     router.push('/')
-  } catch (e) {
+  } catch {
     error.value = 'Invalid username or password'
   }
 }
@@ -87,6 +87,7 @@ button[type="submit"] {
   border: none;
   margin-top: 6px;
 }
+button[type="submit"]:hover { filter: brightness(1.1); }
 .error {
   color: var(--orange);
   font-size: 0.85rem;

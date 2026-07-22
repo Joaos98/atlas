@@ -1,6 +1,6 @@
 <template>
   <div class="chart-card">
-    <h3>{{ label }}</h3>
+    <h3>{{ label }} ({{ unit }})</h3>
     <Line :data="chartData" :options="chartOptions" />
   </div>
 </template>
@@ -24,7 +24,8 @@ const props = defineProps({
   label: String,
   entries: Array,
   color: { type: String, default: '#4F8DFF' },
-  unit: { type: String, default: '' } // 1. Add the unit prop
+  unit: { type: String, default: '' }, // 1. Add the unit prop
+  goalTarget: { type: Number, default: null }
 })
 
 const formatDate = (dateInput) => {
@@ -35,9 +36,8 @@ const formatDate = (dateInput) => {
   return `${d}/${m}/${y}`;
 };
 
-const chartData = computed(() => ({
-  labels: props.entries.map(e => formatDate(e.measuredOn)),
-  datasets: [{
+const chartData = computed(() => {
+  const datasets = [{
     label: props.label,
     data: props.entries.map(e => e.value),
     borderColor: props.color,
@@ -46,7 +46,24 @@ const chartData = computed(() => ({
     pointHoverRadius: 7,
     tension: 0
   }]
-}))
+
+  if (props.goalTarget != null) {
+    datasets.push({
+      label: `Target: ${props.goalTarget}${props.unit}`,
+      data: props.entries.map(() => props.goalTarget),
+      borderColor: '#8B5CF6',
+      borderDash: [5, 5],
+      borderWidth: 2,
+      pointRadius: 0,
+      fill: false
+    })
+  }
+
+  return {
+    labels: props.entries.map(e => formatDate(e.measuredOn)),
+    datasets
+  }
+})
 
 const chartOptions = computed(() => ({
   responsive: true,
@@ -94,8 +111,6 @@ const chartOptions = computed(() => ({
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 16px 20px;
-  margin-bottom: 16px;
-  max-width: 600px;
 }
 h3 {
   font-size: 0.95rem;

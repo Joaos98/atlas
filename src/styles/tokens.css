@@ -1,9 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
 
 :root {
+  color-scheme: dark;
+
   --bg: #12141A;
   --surface: #1B1E27;
   --border: #2A2E3A;
+  --border-hover: #3A4050;
   --text: #EDEFF4;
   --text-muted: #8C93A6;
   --blue: #4F8DFF;
@@ -47,21 +50,46 @@ th, td {
 }
 
 input, select, button {
-  background: var(--surface);
+  background: var(--bg);
   border: 1px solid var(--border);
   color: var(--text);
-  border-radius: 6px;
-  padding: 8px 10px;
+  border-radius: 8px;
+  padding: 9px 12px;
   font-family: var(--font-body);
+  font-size: 0.9rem;
 }
 button { cursor: pointer; font-weight: 600; }
+
+input, select {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+input:hover, select:hover { border-color: var(--border-hover); }
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(79, 141, 255, 0.18);
+}
+::placeholder { color: var(--text-muted); opacity: 0.45; }
+
+input[type="number"] { font-family: var(--font-data); }
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238C93A6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 32px;
+  cursor: pointer;
+}
 
 .data-value {
   font-family: var(--font-data);
   font-variant-numeric: tabular-nums;
 }
 
-.page { max-width: 1100px; }
+.page { max-width: 1400px; }
+.page h1 { margin-bottom: var(--space-5); }
 .page section { margin-bottom: var(--space-6); }
 .card {
   background: var(--surface);
@@ -70,3 +98,26 @@ button { cursor: pointer; font-weight: 600; }
   padding: var(--space-5) var(--space-6);
 }
 .card-fit { display: inline-block; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  min-height: 200px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.loading::before {
+  content: '';
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--border);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}

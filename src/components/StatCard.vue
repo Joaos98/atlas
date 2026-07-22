@@ -2,6 +2,7 @@
   <div class="stat-card" :style="{ borderLeftColor: `var(--${color})` }">
     <p class="label"><component :is="icon" :size="14" class="icon" /> {{ label }}</p>
     <p class="value data-value">{{ value }}</p>
+    <p v-if="subtitle" class="subtitle">{{ subtitle }}</p>
   </div>
 </template>
 
@@ -10,7 +11,8 @@ defineProps({
   label: String,
   value: [String, Number],
   color: { type: String, default: 'blue' },
-  icon: { type: [Object, Function], default: null }
+  icon: { type: [Object, Function], default: null },
+  subtitle: { type: String, default: '' }
 })
 </script>
 
@@ -33,4 +35,5 @@ defineProps({
   margin-top: 4px;
 }
 .icon { vertical-align: -2px; margin-right: 4px; color: var(--text-muted); }
+.subtitle { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
 </style>

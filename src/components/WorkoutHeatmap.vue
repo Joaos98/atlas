@@ -37,6 +37,7 @@
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue'
 import { getHeatmap } from '../services/workoutService'
+import { toLocalDateStr } from '../utils/date'
 
 const props = defineProps({
   refresh: Number
@@ -45,13 +46,6 @@ const props = defineProps({
 const rawData = ref([])
 const startDate = ref(null)
 const endDate = ref(null)
-
-function toLocalDateStr(date) {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
 
 function parseLocalDate(dateStr) {
   const [year, month, day] = dateStr.split('-').map(Number)

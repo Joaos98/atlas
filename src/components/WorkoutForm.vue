@@ -1,53 +1,56 @@
 <template>
-  <form @submit.prevent="handleSubmit">
-    <div>
-      <label>Date</label>
-      <input type="date" v-model="form.logDate" required />
+  <form class="form-row" @submit.prevent="handleSubmit">
+    <div class="form-field">
+      <label><Calendar :size="14" /> Date</label>
+      <DatePicker v-model="form.logDate" />
     </div>
-    
-    <div>
-      <label>Workout type</label>
+
+    <div class="form-field">
+      <label><Dumbbell :size="14" /> Workout type</label>
       <select v-model="form.workoutTypeId" required>
         <option v-for="type in workoutTypes" :key="type.id" :value="type.id">
           {{ type.name }}
         </option>
       </select>
     </div>
-    
-    <div>
-      <label>Duration</label>
-      <div class="input-wrapper">
-        <input type="number" v-model="form.durationMinutes" required min="1" />
+
+    <div class="form-field">
+      <label><Clock :size="14" /> Duration</label>
+      <div class="input-wrapper wide">
+        <input type="number" v-model="form.durationMinutes" required min="1" placeholder="45" />
         <span class="unit">minutes</span>
       </div>
     </div>
-    
-    <div>
-      <label>Calories (optional)</label>
+
+    <div class="form-field">
+      <label><Flame :size="14" /> Calories (optional)</label>
       <div class="input-wrapper">
-        <input type="number" v-model="form.calories" min="0" />
+        <input type="number" v-model="form.calories" min="0" placeholder="300" />
         <span class="unit">kcal</span>
       </div>
     </div>
-    
-    <div class="actions">
-      <button type="submit">Add</button>
-      <p v-if="success" class="success">Workout added!</p>
-      <p v-if="error" class="error">Something went wrong.</p>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-primary">Add</button>
     </div>
   </form>
+  <p v-if="success" class="form-success">Workout added!</p>
+  <p v-if="error" class="form-error">Something went wrong.</p>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getWorkoutTypes, logWorkout } from '../services/workoutService'
+import { todayLocal } from '../utils/date'
+import DatePicker from './DatePicker.vue'
+import { Calendar, Dumbbell, Clock, Flame } from 'lucide-vue-next'
 
 const workoutTypes = ref([])
 const success = ref(false)
 const error = ref(false)
 
 const form = ref({
-  logDate: new Date().toISOString().split('T')[0],
+  logDate: todayLocal(),
   workoutTypeId: null,
   durationMinutes: null,
   calories: null
@@ -75,82 +78,8 @@ async function handleSubmit() {
     })
     success.value = true
     emit('logged')
-  } catch (e) {
+  } catch {
     error.value = true
   }
 }
 </script>
-
-<style scoped>
-form {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-  align-items: flex-end;
-}
-
-label {
-  display: block;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-bottom: 4px;
-}
-
-input {
-  max-width: 170px;
-}
-
-.input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-wrapper input {
-  padding-right: 64px; /* Slightly wider here to accommodate "minutes" */
-  box-sizing: border-box;
-}
-
-.input-wrapper .unit {
-  position: absolute;
-  right: 12px;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  pointer-events: none;
-}
-
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-button[type="submit"] {
-  background: var(--blue);
-  color: #1B2F52;
-  border: none;
-  padding: 8px 16px;
-  cursor: pointer;
-}
-
-p { font-size: 0.85rem; margin: 0; }
-.success { color: var(--green); }
-.error { color: var(--orange); }
-
-/* -----------------------------------------
-   Hide Number Input Arrows (Spinners)
------------------------------------------ */
-/* Chrome, Safari, Edge, Opera */
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-/* Firefox */
-input[type="number"] {
-  -moz-appearance: textfield;
-  appearance: textfield;
-}
-</style>
