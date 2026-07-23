@@ -12,8 +12,8 @@ export function deleteWorkoutType(id) {
   return api.delete(`/workout-types/${id}`)
 }
 
-export function getWorkoutLogs() {
-  return api.get('/workout-logs')
+export function getWorkoutLogs({ page = 0, size = 20 } = {}) {
+  return api.get('/workout-logs', { params: { page, size } })
 }
 
 export function logWorkout(workout) {
@@ -30,4 +30,8 @@ export function updateWorkoutLog(id, data) {
 
 export function getHeatmap(startDate, endDate) {
   return api.get('/workout-logs/heatmap', { params: { startDate, endDate } })
+}
+
+export function getStreaks() {
+  return api.get('/workout-logs/streaks')
 }

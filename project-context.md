@@ -47,8 +47,8 @@ config/         — SecurityConfig (Spring Security + CORS)
  
 ### Frontend src structure
 ```
-views/          — One component per page (LoginView, DashboardView, WorkoutsView, BodyMetricsView, GoalsView)
-components/     — Reusable pieces (NavBar, StatCard, WorkoutHeatmap, WorkoutForm, MetricChart, BodyMetricsForm, GoalForm, DatePicker, WeeklySessionsChart, WorkoutTypeDonut)
+views/          — One component per page (LoginView, DashboardView, WorkoutsView, BodyMetricsView, GoalsView, SettingsView)
+components/     — Reusable pieces (NavBar, StatCard, WorkoutHeatmap, WorkoutForm, MetricChart, BodyMetricsForm, GoalForm, DatePicker, WeeklySessionsChart, WorkoutTypeDonut, LatestMeasurementStats, MetricSparkline)
 services/       — API wrappers (api.js, workoutService.js, bodyMetricsService.js, goalsService.js, statsService.js, settingsService.js, insightService.js)
 stores/         — Pinia stores (auth.js — stores username/password in localStorage for Basic Auth)
 styles/         — tokens.css (CSS variables for colors, fonts, spacing + global input/select styling), forms.css (shared form field/button/feedback classes)
@@ -190,7 +190,7 @@ The first entry always has `null` for both insight fields (no prior baseline whe
 - CRUD for all entities
 - Heatmap aggregation with per-day workout grouping
 - Weekly streak calculation (distinct workout days per week, Sunday–Saturday)
-- Insight engine: rule-based 2×2 matrix (workout frequency vs metric direction), computed on the fly, separate insights for muscle mass and body fat
+- Insight engine: Gemini Flash AI generates a single natural-language analysis on the Dashboard after each new measurement is saved. Insight text is stored on the `body_metrics` row. Falls back to a templated summary if the AI API is unavailable.
 - Stats endpoint: workout stats (this month + this year), body composition change since first measurement, streaks
 - Spring Security with BCrypt, single user account
 - CORS configured via property
@@ -198,10 +198,12 @@ The first entry always has `null` for both insight fields (no prior baseline whe
 - Login page with credential validation against `/api/auth/me`
 - Route guard redirecting unauthenticated users to `/login`
 - Sticky sidebar nav with Lucide icons
-- Dashboard: streak cards, this-week sessions vs target, 6-month heatmap, this-month & this-year stats, body composition change cards, Insights card (AI-generated analysis, regenerates with each new measurement)
-- Workouts page: log form, workout type management (add/delete types with color picker), weekly sessions bar chart with target line, type-breakdown donut, log history table with per-row delete, 6-month heatmap (fills full content width like on Dashboard)
+- Dashboard: Insights card (AI-generated analysis, regenerates with each new measurement) with a 2-column stats grid beside it (workout stats — weekly target progress + streaks — and all-time body composition changes), a latest-measurement stats row (LatestMeasurementStats, shared with the Body Metrics page), then the workout history heatmap with a workouts-per-week bar chart beside it (WeeklySessionsChart, shared with the Workouts page). The on-dashboard measurement cards (LatestMeasurementStats) include tiny sparkline trend lines.
+- Workouts page: log form, workout type management (add/delete types with color picker), weekly sessions bar chart with target line, type-breakdown donut, log history table with per-row delete, workout activity heatmap (same component as Dashboard)
+- The heatmap always fills its card's full width with square cells: the visible date range auto-fits the available width (more weeks on wider screens, ~20px cells, clamped to 8–53 weeks, ending today)
 - Body Metrics page: log form, latest-measurement cards with Δ vs previous, 5 line charts (one per metric) with optional active-goal target lines, history table with edit/delete
 - Goals page: create goal form, active goals with current→target display + progress bar + remaining-distance text + ETA (for undated goals) + pace check (for dated goals), past goals with status tags
+- Settings page: update target workouts per week (1–7), used for streak calculation and weekly target display
 ### Design system
 - Dark theme: `--bg: #12141A`, `--surface: #1B1E27`, `--border: #2A2E3A`
 - Accents: `--blue: #4F8DFF`, `--green: #3DD68C`, `--purple: #8B5CF6`, `--orange: #FB923C`
@@ -210,28 +212,27 @@ The first entry always has `null` for both insight fields (no prior baseline whe
 ---
  
 ## What still needs to be done
- 
-### UI polish (in progress)
-- [x] Workouts page: spacing/layout pass, add icons to form labels
-- [x] Body Metrics page: spacing/layout pass, add icons to form labels, chart section could use a two-column grid layout so not all five charts stack vertically
-- [x] Goals page: spacing/layout pass
-- [x] General: form inputs are mostly browser-default styled, could use improvement, specially date picker
-- [x] Stats: think of more stats and graphs that could be useful to have on each page (first batch done: weekly sessions + target, type donut on Workouts; latest measurement + goal lines on Body Metrics; remaining text on Goals; this-week card + this-year row on Dashboard; backend batch done: goal `created_at` + `start_value`, progress bar, ETA projection for undated goals, pace check for dated goals)
-- [x] Interactive polish: hover effects on all buttons and links; page-level loading animation (pulsing text) when waiting for backend data
-### Management features (in progress)
-- [x] **Manage workout logs** — inline edit (date, type, duration, calories) + delete with confirmation
-- [x] **Manage body metrics entries** — inline edit (all fields) + delete with confirmation
-- [x] **Graceful handling of workout type deletion** — `DELETE /api/workout-types/{id}` endpoint added; returns 204 on success, 409 Conflict if the type has existing logs (handled gracefully on the frontend)
-### AI-powered insights (not started)
-- [x] Improve the rule-based insight engine (the 2×2 matrix in `BodyMetricsService`). Replaced with AI-generated insights via Gemini Flash — a single natural-language analysis on the Dashboard, regenerated after each measurement. The insight text is stored on the `body_metrics` row. Falls back to a templated summary if the AI API is unavailable. Requires `GEMINI_API_KEY` env var.
-- [x] Dropped per-entry insight badges from the history table (redundant with the dashboard analysis)
-### Deployment (not started)
-- [ ] Deploy backend to Railway / Render / Fly.io free tier
-- [ ] Deploy frontend to Netlify or Vercel
-- [ ] Set environment variables on both platforms:
-  - Backend: `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`, `APP_CORS_ALLOWED_ORIGIN`
-  - Frontend: `VITE_API_URL`
-- [ ] Update `app.cors.allowed-origin` to the deployed frontend URL
+
+### High priority
+- [ ] **Pagination** — `GET /api/workout-logs` and `GET /api/body-metrics` currently return all rows. Add Spring `Pageable` support to the backend and paginated tables on the frontend. Stats, heatmap, and chart endpoints must remain unpaginated (they serve aggregated data from separate endpoints already).
+- [ ] **Webhook for auto-logged workouts** — new `POST /api/workout-logs/sync` endpoint to receive workout data from Google Health Connect (generated from Mi Band). Data structure to be defined when ready.
+- [ ] **Deployment**
+  - [ ] Deploy backend to Railway / Render / Fly.io free tier
+  - [ ] Deploy frontend to Netlify or Vercel
+  - [ ] Set environment variables:
+    - Backend: `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`, `APP_CORS_ALLOWED_ORIGIN`, `GEMINI_API_KEY`
+    - Frontend: `VITE_API_URL`
+  - [ ] Update `app.cors.allowed-origin` to the deployed frontend URL
+  - [ ] Auto-seed `app_settings` row (currently requires manual INSERT after first deploy)
+
+### Medium priority
+- [ ] **Empty state screens** — friendly CTAs on each view when no data exists (e.g. "Log your first workout")
+- [ ] **Extra workout info on Workouts page** — surface streak data and weekly goal progress (X/{{target}} workouts this week)
+
+### Low priority
+- [ ] **Toast/notification improvements** — audit existing toast usage, add where missing (goal creation, settings save, body metrics CRUD)
+- [ ] **Body metrics charts layout refinement** — explore better grid arrangement for the 5 individual charts
+- [ ] **Skeleton loaders** — replace loading indicators with skeleton placeholders on cards and charts
 ---
  
 ## Known quirks / decisions to be aware of

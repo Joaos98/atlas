@@ -2,7 +2,7 @@
   <div>
     <p class="period">Last {{ WEEKS_TO_SHOW }} weeks</p>
     <div v-if="loading" class="muted">Loading...</div>
-    <div v-else-if="weeks.length === 0" class="muted">No sessions this period.</div>
+    <div v-else-if="weeks.length === 0" class="muted">No workouts this period.</div>
     <div v-else class="chart-box">
       <Bar :data="chartData" :options="chartOptions" />
     </div>
@@ -102,7 +102,7 @@ const chartData = computed(() => ({
   datasets: [
     {
       type: 'bar',
-      label: 'Sessions',
+      label: 'Workouts',
       data: weeks.value.map(w => w.sessions),
       backgroundColor: weeks.value.map(w =>
         w.sessions >= targetPerWeek.value ? '#3DD68C' : '#FB923C'

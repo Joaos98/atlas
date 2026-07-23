@@ -10,55 +10,41 @@
     </section>
 
     <section>
+      <div class="overview-row">
+        <div class="overview-card">
+          <CalendarCheck :size="16" />
+          <span class="overview-value">{{ thisWeekSessions }} / {{ targetPerWeek }}</span>
+          <span class="overview-label">this week</span>
+        </div>
+        <div class="overview-card">
+          <Flame :size="16" />
+          <span class="overview-value">{{ currentStreak }} weeks</span>
+          <span class="overview-label">current streak</span>
+        </div>
+        <div class="overview-card">
+          <Flame :size="16" />
+          <span class="overview-value">{{ longestStreak }} weeks</span>
+          <span class="overview-label">longest streak</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
       <h2>Workout activity</h2>
       <div class="card">
-        <div class="heatmap-cap">
-          <WorkoutHeatmap :refresh="refreshKey" />
-        </div>
+        <WorkoutHeatmap :refresh="refreshKey" />
       </div>
     </section>
 
     <section>
       <div class="charts-row">
         <div class="card chart-card">
-          <h2>Sessions per week</h2>
+          <h2>Workouts per week</h2>
           <WeeklySessionsChart :refresh="refreshKey" />
         </div>
         <div class="card chart-card">
           <h2>Type breakdown</h2>
           <WorkoutTypeDonut :refresh="refreshKey" />
-        </div>
-        <div class="card chart-card">
-          <h2>Workout types</h2>
-          <div class="types-list">
-            <span
-              v-for="type in types"
-              :key="type.id"
-              class="type-tag"
-            >
-              <span class="type-dot" :style="{ backgroundColor: type.colorHex }"></span>
-              {{ type.name }}
-              <button class="btn-icon" title="Delete type" @click="deleteType(type)"><X :size="12" /></button>
-            </span>
-            <span v-if="types.length === 0" class="empty-line">No types yet.</span>
-          </div>
-          <div v-if="types.length < PALETTE.length" class="type-add">
-            <div class="color-picker">
-              <button
-                v-for="(hex, i) in PALETTE"
-                :key="i"
-                type="button"
-                class="color-dot"
-                :class="{ selected: newTypeColor === hex }"
-                :style="{ backgroundColor: hex }"
-                @click="newTypeColor = hex"
-              ></button>
-            </div>
-            <input v-model="newTypeName" placeholder="Type name" class="type-input" />
-            <button class="btn-small" @click="addType">Add</button>
-          </div>
-          <p v-else class="muted-note">All 5 types in use.</p>
-          <p v-if="typeError" class="form-error">{{ typeError }}</p>
         </div>
       </div>
     </section>
@@ -69,7 +55,7 @@
         <table>
           <thead>
             <tr>
-              <th>Date</th><th>Type</th><th>Duration</th><th>Calories</th><th></th>
+              <th>Date</th><th>Type</th><th>Duration</th><th></th>
             </tr>
           </thead>
           <tbody>
@@ -81,7 +67,6 @@
                   {{ log.workoutType?.name }}
                 </td>
                 <td class="data-value">{{ log.durationMinutes }} min</td>
-                <td class="data-value">{{ log.calories ? log.calories + ' Kcal' : '—' }}</td>
                 <td class="actions-cell">
                   <button class="btn-icon" title="Edit log" @click="startEditLog(log)"><Pencil :size="14" /></button>
                   <button class="btn-icon" title="Delete log" @click="deleteLog(log)"><Trash2 :size="14" /></button>
@@ -95,7 +80,6 @@
                   </select>
                 </td>
                 <td><input type="number" v-model="editLogForm.durationMinutes" min="1" class="edit-input" /></td>
-                <td><input type="number" v-model="editLogForm.calories" min="0" class="edit-input" /></td>
                 <td class="edit-actions">
                   <button class="btn-small save" @click="saveEditLog">Save</button>
                   <button class="btn-small cancel" @click="cancelEditLog">Cancel</button>
@@ -104,8 +88,17 @@
             </template>
           </tbody>
         </table>
+        <div v-if="totalPages > 1" class="pagination">
+          <button :disabled="page === 0" @click="loadLogs(page - 1)">Previous</button>
+          <span class="page-indicator">Page {{ page + 1 }} of {{ totalPages }}</span>
+          <button :disabled="page >= totalPages - 1" @click="loadLogs(page + 1)">Next</button>
+        </div>
       </div>
-      <p v-else class="empty">No workout logs yet.</p>
+      <p v-else class="empty-state">
+        <span class="empty-icon"><Dumbbell :size="28" /></span>
+        <span class="empty-title">No workout logs yet</span>
+        <span class="empty-desc">Log your first workout above to start tracking.</span>
+      </p>
     </section>
   </div>
 </template>
@@ -116,26 +109,28 @@ import WorkoutForm from '../components/WorkoutForm.vue'
 import WorkoutHeatmap from '../components/WorkoutHeatmap.vue'
 import WeeklySessionsChart from '../components/WeeklySessionsChart.vue'
 import WorkoutTypeDonut from '../components/WorkoutTypeDonut.vue'
-import { getWorkoutTypes, createWorkoutType, deleteWorkoutType, getWorkoutLogs, deleteWorkoutLog, updateWorkoutLog } from '../services/workoutService'
+import { getWorkoutTypes, getWorkoutLogs, deleteWorkoutLog, updateWorkoutLog, getHeatmap, getStreaks } from '../services/workoutService'
+import { getSettings } from '../services/settingsService'
+import { toLocalDateStr } from '../utils/date'
 import { formatDateBr } from '../utils/date'
 import DatePicker from '../components/DatePicker.vue'
-import { X, Trash2, Pencil } from 'lucide-vue-next'
-
-const PALETTE = ['#4F8DFF', '#8B5CF6', '#2DD4BF', '#F472B6', '#FACC15']
+import { Trash2, Pencil, Dumbbell, Flame, CalendarCheck } from 'lucide-vue-next'
 
 const refreshKey = ref(0)
 const types = ref([])
 const logs = ref([])
-const newTypeName = ref('')
-const newTypeColor = ref(PALETTE[0])
-const typeError = ref('')
+const page = ref(0)
+const totalPages = ref(0)
+const targetPerWeek = ref(4)
+const thisWeekSessions = ref(0)
+const currentStreak = ref(0)
+const longestStreak = ref(0)
 
 const editingLogId = ref(null)
 const editLogForm = ref({
   logDate: '',
   workoutTypeId: null,
-  durationMinutes: null,
-  calories: null
+  durationMinutes: null
 })
 
 async function loadTypes() {
@@ -147,49 +142,53 @@ async function loadTypes() {
   }
 }
 
-async function loadLogs() {
+async function loadLogs(p = page.value) {
   try {
-    const res = await getWorkoutLogs()
-    const data = Array.isArray(res.data) ? res.data : (res.data.content || [])
-    logs.value = data.sort((a, b) => b.logDate.localeCompare(a.logDate))
+    const res = await getWorkoutLogs({ page: p, size: 20 })
+    logs.value = res.data.content || []
+    totalPages.value = res.data.totalPages || 0
+    page.value = p
   } catch {
     logs.value = []
+    totalPages.value = 0
   }
 }
 
 onMounted(() => {
   loadTypes()
   loadLogs()
+  loadOverview()
 })
+
+async function loadOverview() {
+  try {
+    const today = new Date()
+    const sunday = new Date(today)
+    sunday.setDate(sunday.getDate() - sunday.getDay())
+    const nextSunday = new Date(sunday)
+    nextSunday.setDate(nextSunday.getDate() + 7)
+
+    const [settingsRes, heatmapRes, streaksRes] = await Promise.all([
+      getSettings(),
+      getHeatmap(toLocalDateStr(sunday), toLocalDateStr(nextSunday)),
+      getStreaks()
+    ])
+    targetPerWeek.value = settingsRes.data.targetWorkoutsPerWeek ?? 4
+    thisWeekSessions.value = heatmapRes.data.reduce((sum, d) => sum + d.workouts.length, 0)
+    currentStreak.value = streaksRes.data.currentStreak
+    longestStreak.value = streaksRes.data.longestStreak
+  } catch {
+    targetPerWeek.value = 4
+    thisWeekSessions.value = 0
+    currentStreak.value = 0
+    longestStreak.value = 0
+  }
+}
 
 function onLogged() {
   refreshKey.value++
-  loadLogs()
-}
-
-async function addType() {
-  const name = newTypeName.value.trim()
-  if (!name) return
-  typeError.value = ''
-  try {
-    await createWorkoutType({ name, colorHex: newTypeColor.value })
-    newTypeName.value = ''
-    await loadTypes()
-  } catch {
-    typeError.value = 'Could not create type.'
-  }
-}
-
-async function deleteType(type) {
-  if (!confirm(`Delete workout type "${type.name}"?`)) return
-  typeError.value = ''
-  try {
-    await deleteWorkoutType(type.id)
-    await loadTypes()
-    refreshKey.value++
-  } catch {
-    typeError.value = `Cannot delete "${type.name}" — it has existing workout logs.`
-  }
+  loadLogs(0)
+  loadOverview()
 }
 
 async function deleteLog(log) {
@@ -208,8 +207,7 @@ function startEditLog(log) {
   editLogForm.value = {
     logDate: log.logDate,
     workoutTypeId: log.workoutType?.id,
-    durationMinutes: log.durationMinutes,
-    calories: log.calories
+    durationMinutes: log.durationMinutes
   }
 }
 
@@ -223,8 +221,7 @@ async function saveEditLog() {
     await updateWorkoutLog(id, {
       logDate: editLogForm.value.logDate,
       workoutType: { id: editLogForm.value.workoutTypeId },
-      durationMinutes: editLogForm.value.durationMinutes,
-      calories: editLogForm.value.calories || null
+      durationMinutes: editLogForm.value.durationMinutes
     })
     editingLogId.value = null
     refreshKey.value++
@@ -236,30 +233,44 @@ async function saveEditLog() {
 </script>
 
 <style scoped>
+.overview-row {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.overview-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--text-muted);
+}
+.overview-value {
+  font-family: var(--font-data);
+  font-weight: 600;
+  color: var(--text);
+}
+.overview-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
 .charts-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: var(--space-4);
 }
 .chart-card h2 {
   font-size: 1rem;
   margin: 0 0 12px;
 }
-.types-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: var(--space-3);
+.table-card {
+  overflow-x: auto;
 }
-.type-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 5px 8px 5px 12px;
-  font-size: 0.85rem;
+.table-card .type-dot {
+  margin-right: 6px;
 }
 .type-dot {
   display: inline-block;
@@ -269,88 +280,31 @@ async function saveEditLog() {
   flex-shrink: 0;
   vertical-align: middle;
 }
-.type-add {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-.color-picker {
-  display: flex;
-  gap: 6px;
-}
-.color-dot {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  cursor: pointer;
-  padding: 0;
-  transition: border-color 0.15s;
-}
-.color-dot.selected {
-  border-color: var(--text);
-}
-.color-dot:hover {
-  border-color: var(--text-muted);
-}
-.color-dot.selected:hover {
-  border-color: var(--text);
-}
-.type-input {
-  width: 160px;
-}
-.btn-small {
-  background: var(--blue);
-  color: var(--bg);
-  border: none;
-  padding: 9px 14px;
-  font-size: 0.85rem;
-}
-.btn-small:hover {
-  filter: brightness(1.1);
-}
-.btn-icon {
-  display: flex;
-  align-items: center;
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  padding: 4px;
-  border-radius: 4px;
-}
-.btn-icon:hover {
-  color: var(--orange);
-  background: rgba(251, 146, 60, 0.12);
-}
-.table-card {
-  overflow-x: auto;
-}
-.table-card .type-dot {
-  margin-right: 6px;
-}
 tbody tr:hover {
   background: rgba(237, 239, 244, 0.03);
-}
-.muted-note {
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  margin: 0;
-}
-.empty-line {
-  color: var(--text-muted);
-  font-size: 0.85rem;
-}
-.form-error {
-  color: var(--orange);
-  font-size: 0.85rem;
-  margin: 8px 0 0;
 }
 .empty {
   color: var(--text-muted);
   font-size: 0.85rem;
 }
-.heatmap-cap {
-  max-width: 1000px;
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-6) 0;
+  color: var(--text-muted);
+}
+.empty-icon {
+  color: var(--border);
+  margin-bottom: var(--space-1);
+}
+.empty-title {
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.empty-desc {
+  font-size: 0.85rem;
 }
 .edit-row {
   background: rgba(79, 141, 255, 0.06);
@@ -397,5 +351,39 @@ tbody tr:hover {
 .actions-cell {
   display: flex;
   gap: 4px;
+}
+.btn-icon {
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn-icon:hover {
+  color: var(--orange);
+  background: rgba(251, 146, 60, 0.12);
+}
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+.pagination button {
+  font-size: 0.85rem;
+}
+.pagination button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.page-indicator {
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 </style>

@@ -43,7 +43,11 @@
           </div>
         </div>
       </div>
-      <p v-else class="empty">No active goals.</p>
+      <p v-else class="empty-state">
+        <span class="empty-icon"><Target :size="28" /></span>
+        <span class="empty-title">No active goals</span>
+        <span class="empty-desc">Set a goal above to track your progress toward a target.</span>
+      </p>
     </section>
 
     <section>
@@ -252,6 +256,25 @@ function goalProgress(goal) {
 .status-tag.achieved { background: rgba(61, 214, 140, 0.15); color: var(--green); }
 .status-tag.abandoned { background: rgba(140, 147, 166, 0.15); color: var(--text-muted); }
 .empty { color: var(--text-muted); font-size: 0.85rem; }
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-6) 0;
+  color: var(--text-muted);
+}
+.empty-icon {
+  color: var(--border);
+  margin-bottom: var(--space-1);
+}
+.empty-title {
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.empty-desc {
+  font-size: 0.85rem;
+}
 .btn-icon {
   display: inline-flex;
   align-items: center;

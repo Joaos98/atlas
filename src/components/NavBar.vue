@@ -5,6 +5,7 @@
     <router-link to="/workouts" class="nav-item"><Dumbbell :size="16" /> Workouts</router-link>
     <router-link to="/body-metrics" class="nav-item"><Activity :size="16" /> Body Metrics</router-link>
     <router-link to="/goals" class="nav-item"><Target :size="16" /> Goals</router-link>
+    <router-link to="/settings" class="nav-item"><Settings :size="16" /> Settings</router-link>
     <button class="logout" @click="handleLogout"><LogOut :size="16" /> Logout</button>
   </nav>
 </template>
@@ -12,7 +13,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
-import { LayoutDashboard, Dumbbell, Activity, Target, LogOut } from 'lucide-vue-next'
+import { LayoutDashboard, Dumbbell, Activity, Target, LogOut, Settings } from 'lucide-vue-next'
 
 const router = useRouter()
 const auth = useAuthStore()

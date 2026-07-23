@@ -13,7 +13,8 @@ const router = createRouter({
     { path: '/', component: DashboardView },
     { path: '/workouts', component: WorkoutsView },
     { path: '/body-metrics', component: BodyMetricsView },
-    { path: '/goals', component: GoalsView }
+    { path: '/goals', component: GoalsView },
+    { path: '/settings', component: () => import('../views/SettingsView.vue') }
   ]
 })
 

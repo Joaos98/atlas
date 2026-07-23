@@ -12,43 +12,7 @@
 
     <section v-if="metrics.length >= 2">
       <h2>Latest measurement</h2>
-      <div class="stat-grid">
-        <StatCard
-          label="Weight"
-          :value="`${latest.weightKg} Kg`"
-          color="blue"
-          :icon="Scale"
-          :subtitle="deltaText('weightKg', 'kg')"
-        />
-        <StatCard
-          label="Body Water"
-          :value="`${latest.waterLiters} L`"
-          color="blue"
-          :icon="Droplets"
-          :subtitle="deltaText('waterLiters', 'L')"
-        />
-        <StatCard
-          label="Muscle Mass"
-          :value="`${latest.muscleMassKg} Kg`"
-          :color="deltaColor('muscleMassKg')"
-          :icon="Dumbbell"
-          :subtitle="deltaText('muscleMassKg', 'kg')"
-        />
-        <StatCard
-          label="Body Fat Mass"
-          :value="`${latest.bodyFatKg} Kg`"
-          :color="deltaColor('bodyFatKg')"
-          :icon="ChartPie"
-          :subtitle="deltaText('bodyFatKg', 'kg')"
-        />
-        <StatCard
-          label="Body Fat Percentage"
-          :value="`${latest.bodyFatPct} %`"
-          :color="deltaColor('bodyFatPct')"
-          :icon="Percent"
-          :subtitle="deltaText('bodyFatPct', '%')"
-        />
-      </div>
+      <LatestMeasurementStats :metrics="metrics" />
     </section>
 
     <section>
@@ -102,21 +66,25 @@
           </tbody>
         </table>
       </div>
-      <p v-else class="empty">No measurements yet.</p>
+      <p v-else class="empty-state">
+        <span class="empty-icon"><Scale :size="28" /></span>
+        <span class="empty-title">No measurements yet</span>
+        <span class="empty-desc">Add your first body measurement above to see progress charts and insights.</span>
+      </p>
     </section>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { getBodyMetrics, deleteBodyMetrics, updateBodyMetrics } from '../services/bodyMetricsService'
 import { getGoals } from '../services/goalsService'
 import BodyMetricsForm from '../components/BodyMetricsForm.vue'
 import MetricChart from '../components/MetricChart.vue'
-import StatCard from '../components/StatCard.vue'
+import LatestMeasurementStats from '../components/LatestMeasurementStats.vue'
 import DatePicker from '../components/DatePicker.vue'
 import { formatDateBr } from '../utils/date'
-import { Scale, Droplets, Dumbbell, ChartPie, Percent, Trash2, Pencil } from 'lucide-vue-next'
+import { Scale, Trash2, Pencil } from 'lucide-vue-next'
 
 const loading = ref(true)
 const metrics = ref([])
@@ -190,31 +158,6 @@ async function saveEdit() {
   }
 }
 
-const latest = computed(() => metrics.value[metrics.value.length - 1] || {})
-const previous = computed(() => metrics.value.length >= 2 ? metrics.value[metrics.value.length - 2] : null)
-
-function deltaValue(field) {
-  if (!previous.value) return null
-  const diff = latest.value[field] - previous.value[field]
-  return diff
-}
-
-function deltaText(field, unit) {
-  const diff = deltaValue(field)
-  if (diff == null) return ''
-  const sign = diff > 0 ? '+' : ''
-  return `${sign}${diff.toFixed(1)} ${unit} since previous`
-}
-
-function deltaColor(field) {
-  const diff = deltaValue(field)
-  if (diff == null) return 'blue'
-  // muscle: gain good, body fat: loss good
-  if (field === 'muscleMassKg') return diff > 0 ? 'green' : 'orange'
-  if (field === 'bodyFatKg' || field === 'bodyFatPct') return diff < 0 ? 'green' : 'orange'
-  return 'blue'
-}
-
 function activeGoalTarget(metricType) {
   const goal = goals.value.find(g => g.metricType === metricType && g.status === 'ACTIVE')
   return goal ? goal.targetValue : null
@@ -231,11 +174,6 @@ function chartEntries(field) {
   grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
   gap: var(--space-4);
 }
-.stat-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--space-4);
-}
 .table-card {
   overflow-x: auto;
 }
@@ -244,6 +182,25 @@ tbody tr:hover {
 }
 .empty {
   color: var(--text-muted);
+  font-size: 0.85rem;
+}
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-6) 0;
+  color: var(--text-muted);
+}
+.empty-icon {
+  color: var(--border);
+  margin-bottom: var(--space-1);
+}
+.empty-title {
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.empty-desc {
   font-size: 0.85rem;
 }
 .edit-row {

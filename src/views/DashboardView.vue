@@ -2,71 +2,78 @@
   <div v-if="loading" class="loading"></div>
   <div v-else-if="stats" class="page">
     <section>
-      <h2>Workout activity</h2>
+      <div class="insights-row">
+        <div v-if="insightText !== undefined" class="card insight-card" :class="{ loading: insightLoading, unavailable: insightUnavailable }">
+          <p v-if="insightVerdict" class="insight-verdict"><Sparkles :size="16" class="verdict-icon" /> {{ insightVerdict }}</p>
+          <p class="insight-text" :class="{ dimmed: insightLoading }">{{ insightText || 'No insight yet — add a new measurement to generate one.' }}</p>
+          <div class="insight-footer">
+            <span v-if="insightDate && !insightLoading" class="insight-date">Updated after your {{ insightDate }} measurement</span>
+            <span v-if="insightFallback && !insightUnavailable" class="insight-fallback">(auto-generated)</span>
+            <span v-if="insightLoading" class="insight-loading">Regenerating...</span>
+            <button class="btn-icon" title="Regenerate" @click="refreshInsight" :disabled="insightLoading">
+              <RefreshCw :size="14" />
+            </button>
+          </div>
+        </div>
+        <div class="side-cols" :class="{ 'with-note': stats.bodyCompositionStats.totalMeasurements >= 2, full: insightText === undefined }">
+          <p v-if="stats.bodyCompositionStats.totalMeasurements >= 2" class="body-comp-note">All-time, since first measurement</p>
+          <div class="stat-col">
+            <StatCard
+              label="Workouts this week"
+              :value="`${thisWeekSessions} / ${targetPerWeek}`"
+              color="purple"
+              :icon="CalendarCheck"
+              :subtitle="weekSubtitle"
+            />
+            <StatCard label="Current streak" :value="`${stats.streakStats.currentStreak} weeks`" color="purple" :icon="Flame" />
+            <StatCard label="Longest streak" :value="`${stats.streakStats.longestStreak} weeks`" color="purple" :icon="Flame" />
+          </div>
+          <div class="body-comp-col">
+            <template v-if="stats.bodyCompositionStats.totalMeasurements >= 2">
+              <div class="body-comp-card" :class="compColor(stats.bodyCompositionStats.weightChangeKg, null)">
+                <div class="body-comp-header">
+                  <Scale :size="16" />
+                  <span>Weight</span>
+                </div>
+                <p class="body-comp-value">{{ formatChange(stats.bodyCompositionStats.weightChangeKg) }}<span class="unit"> kg</span></p>
+              </div>
+              <div class="body-comp-card" :class="compColor(stats.bodyCompositionStats.muscleMassChangeKg, 'up')">
+                <div class="body-comp-header">
+                  <TrendingUp :size="16" />
+                  <span>Muscle mass</span>
+                </div>
+                <p class="body-comp-value">{{ formatChange(stats.bodyCompositionStats.muscleMassChangeKg) }}<span class="unit"> kg</span></p>
+              </div>
+              <div class="body-comp-card" :class="compColor(stats.bodyCompositionStats.bodyFatPctChange, 'down')">
+                <div class="body-comp-header">
+                  <TrendingDown :size="16" />
+                  <span>Body fat</span>
+                </div>
+                <p class="body-comp-value">{{ formatChange(stats.bodyCompositionStats.bodyFatPctChange) }}<span class="unit"> %</span></p>
+              </div>
+            </template>
+            <div v-else class="card body-comp-empty">
+              <p class="empty-hint">Add at least 2 measurements to see composition changes.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section v-if="bodyMetrics.length >= 2">
+      <LatestMeasurementStats :metrics="bodyMetrics" />
+    </section>
+
+    <section>
       <div class="activity-row">
-        <div class="card heatmap-col">
+        <div class="card">
+          <h2>Workout history</h2>
           <WorkoutHeatmap :refresh="0" />
         </div>
-        <div class="stats-col">
-          <StatCard
-            label="Workouts this week"
-            :value="`${thisWeekSessions} / ${targetPerWeek}`"
-            color="purple"
-            :icon="CalendarCheck"
-            :subtitle="weekSubtitle"
-          />
-          <StatCard label="Current workout streak" :value="`${stats.streakStats.currentStreak} weeks`" color="purple" :icon="Flame" />
-          <StatCard label="Longest streak ever" :value="`${stats.streakStats.longestStreak} weeks`" color="purple" :icon="Flame" />
-          <StatCard v-if="yearStats" label="Workouts this year" :value="yearStats.totalWorkoutsThisYear" color="blue" :icon="Dumbbell" />
-          <StatCard
-            v-if="yearStats?.averageCaloriesBurnedThisYear"
-            label="Avg kcal/session this year"
-            :value="`${Math.round(yearStats.averageCaloriesBurnedThisYear)} Kcal`"
-            color="blue"
-            :icon="Zap"
-          />
+        <div class="card chart-card">
+          <h2>Workouts per week</h2>
+          <WeeklySessionsChart :refresh="0" />
         </div>
-      </div>
-    </section>
-
-    <section v-if="insightText !== undefined">
-      <h2><Sparkles :size="18" class="section-icon" /> Insights</h2>
-      <div class="card insight-card" :class="{ loading: insightLoading }">
-        <p class="insight-text" :class="{ dimmed: insightLoading }">{{ insightText || 'No insight yet — add a new measurement to generate one.' }}</p>
-        <div class="insight-footer">
-          <span v-if="insightDate && !insightLoading" class="insight-date">Updated after your {{ insightDate }} measurement</span>
-          <span v-if="insightFallback" class="insight-fallback">(auto-generated)</span>
-          <span v-if="insightLoading" class="insight-loading">Regenerating...</span>
-          <button class="btn-icon" title="Regenerate" @click="refreshInsight" :disabled="insightLoading">
-            <RefreshCw :size="14" />
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <h2>This month</h2>
-      <div class="stat-grid">
-        <StatCard label="Workouts" :value="stats.workoutStats.totalWorkoutsThisMonth" color="blue" :icon="Dumbbell" />
-        <StatCard label="Longest session" :value="formatDuration(stats.workoutStats.longestSessionThisMonth)" color="blue" :icon="Clock" />
-        <StatCard label="Avg duration" :value="formatDuration(stats.workoutStats.averageDurationThisMonth)" color="blue" :icon="Clock" />
-        <StatCard label="Most frequent type" :value="stats.workoutStats.mostFrequentTypeThisMonth || '—'" color="blue" :icon="Tag" />
-        <StatCard
-          v-if="stats.workoutStats.averageCaloriesBurnedThisMonth"
-          label="Avg calories/session"
-          :value="`${Math.round(stats.workoutStats.averageCaloriesBurnedThisMonth)} Kcal`"
-          color="blue"
-          :icon="Zap"
-        />
-      </div>
-    </section>
-
-    <section>
-      <h2>Body composition since first measurement</h2>
-      <div class="stat-grid">
-        <StatCard label="Weight" :value="formatChange(stats.bodyCompositionStats.weightChangeKg, 'kg')" color="blue" :icon="Scale" />
-        <StatCard label="Muscle mass" :value="formatChange(stats.bodyCompositionStats.muscleMassChangeKg, 'kg')" :color="directionColor(stats.bodyCompositionStats.muscleMassChangeKg, false)" :icon="TrendingUp" />
-        <StatCard label="Body fat %" :value="formatChange(stats.bodyCompositionStats.bodyFatPctChange, '%')" :color="directionColor(stats.bodyCompositionStats.bodyFatPctChange, true)" :icon="TrendingDown" />
       </div>
     </section>
   </div>
@@ -78,11 +85,14 @@ import { ref, computed, onMounted } from 'vue'
 import { getStats } from '../services/statsService'
 import { getSettings } from '../services/settingsService'
 import { getHeatmap } from '../services/workoutService'
+import { getBodyMetrics } from '../services/bodyMetricsService'
 import { toLocalDateStr, formatDateBr } from '../utils/date'
 import { getInsights, regenerateInsights } from '../services/insightService'
 import StatCard from '../components/StatCard.vue'
 import WorkoutHeatmap from '../components/WorkoutHeatmap.vue'
-import { Flame, Dumbbell, Clock, Tag, Zap, Scale, TrendingUp, TrendingDown, CalendarCheck, RefreshCw, Sparkles } from 'lucide-vue-next'
+import WeeklySessionsChart from '../components/WeeklySessionsChart.vue'
+import LatestMeasurementStats from '../components/LatestMeasurementStats.vue'
+import { Flame, Scale, TrendingUp, TrendingDown, CalendarCheck, RefreshCw, Sparkles } from 'lucide-vue-next'
 
 const stats = ref(null)
 const loading = ref(true)
@@ -90,10 +100,13 @@ const targetPerWeek = ref(4)
 const thisWeekSessions = ref(0)
 const insight = ref(null)
 const insightLoading = ref(false)
+const bodyMetrics = ref([])
 
 const insightText = computed(() => insight.value?.text)
+const insightVerdict = computed(() => insight.value?.verdict || null)
 const insightDate = computed(() => insight.value?.generatedAt ? formatInsightDate(insight.value.generatedAt) : null)
 const insightFallback = computed(() => insight.value?.fallback ?? false)
+const insightUnavailable = computed(() => insightText.value?.includes('could not be generated') ?? false)
 
 onMounted(async () => {
   try {
@@ -124,34 +137,35 @@ onMounted(async () => {
   } catch {
     insight.value = null
   }
+
+  try {
+    const metricsRes = await getBodyMetrics()
+    bodyMetrics.value = Array.isArray(metricsRes.data) ? metricsRes.data : (metricsRes.data.content || [])
+  } catch {
+    bodyMetrics.value = []
+  }
 })
 
-const yearStats = computed(() => stats.value?.workoutStats?.totalWorkoutsThisYear != null ? stats.value.workoutStats : null)
+const weekSubtitle = computed(() =>
+  thisWeekSessions.value >= targetPerWeek.value ? 'Weekly target met!' : ''
+)
 
-const weekSubtitle = computed(() => {
-  if (thisWeekSessions.value >= targetPerWeek.value) return 'Weekly target met!'
-  const remaining = targetPerWeek.value - thisWeekSessions.value
-  return `${remaining} more to meet target`
-})
-
-function formatDuration(minutes) {
-if (minutes == null) return '—';
-if (minutes < 60) {
-  return `${Math.floor(minutes)} min`;
-}
-let h = Math.floor(minutes / 60);
-let m = Math.floor((minutes % 60));
-return m > 0 ? `${h}h ${m}min` : `${h}h`;
-}
-function formatChange(value, unit) {
+function formatChange(value) {
   if (value == null) return '—'
-  const sign = value > 0 ? '+' : ''
-  return `${sign}${value.toFixed(1)} ${unit}`
+  return value > 0 ? `+${value.toFixed(1)}` : `${value.toFixed(1)}`
 }
-function directionColor(value, lowerIsBetter) {
-  if (value == null) return 'blue'
-  const isGood = lowerIsBetter ? value < 0 : value > 0
-  return isGood ? 'green' : 'orange'
+
+function getChangeDirection(value) {
+  if (value == null || value === 0) return null
+  return value > 0 ? 'up' : 'down'
+}
+
+function compColor(value, good) {
+  if (value == null || value === 0) return ''
+  const isUp = value > 0
+  const isGood = good == null ? null : (good === 'up' ? isUp : !isUp)
+  if (isGood == null) return isUp ? 'change-up' : 'change-down'
+  return isGood ? 'positive' : 'negative'
 }
 
 async function refreshInsight() {
@@ -160,7 +174,6 @@ async function refreshInsight() {
     const res = await regenerateInsights()
     insight.value = res.data
   } catch {
-    // keep current insight on failure
   }
   insightLoading.value = false
 }
@@ -173,35 +186,129 @@ function formatInsightDate(dateStr) {
 </script>
 
 <style scoped>
-.activity-row {
+.activity-row,
+.insights-row {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: var(--space-5);
+  gap: var(--space-4);
+}
+.insights-row {
   align-items: start;
 }
-.stats-col {
+.side-cols.full {
+  grid-column: 1 / -1;
+}
+.chart-card {
+  display: flex;
+  flex-direction: column;
+}
+.activity-row h2 {
+  font-size: 1rem;
+  margin: 0 0 12px;
+}
+.chart-card > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.chart-card :deep(.chart-box) {
+  flex: 1;
+  min-height: 150px;
+}
+.side-cols {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
   gap: var(--space-3);
-  align-content: start;
 }
-.stat-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--space-4);
+.side-cols.with-note {
+  grid-template-rows: auto 1fr;
+}
+.body-comp-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.body-comp-col .body-comp-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.body-comp-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.body-comp-note {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.stat-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.stat-col :deep(.stat-card) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8px 12px;
+}
+.stat-col :deep(.value) {
+  font-size: 1.1rem;
+}
+
+section {
+  margin-bottom: var(--space-4);
 }
 
 @media (max-width: 1100px) {
-  .activity-row { grid-template-columns: 1fr; }
-  .stats-col { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+  .activity-row,
+  .insights-row { grid-template-columns: 1fr; }
 }
 
 .insight-card {
   border-left: 3px solid var(--purple);
 }
+.insight-card.unavailable {
+  border-left-color: var(--orange);
+}
+.insight-verdict {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text);
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: 6px;
+  padding: 4px 10px;
+  margin: 0 0 10px;
+}
+.verdict-icon {
+  color: var(--purple);
+  flex-shrink: 0;
+}
+.insight-card.unavailable .insight-verdict {
+  background: rgba(251, 146, 60, 0.12);
+  border-color: rgba(251, 146, 60, 0.25);
+}
+.insight-card.unavailable .verdict-icon {
+  color: var(--orange);
+}
 .insight-text {
-  font-size: 0.92rem;
-  line-height: 1.7;
+  font-size: 0.88rem;
+  line-height: 1.6;
   margin: 0;
   white-space: pre-line;
 }
@@ -209,8 +316,8 @@ function formatInsightDate(dateStr) {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  margin-top: var(--space-3);
-  padding-top: var(--space-3);
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
   border-top: 1px solid var(--border);
 }
 .insight-date {
@@ -240,5 +347,65 @@ function formatInsightDate(dateStr) {
 }
 .btn-icon:hover { color: var(--text); background: var(--bg); }
 .btn-icon:disabled { opacity: 0.4; cursor: default; }
-.section-icon { vertical-align: -3px; margin-right: 4px; color: var(--purple); }
+
+.body-comp-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: var(--space-3) var(--space-4);
+  text-align: center;
+}
+
+.body-comp-card.positive {
+  border-color: rgba(61, 214, 140, 0.25);
+  background: linear-gradient(180deg, rgba(61, 214, 140, 0.06) 0%, transparent 60%);
+}
+
+.body-comp-card.negative {
+  border-color: rgba(251, 146, 60, 0.25);
+  background: linear-gradient(180deg, rgba(251, 146, 60, 0.06) 0%, transparent 60%);
+}
+
+.body-comp-card.change-up {
+  border-color: rgba(79, 141, 255, 0.2);
+}
+
+.body-comp-card.change-down {
+  border-color: rgba(251, 146, 60, 0.2);
+}
+
+.body-comp-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.body-comp-value {
+  font-family: var(--font-data);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.body-comp-card.positive .body-comp-value { color: var(--green); }
+.body-comp-card.negative .body-comp-value { color: var(--orange); }
+
+.body-comp-value .unit {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-left: 2px;
+}
+
+.empty-hint {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin: 0;
+}
 </style>

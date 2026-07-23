@@ -22,14 +22,6 @@
       </div>
     </div>
 
-    <div class="form-field">
-      <label><Flame :size="14" /> Calories (optional)</label>
-      <div class="input-wrapper">
-        <input type="number" v-model="form.calories" min="0" placeholder="300" />
-        <span class="unit">kcal</span>
-      </div>
-    </div>
-
     <div class="form-actions">
       <button type="submit" class="btn-primary">Add</button>
     </div>
@@ -43,7 +35,7 @@ import { ref, onMounted } from 'vue'
 import { getWorkoutTypes, logWorkout } from '../services/workoutService'
 import { todayLocal } from '../utils/date'
 import DatePicker from './DatePicker.vue'
-import { Calendar, Dumbbell, Clock, Flame } from 'lucide-vue-next'
+import { Calendar, Dumbbell, Clock } from 'lucide-vue-next'
 
 const workoutTypes = ref([])
 const success = ref(false)
@@ -52,8 +44,7 @@ const error = ref(false)
 const form = ref({
   logDate: todayLocal(),
   workoutTypeId: null,
-  durationMinutes: null,
-  calories: null
+  durationMinutes: null
 })
 
 const emit = defineEmits(['logged'])
@@ -73,8 +64,7 @@ async function handleSubmit() {
     await logWorkout({
       logDate: form.value.logDate,
       workoutType: { id: form.value.workoutTypeId },
-      durationMinutes: form.value.durationMinutes,
-      calories: form.value.calories || null
+      durationMinutes: form.value.durationMinutes
     })
     success.value = true
     emit('logged')
