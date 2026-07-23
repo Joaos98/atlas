@@ -115,11 +115,6 @@
           <span class="overview-value data-value">{{ insightStats.longestSession ? insightStats.longestSession + ' min' : '—' }}</span>
           <span class="overview-label">longest</span>
         </div>
-        <div class="overview-card">
-          <Star :size="16" />
-          <span class="overview-value data-value">{{ insightStats.topType || '—' }}</span>
-          <span class="overview-label">top type</span>
-        </div>
       </div>
       <div class="insights-grid">
         <div class="card chart-card">
@@ -215,7 +210,7 @@ import { toLocalDateStr } from '../utils/date'
 import { formatDateBr } from '../utils/date'
 import DatePicker from '../components/DatePicker.vue'
 import { useToastStore } from '../stores/toast'
-import { Trash2, Pencil, Dumbbell, Flame, Clock, TrendingUp, Star, Zap, CalendarCheck, Activity, Target, ChevronRight, ChevronDown } from 'lucide-vue-next'
+import { Trash2, Pencil, Dumbbell, Flame, Clock, TrendingUp, Zap, CalendarCheck, Activity, Target, ChevronRight, ChevronDown } from 'lucide-vue-next'
 
 const toast = useToastStore()
 

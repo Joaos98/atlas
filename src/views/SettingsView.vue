@@ -108,7 +108,7 @@
             <option :value="null" disabled>Select workout type</option>
             <option v-for="type in types" :key="type.id" :value="type.id">{{ type.name }}</option>
           </select>
-          <button class="btn-small" @click="addMappingHandler" :disabled="!newMappingType || !newMappingWorkoutTypeId">Add</button>
+          <button class="btn-small" @click="addMappingHandler" :disabled="newMappingType === null || newMappingType === '' || !newMappingWorkoutTypeId">Add</button>
         </div>
         <p v-if="mappingError" class="form-error">{{ mappingError }}</p>
       </div>
