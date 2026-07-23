@@ -1,7 +1,7 @@
 <template>
   <div class="login-page">
     <div class="login-card">
-      <h1>AIO Fitness</h1>
+      <h1><Dumbbell :size="22" class="logo-icon" /> AIO Fitness</h1>
       <p class="subtitle">Log in to continue</p>
       <form @submit.prevent="handleLogin">
         <div>
@@ -24,6 +24,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import api from '../services/api'
+import { Dumbbell } from 'lucide-vue-next'
 
 const username = ref('')
 const password = ref('')
@@ -61,7 +62,11 @@ async function handleLogin() {
 h1 {
   font-size: 1.4rem;
   margin: 0 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
+.logo-icon { color: var(--blue); }
 .subtitle {
   color: var(--text-muted);
   font-size: 0.85rem;

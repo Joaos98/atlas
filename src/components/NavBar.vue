@@ -1,6 +1,6 @@
 <template>
   <nav class="sidebar">
-    <div class="brand">AIO Fitness</div>
+    <div class="brand"><Dumbbell :size="18" class="brand-icon" /> AIO Fitness</div>
     <router-link to="/" class="nav-item"><LayoutDashboard :size="16" /> Dashboard</router-link>
     <router-link to="/workouts" class="nav-item"><Dumbbell :size="16" /> Workouts</router-link>
     <router-link to="/body-metrics" class="nav-item"><Activity :size="16" /> Body Metrics</router-link>
@@ -38,7 +38,8 @@ function handleLogout() {
   position: sticky;
   top: 0;
 }
-.brand { font-family: var(--font-display); font-size: 1.1rem; padding: 0 8px 20px; }
+.brand { font-family: var(--font-display); font-size: 1.1rem; padding: 0 8px 20px; display: flex; align-items: center; gap: 8px; }
+.brand-icon { color: var(--blue); }
 .nav-item {
   display: flex;
   align-items: center;
