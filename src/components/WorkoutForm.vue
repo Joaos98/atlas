@@ -26,20 +26,18 @@
       <button type="submit" class="btn-primary">Add</button>
     </div>
   </form>
-  <p v-if="success" class="form-success">Workout added!</p>
-  <p v-if="error" class="form-error">Something went wrong.</p>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getWorkoutTypes, logWorkout } from '../services/workoutService'
 import { todayLocal } from '../utils/date'
+import { useToastStore } from '../stores/toast'
 import DatePicker from './DatePicker.vue'
 import { Calendar, Dumbbell, Clock } from 'lucide-vue-next'
 
+const toast = useToastStore()
 const workoutTypes = ref([])
-const success = ref(false)
-const error = ref(false)
 
 const form = ref({
   logDate: todayLocal(),
@@ -58,18 +56,16 @@ onMounted(async () => {
 })
 
 async function handleSubmit() {
-  success.value = false
-  error.value = false
   try {
     await logWorkout({
       logDate: form.value.logDate,
       workoutType: { id: form.value.workoutTypeId },
       durationMinutes: form.value.durationMinutes
     })
-    success.value = true
+    toast.success('Workout logged')
     emit('logged')
   } catch {
-    error.value = true
+    toast.error('Failed to log workout')
   }
 }
 </script>

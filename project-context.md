@@ -214,8 +214,8 @@ The first entry always has `null` for both insight fields (no prior baseline whe
 ## What still needs to be done
 
 ### High priority
-- [ ] **Pagination** — `GET /api/workout-logs` and `GET /api/body-metrics` currently return all rows. Add Spring `Pageable` support to the backend and paginated tables on the frontend. Stats, heatmap, and chart endpoints must remain unpaginated (they serve aggregated data from separate endpoints already).
-- [ ] **Webhook for auto-logged workouts** — new `POST /api/workout-logs/sync` endpoint to receive workout data from Google Health Connect (generated from Mi Band). Data structure to be defined when ready.
+- [x] **Pagination** — `GET /api/workout-logs` and `GET /api/body-metrics` currently return all rows. Add Spring `Pageable` support to the backend and paginated tables on the frontend. Stats, heatmap, and chart endpoints must remain unpaginated (they serve aggregated data from separate endpoints already).
+- [x] **Webhook for auto-logged workouts** — new `POST /api/workout-logs/sync` endpoint to receive workout data from Google Health Connect (generated from Mi Band). Data structure to be defined when ready.
 - [ ] **Deployment**
   - [ ] Deploy backend to Railway / Render / Fly.io free tier
   - [ ] Deploy frontend to Netlify or Vercel
@@ -226,13 +226,13 @@ The first entry always has `null` for both insight fields (no prior baseline whe
   - [ ] Auto-seed `app_settings` row (currently requires manual INSERT after first deploy)
 
 ### Medium priority
-- [ ] **Empty state screens** — friendly CTAs on each view when no data exists (e.g. "Log your first workout")
-- [ ] **Extra workout info on Workouts page** — surface streak data and weekly goal progress (X/{{target}} workouts this week)
+- [x] **Empty state screens** — friendly CTAs on each view when no data exists (e.g. "Log your first workout")
+- [x] **Extra workout info on Workouts page** — surface streak data and weekly goal progress (X/{{target}} workouts this week)
 
 ### Low priority
-- [ ] **Toast/notification improvements** — audit existing toast usage, add where missing (goal creation, settings save, body metrics CRUD)
-- [ ] **Body metrics charts layout refinement** — explore better grid arrangement for the 5 individual charts
-- [ ] **Skeleton loaders** — replace loading indicators with skeleton placeholders on cards and charts
+- [x] **Toast/notification improvements** — audit existing toast usage, add where missing (goal creation, settings save, body metrics CRUD)
+- [x] **Body metrics charts layout refinement** — explore better grid arrangement for the 5 individual charts
+- [x] **Skeleton loaders** — replace loading indicators with skeleton placeholders on cards and charts
 ---
  
 ## Known quirks / decisions to be aware of

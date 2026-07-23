@@ -1,5 +1,5 @@
 import api from './api'
 
-export function getStats() {
-  return api.get('/stats')
+export function getStats(year, month) {
+  return api.get('/stats', { params: { year, month } })
 }

@@ -22,19 +22,17 @@
       <button type="submit" class="btn-primary">Add goal</button>
     </div>
   </form>
-  <p v-if="success" class="form-success">Goal added!</p>
-  <p v-if="error" class="form-error">Something went wrong.</p>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { createGoal } from '../services/goalsService'
+import { useToastStore } from '../stores/toast'
 import DatePicker from './DatePicker.vue'
 import { Target, Crosshair, CalendarDays } from 'lucide-vue-next'
 
+const toast = useToastStore()
 const emit = defineEmits(['created'])
-const success = ref(false)
-const error = ref(false)
 
 const form = ref({
   metricType: 'WEIGHT',
@@ -44,14 +42,12 @@ const form = ref({
 })
 
 async function handleSubmit() {
-  success.value = false
-  error.value = false
   try {
     await createGoal(form.value)
-    success.value = true
+    toast.success('Goal created')
     emit('created')
   } catch {
-    error.value = true
+    toast.error('Failed to create goal')
   }
 }
 </script>

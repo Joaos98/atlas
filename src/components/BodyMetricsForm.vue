@@ -49,19 +49,17 @@
       <button type="submit" class="btn-primary">Add</button>
     </div>
   </form>
-  <p v-if="success" class="form-success">Measurement added!</p>
-  <p v-if="error" class="form-error">Something went wrong.</p>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { logBodyMetrics } from '../services/bodyMetricsService'
 import { todayLocal } from '../utils/date'
+import { useToastStore } from '../stores/toast'
 import DatePicker from './DatePicker.vue'
 import { Calendar, Scale, Droplets, Dumbbell, ChartPie, Percent } from 'lucide-vue-next'
 
-const success = ref(false)
-const error = ref(false)
+const toast = useToastStore()
 const emit = defineEmits(['logged'])
 
 const form = ref({
@@ -74,14 +72,12 @@ const form = ref({
 })
 
 async function handleSubmit() {
-  success.value = false
-  error.value = false
   try {
     await logBodyMetrics(form.value)
-    success.value = true
+    toast.success('Measurement logged')
     emit('logged')
   } catch {
-    error.value = true
+    toast.error('Failed to log measurement')
   }
 }
 </script>

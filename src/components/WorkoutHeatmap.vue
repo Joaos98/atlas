@@ -1,10 +1,11 @@
 <template>
   <div class="heatmap-wrapper">
+    <h3>Workouts</h3>
     <div class="month-row">
       <span class="day-labels-spacer"></span>
       <div class="month-inner">
         <span v-for="(week, weekIndex) in weeks" :key="weekIndex" class="month-slot">
-          {{ monthLabelMap[weekIndex] || '' }}
+          {{ loading ? '' : (monthLabelMap[weekIndex] || '') }}
         </span>
       </div>
     </div>
@@ -20,7 +21,7 @@
             v-for="day in week"
             :key="day.date"
             class="day-cell"
-            :class="{ padding: day.isPadding, today: day.isToday }"
+            :class="{ padding: day.isPadding, today: day.isToday, skeleton: loading }"
             :aria-label="day.isPadding ? undefined : describeDay(day)"
             @mouseenter="showTooltip(day, $event)"
             @mousemove="moveTooltip"
@@ -37,7 +38,7 @@
       </div>
     </div>
 
-    <div class="heatmap-footer">
+    <div v-if="!loading" class="heatmap-footer">
       <span class="footer-total data-value">{{ totalWorkouts }} workout{{ totalWorkouts === 1 ? '' : 's' }}</span>
       <div v-if="legend.length" class="legend">
         <span v-for="item in legend" :key="item.type" class="legend-item">
@@ -83,6 +84,7 @@ const MIN_WEEKS = 8
 const MAX_WEEKS = 53
 
 const rawData = ref([])
+const loading = ref(true)
 const startDate = ref(null)
 const endDate = ref(null)
 const tooltip = ref(null)
@@ -128,11 +130,14 @@ async function load() {
   hideTooltip()
   if (!startDate.value || !endDate.value) return
 
+  loading.value = true
   try {
     const response = await getHeatmap(toLocalDateStr(startDate.value), toLocalDateStr(endDate.value))
     rawData.value = response.data
   } catch {
     rawData.value = []
+  } finally {
+    loading.value = false
   }
 }
 
@@ -279,6 +284,12 @@ function formatDateLabel(dateStr) {
   --cell-gap: 4px;
   --labels-w: 30px;
   width: 100%;
+}
+
+.heatmap-wrapper .heatmap-grid .day-cell.skeleton {
+  background: linear-gradient(90deg, var(--border) 25%, rgba(42, 46, 58, 0.3) 37%, var(--border) 63%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
 }
 
 .month-row {
@@ -436,7 +447,7 @@ function formatDateLabel(dateStr) {
   font-size: 0.72rem;
   color: var(--text-muted);
 }
-
+h3 { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 12px; font-weight: 600; }
 @media (max-width: 700px) {
   .day-labels {
     display: none;

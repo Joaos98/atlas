@@ -7,7 +7,7 @@
       :icon="Scale"
       :subtitle="deltaText('weightKg', 'kg')"
     >
-      <template #sparkline>
+      <template v-if="showSparklines" #sparkline>
         <MetricSparkline :data="sparkData('weightKg')" :color="sparkColor('weightKg')" />
       </template>
     </StatCard>
@@ -18,7 +18,7 @@
       :icon="Droplets"
       :subtitle="deltaText('waterLiters', 'L')"
     >
-      <template #sparkline>
+      <template v-if="showSparklines" #sparkline>
         <MetricSparkline :data="sparkData('waterLiters')" :color="sparkColor('waterLiters')" />
       </template>
     </StatCard>
@@ -29,7 +29,7 @@
       :icon="Dumbbell"
       :subtitle="deltaText('muscleMassKg', 'kg')"
     >
-      <template #sparkline>
+      <template v-if="showSparklines" #sparkline>
         <MetricSparkline :data="sparkData('muscleMassKg')" :color="sparkColor('muscleMassKg')" />
       </template>
     </StatCard>
@@ -40,7 +40,7 @@
       :icon="ChartPie"
       :subtitle="deltaText('bodyFatKg', 'kg')"
     >
-      <template #sparkline>
+      <template v-if="showSparklines" #sparkline>
         <MetricSparkline :data="sparkData('bodyFatKg')" :color="sparkColor('bodyFatKg')" />
       </template>
     </StatCard>
@@ -51,7 +51,7 @@
       :icon="Percent"
       :subtitle="deltaText('bodyFatPct', '%')"
     >
-      <template #sparkline>
+      <template v-if="showSparklines" #sparkline>
         <MetricSparkline :data="sparkData('bodyFatPct')" :color="sparkColor('bodyFatPct')" />
       </template>
     </StatCard>
@@ -65,7 +65,8 @@ import MetricSparkline from './MetricSparkline.vue'
 import { Scale, Droplets, Dumbbell, ChartPie, Percent } from 'lucide-vue-next'
 
 const props = defineProps({
-  metrics: { type: Array, default: () => [] }
+  metrics: { type: Array, default: () => [] },
+  showSparklines: { type: Boolean, default: true }
 })
 
 const latest = computed(() => props.metrics[props.metrics.length - 1] || {})

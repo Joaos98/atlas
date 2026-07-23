@@ -1,19 +1,37 @@
 <template>
-  <div v-if="loading" class="loading"></div>
+  <div v-if="loading" class="page">
+    <h1>Goals</h1>
+    <section>
+      <div class="card card-fit">
+        <GoalForm @created="load" />
+      </div>
+    </section>
+    <section>
+      <div class="goals-grid">
+        <div v-for="i in 2" :key="i" class="goal-card">
+          <SkeletonLoader height="0.8rem" width="50%" />
+          <SkeletonLoader height="1.1rem" width="70%" />
+          <SkeletonLoader height="1.5rem" />
+          <div class="actions">
+            <SkeletonLoader height="2rem" width="42%" />
+            <SkeletonLoader height="2rem" width="30%" />
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
   <div v-else class="page">
     <h1>Goals</h1>
 
     <section>
-      <h2>New goal</h2>
       <div class="card card-fit">
         <GoalForm @created="load" />
       </div>
     </section>
 
     <section>
-      <h2>Active goals</h2>
       <div v-if="activeGoals.length" class="goals-grid">
-        <div v-for="goal in activeGoals" :key="goal.id" class="goal-card">
+        <div v-for="goal in activeGoals" :key="goal.id" class="goal-card" :class="{ 'on-track': goal.paceStatus === 'on_track', 'behind': goal.paceStatus === 'behind' }">
           <p class="metric-label">{{ metricLabel(goal.metricType) }}</p>
           <p class="data-value">
             {{ currentValue(goal.metricType) }}{{ metricUnit(goal.metricType) }}
@@ -21,8 +39,11 @@
             {{ goal.targetValue }}{{ metricUnit(goal.metricType) }}
           </p>
 
-          <div v-if="goal.startValue != null" class="progress-bar">
-            <div class="progress-fill" :style="{ width: (goal.progressPercent || 0) + '%' }"></div>
+          <div class="progress-wrapper">
+            <div class="progress-bg">
+              <div class="progress-fill" :style="{ width: (goal.progressPercent || 0) + '%' }"></div>
+            </div>
+            <span class="progress-pct">{{ Math.min(100, Math.round(goal.progressPercent || 0)) }}%</span>
           </div>
 
           <p v-if="goalProgress(goal)" class="remaining" :class="goalProgress(goal).cls">
@@ -37,32 +58,37 @@
 
           <p v-if="goal.targetDate" class="target-date">Target date: {{ formatDateBr(goal.targetDate) }}</p>
           <div class="actions">
-            <button class="achieve" @click="updateStatus(goal.id, 'ACHIEVED')">Mark achieved</button>
+            <button class="achieve" @click="updateStatus(goal.id, 'ACHIEVED')">Achieve</button>
             <button class="abandon" @click="updateStatus(goal.id, 'ABANDONED')">Abandon</button>
             <button class="btn-icon delete-goal" title="Delete goal" @click="deleteGoalHandler(goal.id)"><Trash2 :size="14" /></button>
           </div>
         </div>
       </div>
-      <p v-else class="empty-state">
-        <span class="empty-icon"><Target :size="28" /></span>
-        <span class="empty-title">No active goals</span>
-        <span class="empty-desc">Set a goal above to track your progress toward a target.</span>
-      </p>
+      <EmptyState
+        v-else
+        :icon="Target"
+        title="No active goals"
+        description="Set a goal above to track your progress toward a target."
+      />
     </section>
 
-    <section>
-      <h2>Past goals</h2>
-      <div v-if="pastGoals.length" class="goals-grid">
+    <section v-if="pastGoals.length">
+      <div class="goals-grid">
         <div v-for="goal in pastGoals" :key="goal.id" class="goal-card past">
           <p class="metric-label">{{ metricLabel(goal.metricType) }}</p>
-          <p class="data-value">
+          <p class="data-value past-range">
+            {{ goal.startValue != null ? goal.startValue + metricUnit(goal.metricType) : '—' }}
+            <span class="arrow">→</span>
             {{ goal.targetValue }}{{ metricUnit(goal.metricType) }}
             <span class="status-tag" :class="goal.status.toLowerCase()">{{ goal.status.toLowerCase() }}</span>
-            <button class="btn-icon delete-goal" title="Delete goal" @click="deleteGoalHandler(goal.id)"><Trash2 :size="12" /></button>
           </p>
+          <p class="past-meta">
+            <span>Created {{ formatDateBr(goal.createdAt) }}</span>
+            <span v-if="goal.targetDate"> · Target: {{ formatDateBr(goal.targetDate) }}</span>
+          </p>
+          <button class="btn-icon delete-goal" title="Delete goal" @click="deleteGoalHandler(goal.id)"><Trash2 :size="12" /></button>
         </div>
       </div>
-      <p v-else class="empty">No past goals.</p>
     </section>
   </div>
 </template>
@@ -71,9 +97,14 @@
 import { ref, computed, onMounted } from 'vue'
 import { getGoals, updateGoalStatus, deleteGoal } from '../services/goalsService'
 import GoalForm from '../components/GoalForm.vue'
+import EmptyState from '../components/EmptyState.vue'
+import SkeletonLoader from '../components/SkeletonLoader.vue'
 import { getBodyMetrics } from '../services/bodyMetricsService'
+import { useToastStore } from '../stores/toast'
 import { formatDateBr } from '../utils/date'
-import { Trash2 } from 'lucide-vue-next'
+import { Trash2, Target } from 'lucide-vue-next'
+
+const toast = useToastStore()
 
 const loading = ref(true)
 const latestMetrics = ref(null)
@@ -106,10 +137,13 @@ const activeGoals = computed(() => goals.value.filter(g => g.status === 'ACTIVE'
 const pastGoals = computed(() => goals.value.filter(g => g.status !== 'ACTIVE'))
 
 async function updateStatus(id, status) {
-  await updateGoalStatus(id, status)
-  loading.value = true
-  await load()
-  loading.value = false
+  try {
+    await updateGoalStatus(id, status)
+    await load()
+    toast.success(status === 'ACHIEVED' ? 'Goal marked as achieved' : 'Goal abandoned')
+  } catch {
+    toast.error('Failed to update goal')
+  }
 }
 
 async function deleteGoalHandler(id) {
@@ -117,8 +151,9 @@ async function deleteGoalHandler(id) {
   try {
     await deleteGoal(id)
     await load()
-  } catch (err) {
-    console.error('Delete goal error:', err.response?.status, err.message)
+    toast.success('Goal deleted')
+  } catch {
+    toast.error('Failed to delete goal')
   }
 }
 
@@ -176,10 +211,11 @@ function goalProgress(goal) {
   border-left: 3px solid var(--purple);
   border-radius: 8px;
   padding: 14px 18px;
+  position: relative;
 }
-.goal-card.past {
-  border-left-color: var(--border);
-}
+.goal-card.on-track { border-left-color: var(--green); }
+.goal-card.behind { border-left-color: var(--orange); }
+.goal-card.past { border-left-color: var(--border); }
 .metric-label {
   color: var(--text-muted);
   font-size: 0.85rem;
@@ -189,29 +225,43 @@ function goalProgress(goal) {
   color: var(--text-muted);
   margin: 0 6px;
 }
-.progress-bar {
-  height: 4px;
+
+.progress-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 8px 0;
+}
+.progress-bg {
+  flex: 1;
+  height: 14px;
   background: var(--bg);
-  border-radius: 2px;
-  margin: 6px 0;
+  border-radius: 7px;
   overflow: hidden;
 }
 .progress-fill {
   height: 100%;
   background: var(--green);
-  border-radius: 2px;
-  transition: width 0.3s ease;
+  border-radius: 7px;
+  transition: width 0.4s ease;
+  min-width: 0;
 }
+.goal-card.behind .progress-fill { background: var(--orange); }
+.progress-pct {
+  font-family: var(--font-data);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text);
+  min-width: 38px;
+  text-align: right;
+}
+
 .remaining {
   font-size: 0.85rem;
   margin: 6px 0 0;
 }
-.remaining.reached {
-  color: var(--green);
-}
-.remaining.pending {
-  color: var(--orange);
-}
+.remaining.reached { color: var(--green); }
+.remaining.pending { color: var(--orange); }
 .eta {
   font-size: 0.8rem;
   color: var(--text-muted);
@@ -228,6 +278,19 @@ function goalProgress(goal) {
   font-size: 0.8rem;
   margin: 4px 0 0;
 }
+
+.past-range {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+}
+.past-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 4px 0 0;
+}
+
 .actions {
   margin-top: 10px;
   display: flex;
@@ -256,25 +319,6 @@ function goalProgress(goal) {
 .status-tag.achieved { background: rgba(61, 214, 140, 0.15); color: var(--green); }
 .status-tag.abandoned { background: rgba(140, 147, 166, 0.15); color: var(--text-muted); }
 .empty { color: var(--text-muted); font-size: 0.85rem; }
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-6) 0;
-  color: var(--text-muted);
-}
-.empty-icon {
-  color: var(--border);
-  margin-bottom: var(--space-1);
-}
-.empty-title {
-  font-weight: 600;
-  color: var(--text-muted);
-}
-.empty-desc {
-  font-size: 0.85rem;
-}
 .btn-icon {
   display: inline-flex;
   align-items: center;
@@ -288,5 +332,10 @@ function goalProgress(goal) {
 .delete-goal:hover {
   color: var(--orange);
   background: rgba(251, 146, 60, 0.12);
+}
+.delete-goal {
+  position: absolute;
+  top: 8px;
+  right: 8px;
 }
 </style>

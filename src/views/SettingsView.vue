@@ -1,5 +1,26 @@
 <template>
-  <div v-if="loading" class="loading"></div>
+  <div v-if="loading" class="page">
+    <h1>Settings</h1>
+    <section>
+      <h2>Workout target</h2>
+      <div class="card card-fit">
+        <SkeletonLoader height="2.5rem" width="280px" />
+      </div>
+    </section>
+    <section>
+      <h2>Workout types</h2>
+      <div class="card card-fit">
+        <SkeletonLoader height="2.5rem" width="320px" />
+      </div>
+    </section>
+    <section>
+      <h2>Health Connect mappings</h2>
+      <div class="card card-fit">
+        <SkeletonLoader height="2rem" width="300px" />
+        <SkeletonLoader height="2rem" width="220px" />
+      </div>
+    </section>
+  </div>
   <div v-else class="page">
     <h1>Settings</h1>
 
@@ -97,10 +118,14 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import SkeletonLoader from '../components/SkeletonLoader.vue'
 import { getSettings, updateSettings } from '../services/settingsService'
+import { useToastStore } from '../stores/toast'
 import { getWorkoutTypes, createWorkoutType, deleteWorkoutType } from '../services/workoutService'
 import { getMappings, addMapping, deleteMapping } from '../services/syncService'
 import { Target, X } from 'lucide-vue-next'
+
+const toast = useToastStore()
 
 const PALETTE = ['#4F8DFF', '#8B5CF6', '#2DD4BF', '#F472B6', '#FACC15']
 
@@ -155,6 +180,7 @@ async function addType() {
     await createWorkoutType({ name, colorHex: newTypeColor.value })
     newTypeName.value = ''
     await load()
+    toast.success('Workout type added')
   } catch {
     typeError.value = 'Could not create type.'
   }
@@ -166,6 +192,7 @@ async function deleteType(type) {
   try {
     await deleteWorkoutType(type.id)
     await load()
+    toast.success('Workout type deleted')
   } catch {
     typeError.value = `Cannot delete "${type.name}" — it has existing workout logs or mappings.`
   }
@@ -178,6 +205,7 @@ async function addMappingHandler() {
     newMappingType.value = null
     newMappingWorkoutTypeId.value = null
     await load()
+    toast.success('Mapping added')
   } catch {
     mappingError.value = 'Could not add mapping.'
   }
@@ -189,6 +217,7 @@ async function deleteMappingHandler(healthConnectType) {
   try {
     await deleteMapping(healthConnectType)
     await load()
+    toast.success('Mapping deleted')
   } catch {
     mappingError.value = 'Could not delete mapping.'
   }

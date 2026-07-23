@@ -1,20 +1,67 @@
 <template>
-  <div v-if="loading" class="loading"></div>
-  <div v-else-if="stats" class="page">
+  <div v-if="loading" class="page">
     <section>
       <div class="insights-row">
-        <div v-if="insightText !== undefined" class="card insight-card" :class="{ loading: insightLoading, unavailable: insightUnavailable }">
-          <p v-if="insightVerdict" class="insight-verdict"><Sparkles :size="16" class="verdict-icon" /> {{ insightVerdict }}</p>
-          <p class="insight-text" :class="{ dimmed: insightLoading }">{{ insightText || 'No insight yet — add a new measurement to generate one.' }}</p>
-          <div class="insight-footer">
-            <span v-if="insightDate && !insightLoading" class="insight-date">Updated after your {{ insightDate }} measurement</span>
-            <span v-if="insightFallback && !insightUnavailable" class="insight-fallback">(auto-generated)</span>
-            <span v-if="insightLoading" class="insight-loading">Regenerating...</span>
-            <button class="btn-icon" title="Regenerate" @click="refreshInsight" :disabled="insightLoading">
-              <RefreshCw :size="14" />
-            </button>
+        <div class="card">
+          <SkeletonLoader height="0.9rem" width="60%" />
+          <SkeletonLoader height="0.85rem" />
+          <SkeletonLoader height="0.85rem" width="92%" />
+          <SkeletonLoader height="0.85rem" width="75%" />
+          <SkeletonLoader height="0.85rem" width="48%" />
+        </div>
+        <div class="side-cols">
+          <div class="stat-col">
+            <div class="card" v-for="i in 3" :key="'stat-'+i">
+              <SkeletonLoader height="0.75rem" width="60%" />
+              <SkeletonLoader height="1.2rem" width="80%" />
+            </div>
+          </div>
+          <div class="body-comp-col">
+            <div class="card" v-for="i in 3" :key="'comp-'+i">
+              <SkeletonLoader height="0.75rem" width="50%" />
+              <SkeletonLoader height="1.3rem" width="40%" />
+            </div>
           </div>
         </div>
+      </div>
+    </section>
+    <section>
+      <div class="activity-row">
+        <div class="card">
+          <SkeletonLoader height="0.85rem" width="25%" />
+          <SkeletonLoader height="180px" />
+        </div>
+        <div class="card">
+          <SkeletonLoader height="0.85rem" width="30%" />
+          <SkeletonLoader height="180px" />
+        </div>
+      </div>
+    </section>
+  </div>
+  <div v-else-if="stats" class="page">
+    <section v-if="isNewUser">
+      <div class="card welcome-card">
+        <h2>Welcome to AIO Fitness</h2>
+        <p class="welcome-desc">Start tracking your fitness journey:</p>
+        <div class="welcome-actions">
+          <RouterLink to="/workouts" class="welcome-btn"><Dumbbell :size="16" /> Log your first workout</RouterLink>
+          <RouterLink to="/body-metrics" class="welcome-btn"><Scale :size="16" /> Add your first measurement</RouterLink>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="insights-row">
+        <InsightCard
+          v-if="insightText !== undefined"
+          :insight="insightCardData"
+          :loading="insightLoading"
+          @regenerate="refreshInsight"
+        >
+          <template #cta>
+            <RouterLink to="/body-metrics">Add a new measurement</RouterLink> to generate one.
+          </template>
+        </InsightCard>
         <div class="side-cols" :class="{ 'with-note': stats.bodyCompositionStats.totalMeasurements >= 2, full: insightText === undefined }">
           <p v-if="stats.bodyCompositionStats.totalMeasurements >= 2" class="body-comp-note">All-time, since first measurement</p>
           <div class="stat-col">
@@ -67,12 +114,10 @@
     <section>
       <div class="activity-row">
         <div class="card">
-          <h2>Workout history</h2>
           <WorkoutHeatmap :refresh="0" />
         </div>
         <div class="card chart-card">
-          <h2>Workouts per week</h2>
-          <WeeklySessionsChart :refresh="0" />
+          <WeeklyWorkoutsChart :refresh="0" />
         </div>
       </div>
     </section>
@@ -82,6 +127,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { RouterLink } from 'vue-router'
 import { getStats } from '../services/statsService'
 import { getSettings } from '../services/settingsService'
 import { getHeatmap } from '../services/workoutService'
@@ -89,10 +135,15 @@ import { getBodyMetrics } from '../services/bodyMetricsService'
 import { toLocalDateStr, formatDateBr } from '../utils/date'
 import { getInsights, regenerateInsights } from '../services/insightService'
 import StatCard from '../components/StatCard.vue'
+import SkeletonLoader from '../components/SkeletonLoader.vue'
 import WorkoutHeatmap from '../components/WorkoutHeatmap.vue'
-import WeeklySessionsChart from '../components/WeeklySessionsChart.vue'
+import WeeklyWorkoutsChart from '../components/WeeklyWorkoutsChart.vue'
 import LatestMeasurementStats from '../components/LatestMeasurementStats.vue'
-import { Flame, Scale, TrendingUp, TrendingDown, CalendarCheck, RefreshCw, Sparkles } from 'lucide-vue-next'
+import InsightCard from '../components/InsightCard.vue'
+import { useToastStore } from '../stores/toast'
+import { Flame, Scale, TrendingUp, TrendingDown, CalendarCheck, Dumbbell } from 'lucide-vue-next'
+
+const toast = useToastStore()
 
 const stats = ref(null)
 const loading = ref(true)
@@ -107,6 +158,14 @@ const insightVerdict = computed(() => insight.value?.verdict || null)
 const insightDate = computed(() => insight.value?.generatedAt ? formatInsightDate(insight.value.generatedAt) : null)
 const insightFallback = computed(() => insight.value?.fallback ?? false)
 const insightUnavailable = computed(() => insightText.value?.includes('could not be generated') ?? false)
+
+const insightCardData = computed(() => ({
+  text: insight.value?.text,
+  verdict: insight.value?.verdict || null,
+  date: insight.value?.generatedAt ? formatInsightDate(insight.value.generatedAt) : null,
+  fallback: insight.value?.fallback ?? false,
+  unavailable: insightText.value?.includes('could not be generated') ?? false
+}))
 
 onMounted(async () => {
   try {
@@ -150,6 +209,10 @@ const weekSubtitle = computed(() =>
   thisWeekSessions.value >= targetPerWeek.value ? 'Weekly target met!' : ''
 )
 
+const isNewUser = computed(() =>
+  thisWeekSessions.value === 0 && stats.value?.bodyCompositionStats?.totalMeasurements === 0
+)
+
 function formatChange(value) {
   if (value == null) return '—'
   return value > 0 ? `+${value.toFixed(1)}` : `${value.toFixed(1)}`
@@ -173,7 +236,9 @@ async function refreshInsight() {
   try {
     const res = await regenerateInsights()
     insight.value = res.data
+    toast.success('Insight regenerated')
   } catch {
+    toast.error('Failed to regenerate insight')
   }
   insightLoading.value = false
 }
@@ -275,79 +340,6 @@ section {
   .insights-row { grid-template-columns: 1fr; }
 }
 
-.insight-card {
-  border-left: 3px solid var(--purple);
-}
-.insight-card.unavailable {
-  border-left-color: var(--orange);
-}
-.insight-verdict {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.05rem;
-  color: var(--text);
-  background: rgba(139, 92, 246, 0.12);
-  border: 1px solid rgba(139, 92, 246, 0.25);
-  border-radius: 6px;
-  padding: 4px 10px;
-  margin: 0 0 10px;
-}
-.verdict-icon {
-  color: var(--purple);
-  flex-shrink: 0;
-}
-.insight-card.unavailable .insight-verdict {
-  background: rgba(251, 146, 60, 0.12);
-  border-color: rgba(251, 146, 60, 0.25);
-}
-.insight-card.unavailable .verdict-icon {
-  color: var(--orange);
-}
-.insight-text {
-  font-size: 0.88rem;
-  line-height: 1.6;
-  margin: 0;
-  white-space: pre-line;
-}
-.insight-footer {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
-  padding-top: var(--space-2);
-  border-top: 1px solid var(--border);
-}
-.insight-date {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-.insight-fallback {
-  font-size: 0.7rem;
-  color: var(--orange);
-}
-.insight-text.dimmed { opacity: 0.4; }
-.insight-loading {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  animation: pulse 1.5s ease-in-out infinite;
-}
-.btn-icon {
-  display: flex;
-  align-items: center;
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  padding: 4px;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-left: auto;
-}
-.btn-icon:hover { color: var(--text); background: var(--bg); }
-.btn-icon:disabled { opacity: 0.4; cursor: default; }
-
 .body-comp-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -407,5 +399,46 @@ section {
   color: var(--text-muted);
   font-size: 0.85rem;
   margin: 0;
+}
+
+.welcome-card {
+  text-align: center;
+  padding: var(--space-6) var(--space-4);
+}
+
+.welcome-card h2 {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  margin: 0 0 8px;
+}
+
+.welcome-desc {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0 0 var(--space-4);
+}
+
+.welcome-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.welcome-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--blue);
+  color: var(--bg);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.welcome-btn:hover {
+  filter: brightness(1.1);
 }
 </style>

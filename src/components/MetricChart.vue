@@ -1,7 +1,11 @@
 <template>
   <div class="chart-card">
     <h3>{{ label }} ({{ unit }})</h3>
-    <Line :data="chartData" :options="chartOptions" />
+    <Line v-if="entries.length" :data="chartData" :options="chartOptions" />
+    <div v-else class="chart-empty">
+      <p class="chart-empty-text">No data yet.</p>
+      <p class="chart-empty-hint">Add measurements to see progress.</p>
+    </div>
   </div>
 </template>
 
@@ -118,5 +122,26 @@ h3 {
   font-family: var(--font-body);
   font-weight: 600;
   margin: 0 0 12px;
+}
+
+.chart-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  gap: 4px;
+}
+
+.chart-empty-text {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.chart-empty-hint {
+  color: var(--border);
+  font-size: 0.75rem;
+  margin: 0;
 }
 </style>
