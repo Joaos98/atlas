@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.joaosousa</groupId>
-	<artifactId>aio-fitness</artifactId>
+	<artifactId>atlas</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
+	<name>Atlas</name>
 	<description/>
 	<url/>
 	<licenses>

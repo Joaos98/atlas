@@ -1,4 +1,4 @@
-# aio-fitness Backend
+# Atlas Backend
 
 REST API backend for a personal single-user fitness tracking application. Built with Spring Boot 4.1.0 and Java 21.
 
@@ -74,7 +74,7 @@ Or build and run:
 
 ```bash
 ./mvnw clean package -DskipTests
-java -jar target/aio-fitness-0.0.1-SNAPSHOT.jar --spring.profiles.active=local
+java -jar target/atlas-0.0.1-SNAPSHOT.jar --spring.profiles.active=local
 ```
 
 ### Configuration
@@ -99,7 +99,7 @@ Build the JAR and run with environment variables:
 
 ```bash
 ./mvnw clean package -DskipTests
-java -jar target/aio-fitness-0.0.1-SNAPSHOT.jar
+java -jar target/atlas-0.0.1-SNAPSHOT.jar
 ```
 
 The app binds to `0.0.0.0:${PORT}` and uses `validate` DDL mode in production — tables must already exist.
