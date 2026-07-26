@@ -39,6 +39,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/ping").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/sync").permitAll()
                         .anyRequest().authenticated()
                 )
