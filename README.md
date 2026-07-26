@@ -1,4 +1,4 @@
-# aio-fitness Frontend
+# Atlas Frontend
 
 Personal single-user fitness tracking dashboard. Built with **Vue 3** (Composition API), **Vite**, **Pinia**, and **Vue Router**.
 

@@ -1,6 +1,6 @@
 <template>
   <nav class="sidebar">
-    <div class="brand"><Dumbbell :size="18" class="brand-icon" /> AIO Fitness</div>
+    <div class="brand"><Dumbbell :size="18" class="brand-icon" /> Atlas</div>
     <router-link to="/" class="nav-item"><LayoutDashboard :size="16" /> Dashboard</router-link>
     <router-link to="/workouts" class="nav-item"><Dumbbell :size="16" /> Workouts</router-link>
     <router-link to="/body-metrics" class="nav-item"><Activity :size="16" /> Body Metrics</router-link>

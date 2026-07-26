@@ -41,7 +41,7 @@
   <div v-else-if="stats" class="page">
     <section v-if="isNewUser">
       <div class="card welcome-card">
-        <h2>Welcome to AIO Fitness</h2>
+        <h2>Welcome to Atlas</h2>
         <p class="welcome-desc">Start tracking your fitness journey:</p>
         <div class="welcome-actions">
           <RouterLink to="/workouts" class="welcome-btn"><Dumbbell :size="16" /> Log your first workout</RouterLink>

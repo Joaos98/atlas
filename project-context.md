@@ -1,4 +1,4 @@
-# AIO Fitness — Project Context
+# Atlas — Project Context
  
 ## What this is
  
@@ -32,9 +32,9 @@ A personal fitness tracking web app for a **single user** (the owner). It logs w
 ## Repository structure
  
 Two separate repositories:
-- `AIOFitness-backend` — Spring Boot project
-- `AIOFitness-frontend` — Vue project
-### Backend package structure (`com.joaosousa.aiofitness`)
+- `atlas-backend` — Spring Boot project
+- `atlas-frontend` — Vue project
+### Backend package structure (`com.joaosousa.atlas`)
 ```
 entity/         — JPA entity classes (one per DB table)
 repository/     — Spring Data JPA interfaces (one per entity)

@@ -1,7 +1,7 @@
 <template>
   <div class="login-page">
     <div class="login-card">
-      <h1><Dumbbell :size="22" class="logo-icon" /> AIO Fitness</h1>
+      <h1><Dumbbell :size="22" class="logo-icon" /> Atlas</h1>
       <p class="subtitle">Log in to continue</p>
       <form @submit.prevent="handleLogin">
         <div>
