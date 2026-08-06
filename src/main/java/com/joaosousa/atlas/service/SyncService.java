@@ -6,15 +6,17 @@ import com.joaosousa.atlas.entity.ExerciseTypeMapping;
 import com.joaosousa.atlas.entity.WorkoutLog;
 import com.joaosousa.atlas.entity.WorkoutType;
 import com.joaosousa.atlas.repository.ExerciseTypeMappingRepository;
-import com.joaosousa.atlas.repository.WorkoutLogRepository;
 import com.joaosousa.atlas.repository.WorkoutTypeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -29,17 +31,24 @@ public class SyncService {
     private static final String EXPECTED_METHOD = "automatically_recorded";
 
     private final ExerciseTypeMappingRepository mappingRepository;
-    private final WorkoutLogRepository workoutLogRepository;
     private final WorkoutTypeRepository workoutTypeRepository;
+    private final WorkoutLogInserter workoutLogInserter;
+    private final ZoneId appZone;
 
     public SyncService(ExerciseTypeMappingRepository mappingRepository,
-                       WorkoutLogRepository workoutLogRepository,
-                       WorkoutTypeRepository workoutTypeRepository) {
+                       WorkoutTypeRepository workoutTypeRepository,
+                       WorkoutLogInserter workoutLogInserter,
+                       @Value("${app.timezone}") ZoneId appZone) {
         this.mappingRepository = mappingRepository;
-        this.workoutLogRepository = workoutLogRepository;
         this.workoutTypeRepository = workoutTypeRepository;
+        this.workoutLogInserter = workoutLogInserter;
+        this.appZone = appZone;
     }
 
+    /**
+     * Must not be annotated @Transactional: each insert runs in its own REQUIRES_NEW
+     * transaction (WorkoutLogInserter) so a duplicate cannot poison the whole batch.
+     */
     public SyncResponse sync(SyncRequest request) {
         if (request.getExercise() == null || request.getExercise().isEmpty()) {
             return new SyncResponse(0, 0);
@@ -56,17 +65,27 @@ public class SyncService {
         int skipped = 0;
 
         for (SyncRequest.ExerciseEntry entry : filtered) {
-            String dedupKey = entry.getStart_time() + "|" + entry.getDuration_seconds();
-            if (!seen.add(dedupKey)) {
-                skipped++;
-                continue;
-            }
-
             int healthConnectType;
             try {
                 healthConnectType = Integer.parseInt(entry.getType());
             } catch (NumberFormatException e) {
                 log.warn("Skipping exercise with non-numeric type: {}", entry.getType());
+                skipped++;
+                continue;
+            }
+
+            Instant start;
+            try {
+                start = Instant.parse(entry.getStart_time());
+            } catch (DateTimeParseException e) {
+                log.warn("Skipping exercise with unparseable start_time: {}", entry.getStart_time());
+                skipped++;
+                continue;
+            }
+
+            String signature = start.toEpochMilli() + "|" + healthConnectType;
+
+            if (!seen.add(signature)) {
                 skipped++;
                 continue;
             }
@@ -78,23 +97,19 @@ public class SyncService {
                 continue;
             }
 
-            WorkoutType workoutType = mapping.get().getWorkoutType();
-            LocalDate logDate = parseUtcDate(entry.getStart_time());
-            int durationMinutes = (int) Math.ceil(entry.getDuration_seconds() / 60.0);
-
-            boolean exists = workoutLogRepository.existsByLogDateAndWorkoutTypeAndDurationMinutes(
-                    logDate, workoutType, durationMinutes);
-            if (exists) {
-                skipped++;
-                continue;
-            }
-
             WorkoutLog workoutLog = new WorkoutLog();
-            workoutLog.setWorkoutType(workoutType);
-            workoutLog.setLogDate(logDate);
-            workoutLog.setDurationMinutes(durationMinutes);
-            workoutLogRepository.save(workoutLog);
-            created++;
+            workoutLog.setWorkoutType(mapping.get().getWorkoutType());
+            workoutLog.setLogDate(start.atZone(appZone).toLocalDate());
+            workoutLog.setDurationMinutes((int) Math.ceil(entry.getDuration_seconds() / 60.0));
+            workoutLog.setSyncSignature(signature);
+
+            try {
+                workoutLogInserter.insert(workoutLog);
+                created++;
+            } catch (DataIntegrityViolationException e) {
+                log.debug("Duplicate sync signature {}, skipping", signature);
+                skipped++;
+            }
         }
 
         log.info("Sync complete: {} created, {} skipped", created, skipped);
@@ -117,10 +132,5 @@ public class SyncService {
 
     public void deleteMapping(int healthConnectType) {
         mappingRepository.deleteById(healthConnectType);
-    }
-
-    private LocalDate parseUtcDate(String utcString) {
-        Instant instant = Instant.parse(utcString);
-        return instant.atZone(ZoneId.systemDefault()).toLocalDate();
     }
 }

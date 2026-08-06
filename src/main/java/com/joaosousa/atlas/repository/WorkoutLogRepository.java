@@ -13,8 +13,6 @@ public interface WorkoutLogRepository extends JpaRepository<WorkoutLog, Long> {
 
     boolean existsByWorkoutType(WorkoutType workoutType);
 
-    boolean existsByLogDateAndWorkoutTypeAndDurationMinutes(LocalDate logDate, WorkoutType workoutType, int durationMinutes);
-
     @Query("SELECT wl FROM WorkoutLog wl JOIN FETCH wl.workoutType WHERE wl.logDate BETWEEN :startDate AND :endDate ORDER BY wl.logDate")
     List<WorkoutLog> findByDateRangeFetched(
             @Param("startDate") LocalDate startDate,

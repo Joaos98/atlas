@@ -24,4 +24,7 @@ public class WorkoutLog {
 
     @Column(name = "duration_minutes")
     private Integer durationMinutes;
+
+    @Column(name = "sync_signature", length = 100)
+    private String syncSignature;
 }

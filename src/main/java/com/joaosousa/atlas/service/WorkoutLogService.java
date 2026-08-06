@@ -6,6 +6,7 @@ import com.joaosousa.atlas.dto.WorkoutLogDto;
 import com.joaosousa.atlas.entity.WorkoutLog;
 import com.joaosousa.atlas.repository.AppSettingsRepository;
 import com.joaosousa.atlas.repository.WorkoutLogRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
@@ -23,10 +25,14 @@ import java.util.stream.Collectors;
 public class WorkoutLogService {
     private final WorkoutLogRepository workoutLogRepository;
     private final AppSettingsRepository appSettingsRepository;
+    private final ZoneId appZone;
 
-    public WorkoutLogService(WorkoutLogRepository workoutLogRepository, AppSettingsRepository appSettingsRepository) {
+    public WorkoutLogService(WorkoutLogRepository workoutLogRepository,
+                             AppSettingsRepository appSettingsRepository,
+                             @Value("${app.timezone}") ZoneId appZone) {
         this.workoutLogRepository = workoutLogRepository;
         this.appSettingsRepository = appSettingsRepository;
+        this.appZone = appZone;
     }
 
     public WorkoutLog save(WorkoutLog workoutLog) {
@@ -80,7 +86,7 @@ public class WorkoutLogService {
                 .getTargetWorkoutsPerWeek();
 
         List<LocalDate> allDates = workoutLogRepository.findDistinctWorkoutDates(
-                LocalDate.of(2000, 1, 1), LocalDate.now()
+                LocalDate.of(2000, 1, 1), LocalDate.now(appZone)
         );
 
         if (allDates.isEmpty()) return new StreakDto(0, 0);
@@ -112,7 +118,7 @@ public class WorkoutLogService {
             }
         }
 
-        LocalDate thisWeekSunday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+        LocalDate thisWeekSunday = LocalDate.now(appZone).with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
         LocalDate lastWeekSunday = thisWeekSunday.minusWeeks(1);
         LocalDate mostRecentQualifying = qualifyingWeeks.getLast();
 
