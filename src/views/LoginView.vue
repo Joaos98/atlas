@@ -65,7 +65,7 @@ h1 {
   align-items: center;
   gap: 8px;
 }
-.logo-icon { height: 22px; }
+.logo-icon { height: 28px; }
 .subtitle {
   color: var(--text-muted);
   font-size: 0.85rem;

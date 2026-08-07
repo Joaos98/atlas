@@ -39,7 +39,7 @@ function handleLogout() {
   top: 0;
 }
 .brand { font-family: var(--font-display); font-size: 1.1rem; padding: 0 8px 20px; display: flex; align-items: center; gap: 8px; }
-.brand-icon { height: 18px; }
+.brand-icon { height: 22px; }
 .nav-item {
   display: flex;
   align-items: center;
