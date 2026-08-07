@@ -1,6 +1,6 @@
 <template>
   <nav class="sidebar">
-    <div class="brand"><Dumbbell :size="18" class="brand-icon" /> Atlas</div>
+    <div class="brand"><img src="/atlas-logo.svg" class="brand-icon" alt="Atlas" /> Atlas</div>
     <router-link to="/" class="nav-item"><LayoutDashboard :size="16" /> Dashboard</router-link>
     <router-link to="/workouts" class="nav-item"><Dumbbell :size="16" /> Workouts</router-link>
     <router-link to="/body-metrics" class="nav-item"><Activity :size="16" /> Body Metrics</router-link>
@@ -39,7 +39,7 @@ function handleLogout() {
   top: 0;
 }
 .brand { font-family: var(--font-display); font-size: 1.1rem; padding: 0 8px 20px; display: flex; align-items: center; gap: 8px; }
-.brand-icon { color: var(--blue); }
+.brand-icon { height: 18px; }
 .nav-item {
   display: flex;
   align-items: center;

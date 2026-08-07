@@ -1,7 +1,7 @@
 <template>
   <div class="login-page">
     <div class="login-card">
-      <h1><Dumbbell :size="22" class="logo-icon" /> Atlas</h1>
+      <h1><img src="/atlas-logo.svg" class="logo-icon" alt="Atlas" /> Atlas</h1>
       <p class="subtitle">Log in to continue</p>
       <form @submit.prevent="handleLogin">
         <div>
@@ -24,7 +24,6 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import api from '../services/api'
-import { Dumbbell } from 'lucide-vue-next'
 
 const username = ref('')
 const password = ref('')
@@ -66,7 +65,7 @@ h1 {
   align-items: center;
   gap: 8px;
 }
-.logo-icon { color: var(--blue); }
+.logo-icon { height: 22px; }
 .subtitle {
   color: var(--text-muted);
   font-size: 0.85rem;
