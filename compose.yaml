@@ -1,0 +1,20 @@
+services:
+  atlas:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: atlas:local
+    container_name: atlas
+    ports:
+      - "${ATLAS_PORT:-8080}:8080"
+    environment:
+      - SYNC_API_KEY=${SYNC_API_KEY:?Set SYNC_API_KEY in .env}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - ATLAS_DB_PATH=/data/atlas.db
+      - PORT=8080
+    volumes:
+      - atlas-data:/data
+    restart: unless-stopped
+
+volumes:
+  atlas-data:
