@@ -1,9 +1,45 @@
 # Atlas — Monorepo Consolidation Plan
 
-Planned refactor, not yet started. Written 2026-08-11. Sits between the completed
-self-hosting work ([atlas-selfhost-plan.md](atlas-selfhost-plan.md)) and the
+**Status: COMPLETE.** Written 2026-08-11; executed and verified the same day.
+Sits between the completed self-hosting work
+([atlas-selfhost-plan.md](atlas-selfhost-plan.md)) and the
 [generalization to-dos](atlas-generalization-todos.md), and before the cutover
 described in the self-host plan §8.
+
+> **Status:** all of §5 shipped on `atlas-backend`'s `selfhost` branch, unpushed.
+> `master` in both repos is untouched; the hosted Render/Vercel deployment still
+> serves the pre-refactor app. §5.7's clean-clone acceptance test passed after one
+> real bug it caught (below). `atlas-frontend`'s `selfhost` safety branch has been
+> deleted — its content is preserved in `atlas-backend`'s history via the subtree
+> graft, confirmed by the acceptance test.
+>
+> **What the acceptance test actually caught:** the first clean-clone run of
+> `SeedFixtureTest` failed with "Run the seed generator first" — not because the
+> seed path fix (§5.5) was wrong, but because the edit to
+> `AbstractSqliteIntegrationTest.java`, along with edits to `project-context.md`
+> and `server/README.md`, had been made in the working tree but never `git add`ed
+> before the step-4 commit. The commit silently didn't contain what its own
+> message described. A second clean clone after a fix-up commit passed cleanly:
+> 7 backend tests (SQLite integration, `FreshInstallTest`, `SpaServingTest`,
+> `SeedFixtureTest`), 15 frontend tests, a demo build with no `axios` in the
+> bundle, and a full Docker Compose cycle — build, run, create a workout log,
+> confirm `AppSettingsSeeder` seeded `app_settings`, confirm the SQLite
+> `BETWEEN`-on-ISO-string heatmap query and the workout-type join both return
+> correct data, restart the container, confirm both survive in the named volume.
+> This is exactly the failure mode §1 predicted for the split-repo build, just
+> one seam over: a change that's right in isolation but silently incomplete
+> because nothing forced it to be checked as a whole. One clean-clone run is
+> what forced it.
+>
+> One unrelated finding during verification, not a defect in this plan: the
+> local machine's port 8080 is already bound by qBittorrent's WebUI, which
+> `compose.yaml`'s existing `${ATLAS_PORT:-8080}` override handles without any
+> change needed — worth knowing if `docker compose up` on this machine ever
+> looks like it started but doesn't answer on 8080.
+>
+> Not done here, deliberately out of scope per §4: pushing the branch (§6 step
+> 7, gated on Render's auto-deploy being turned off first), the GitHub rename
+> to `atlas`, demo hosting (§7), and CI (§7).
 
 ## 1. Goal
 
