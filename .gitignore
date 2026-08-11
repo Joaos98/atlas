@@ -5,6 +5,15 @@ target/
 !**/src/test/**/target/
 application-local.properties
 
+# SQLite database
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+
+# Built frontend (docker build copies it in; never commit)
+src/main/resources/static/
+
 ### STS ###
 .apt_generated
 .classpath

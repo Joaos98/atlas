@@ -3,19 +3,19 @@ package com.joaosousa.atlas.service;
 import com.joaosousa.atlas.dto.HeatmapDayDto;
 import com.joaosousa.atlas.dto.StreakDto;
 import com.joaosousa.atlas.dto.WorkoutLogDto;
+import com.joaosousa.atlas.entity.AppSettings;
 import com.joaosousa.atlas.entity.WorkoutLog;
 import com.joaosousa.atlas.repository.AppSettingsRepository;
 import com.joaosousa.atlas.repository.WorkoutLogRepository;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
@@ -25,14 +25,14 @@ import java.util.stream.Collectors;
 public class WorkoutLogService {
     private final WorkoutLogRepository workoutLogRepository;
     private final AppSettingsRepository appSettingsRepository;
-    private final ZoneId appZone;
+    private final Clock clock;
 
     public WorkoutLogService(WorkoutLogRepository workoutLogRepository,
                              AppSettingsRepository appSettingsRepository,
-                             @Value("${app.timezone}") ZoneId appZone) {
+                             Clock clock) {
         this.workoutLogRepository = workoutLogRepository;
         this.appSettingsRepository = appSettingsRepository;
-        this.appZone = appZone;
+        this.clock = clock;
     }
 
     public WorkoutLog save(WorkoutLog workoutLog) {
@@ -81,12 +81,12 @@ public class WorkoutLogService {
     }
 
     public StreakDto calculateStreaks() {
-        int target = appSettingsRepository.findById(1L)
+        int target = appSettingsRepository.findById(AppSettings.SETTINGS_ID)
                 .orElseThrow()
                 .getTargetWorkoutsPerWeek();
 
         List<LocalDate> allDates = workoutLogRepository.findDistinctWorkoutDates(
-                LocalDate.of(2000, 1, 1), LocalDate.now(appZone)
+                LocalDate.of(2000, 1, 1), LocalDate.now(clock)
         );
 
         if (allDates.isEmpty()) return new StreakDto(0, 0);
@@ -118,7 +118,7 @@ public class WorkoutLogService {
             }
         }
 
-        LocalDate thisWeekSunday = LocalDate.now(appZone).with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+        LocalDate thisWeekSunday = LocalDate.now(clock).with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
         LocalDate lastWeekSunday = thisWeekSunday.minusWeeks(1);
         LocalDate mostRecentQualifying = qualifyingWeeks.getLast();
 

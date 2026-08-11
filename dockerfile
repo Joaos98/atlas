@@ -1,9 +1,18 @@
-# Build stage
+# Build stage 1: frontend
+FROM node:22-alpine AS frontend
+WORKDIR /frontend
+COPY aio-fitness-frontend/aio-fitness-frontend/package.json aio-fitness-frontend/aio-fitness-frontend/package-lock.json ./
+RUN npm ci
+COPY aio-fitness-frontend/aio-fitness-frontend/ ./
+RUN npm run build
+
+# Build stage 2: backend (static/ populated with the built frontend)
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
-COPY pom.xml .
+COPY aio-fitness/pom.xml .
 RUN mvn dependency:go-offline -B
-COPY src ./src
+COPY aio-fitness/src ./src
+COPY --from=frontend /frontend/dist ./src/main/resources/static
 RUN mvn clean package -DskipTests
 
 # Run stage

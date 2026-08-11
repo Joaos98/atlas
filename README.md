@@ -1,54 +1,106 @@
-# Atlas Backend
+# Atlas
 
-REST API backend for a personal single-user fitness tracking application. Built with Spring Boot 4.1.0 and Java 21.
+Self-hosted fitness tracker for one person: workout logging, body metrics,
+goals, weekly streaks, and AI insights. Spring Boot 4.1 + Java 21 backend with
+SQLite, Vue 3 frontend served from the same origin.
 
-## Tech Stack
+**Atlas is not internet-facing.** It has no authentication and is designed to
+run on your own hardware, behind your network or reverse proxy (Tailscale,
+Caddy, Authelia — whatever you already use). Do not expose it publicly.
 
-- **Spring Boot 4.1.0** — WebMVC, Data JPA, Security, Validation
-- **Java 21**
-- **PostgreSQL** — production database
-- **Maven** — build tool (wrapper included)
-- **Google Gemini API** — AI-powered fitness coaching insights
+## Try the demo
+
+A static demo with seeded data runs entirely in your browser —
+[try it](https://github.com/Joaos98/atlas-frontend) (see the frontend README's
+`npm run build:demo`), or read how the demo is verified against this real
+backend in [the frontend README](https://github.com/Joaos98/atlas-frontend).
+
+## Screenshots
+
+> Coming soon — capture the app running and drop the images into
+> `docs/screenshots/`, then link them here.
+
+To capture: build and run the app (Quickstart below), then screenshot the
+Dashboard, Workouts, Body Metrics, Goals, and Settings pages. Full-page
+captures work best with a dark theme.
+
+## Quickstart (Docker)
+
+```bash
+# From the repo root that contains both aio-fitness and aio-fitness-frontend
+echo "SYNC_API_KEY=$(openssl rand -hex 24)" > .env
+docker compose up -d --build
+# open http://localhost:8080
+```
+
+The image builds the frontend and backend together. The SQLite database lives
+at `/data/atlas.db` inside a named volume.
+
+**Back up by copying the file** — the entire app state is one SQLite file:
+
+```bash
+docker compose exec atlas sh -c 'cat /data/atlas.db' > atlas-backup.db
+```
+
+To restore, replace the file and restart.
+
+## Configuration
+
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `SYNC_API_KEY` | Yes | — | API key for the Health Connect sync endpoint |
+| `GEMINI_API_KEY` | No | — | Enables AI insight generation; without it insights show an unavailable message |
+| `PORT` | No | `8080` | HTTP port |
+| `ATLAS_DB_PATH` | No | `atlas.db` | Path to the SQLite database file |
+
+## Local development
+
+Backend (SQLite, port 9090):
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.arguments="--server.port=9090"
+```
+
+Frontend (Vite dev server proxies `/api` to `localhost:9090`):
+
+```bash
+npm run dev
+```
 
 ## Architecture
 
 ```
-┌─────────────┐     ┌──────────────────────┐
-│  Vue 3 App  │────▶│  Spring Boot Backend │────▶ PostgreSQL
-└─────────────┘     │  (port 8080)         │
-                    ├──────────────────────┤
-                    │  Auth: HTTP Basic    │
-                    │  CORS: frontend URL  │
-                    │  Sync: X-API-Key     │
-                    └──────────────────────┘
+┌─────────────┐      ┌──────────────────────────┐      ┌──────────┐
+│  Vue 3 App  │─────▶│  Spring Boot Backend     │─────▶│  SQLite  │
+│  (served by │      │  (same origin, /api)     │      │ atlas.db │
+│  Spring)    │      │  Sync: X-API-Key         │      └──────────┘
+└─────────────┘      └──────────────────────────┘
 ```
 
 ## API Endpoints
 
 | Endpoint | Method | Auth | Description |
 |---|---|---|---|
-| `/api/auth/me` | GET | Basic | Returns authenticated username |
-| `/api/workout-logs` | GET/POST | Basic | List / create workout logs |
-| `/api/workout-logs/{id}` | DELETE/PUT | Basic | Delete / update a log |
-| `/api/workout-logs/heatmap` | GET | Basic | Heatmap data for calendar |
-| `/api/workout-logs/streaks` | GET | Basic | Current and longest streak |
-| `/api/workout-types` | GET/POST | Basic | List / create workout types |
-| `/api/workout-types/{id}` | DELETE | Basic | Delete a type |
-| `/api/body-metrics` | GET/POST | Basic | List / create body measurements |
-| `/api/body-metrics/{id}` | DELETE/PUT | Basic | Delete / update a measurement |
-| `/api/goals` | GET/POST | Basic | List / create goals |
-| `/api/goals/{id}/status` | PATCH | Basic | Update goal status |
-| `/api/goals/{id}` | DELETE | Basic | Delete a goal |
-| `/api/stats` | GET | Basic | Aggregated workout & body stats |
-| `/api/insights` | GET | Basic | Latest AI-generated insight |
-| `/api/insights/regenerate` | POST | Basic | Regenerate AI insight |
-| `/api/settings` | GET/PUT | Basic | App-wide settings |
+| `/api/workout-logs` | GET/POST | — | List / create workout logs |
+| `/api/workout-logs/{id}` | DELETE/PUT | — | Delete / update a log |
+| `/api/workout-logs/heatmap` | GET | — | Heatmap data for calendar |
+| `/api/workout-logs/streaks` | GET | — | Current and longest streak |
+| `/api/workout-types` | GET/POST | — | List / create workout types |
+| `/api/workout-types/{id}` | DELETE | — | Delete a type |
+| `/api/body-metrics` | GET/POST | — | List / create body measurements |
+| `/api/body-metrics/{id}` | DELETE/PUT | — | Delete / update a measurement |
+| `/api/goals` | GET/POST | — | List / create goals |
+| `/api/goals/{id}/status` | PATCH | — | Update goal status |
+| `/api/goals/{id}` | DELETE | — | Delete a goal |
+| `/api/stats` | GET | — | Aggregated workout & body stats |
+| `/api/insights` | GET | — | Latest AI-generated insight |
+| `/api/insights/regenerate` | POST | — | Regenerate AI insight |
+| `/api/settings` | GET/PUT | — | App-wide settings |
 | `/api/sync` | POST | X-API-Key | Health Connect sync endpoint |
-| `/api/sync/mappings` | GET/POST/DELETE | Basic | Exercise type mappings |
+| `/api/sync/mappings` | GET/POST/DELETE | — | Exercise type mappings |
 
 ## Entities
 
-- `users` — single user with bcrypt password hash
 - `workout_logs` — logged workouts linked to a workout type
 - `workout_types` — custom workout categories with color hex
 - `body_metrics` — weight, muscle mass, water, body fat measurements
@@ -56,50 +108,18 @@ REST API backend for a personal single-user fitness tracking application. Built 
 - `exercise_type_mapping` — maps Health Connect exercise types to workout types
 - `app_settings` — single-row app configuration
 
-## Getting Started
+## Testing
 
-### Prerequisites
-
-- Java 21+
-- PostgreSQL instance
-
-### Local Development
+The test suite runs against a throwaway SQLite file and a fixed clock, so it
+is deterministic. The demo seed (`demo-seed.json` + `expected-derived.json`) is
+generated by driving the real API; regenerate deliberately with:
 
 ```bash
-# Set local profile (uses application-local.properties)
-./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+./mvnw test -Dtest=SeedGenerator -Dsurefire.excludedGroups=
 ```
 
-Or build and run:
-
-```bash
-./mvnw clean package -DskipTests
-java -jar target/atlas-0.0.1-SNAPSHOT.jar --spring.profiles.active=local
-```
-
-### Configuration
-
-**Production** (via environment variables):
-
-| Variable | Required | Description |
-|---|---|---|
-| `SPRING_DATASOURCE_URL` | Yes | JDBC URL for PostgreSQL |
-| `SPRING_DATASOURCE_USERNAME` | Yes | Database username |
-| `SPRING_DATASOURCE_PASSWORD` | Yes | Database password |
-| `PORT` | No | Server port (default 8080) |
-| `APP_CORS_ALLOWED_ORIGIN` | Yes | Frontend URL for CORS |
-| `GEMINI_API_KEY` | No | Google Gemini API key |
-| `SYNC_API_KEY` | Yes | API key for sync endpoint |
-
-**Local** (`application-local.properties`) — overrides for development.
-
-## Deployment
-
-Build the JAR and run with environment variables:
-
-```bash
-./mvnw clean package -DskipTests
-java -jar target/atlas-0.0.1-SNAPSHOT.jar
-```
-
-The app binds to `0.0.0.0:${PORT}` and uses `validate` DDL mode in production — tables must already exist.
+Set `GEMINI_API_KEY` when regenerating to freeze a real insight onto the
+latest seeded measurement (the free tier rate-limits, so it retries with
+backoff). A frontend Vitest test replays the seed and asserts the ported JS
+logic still matches the recorded responses — the demo cannot silently drift
+from this backend.

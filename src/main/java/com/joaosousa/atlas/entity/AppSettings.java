@@ -9,6 +9,8 @@ import lombok.Setter;
 @Setter
 @Table(name = "app_settings")
 public class AppSettings {
+    public static final long SETTINGS_ID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

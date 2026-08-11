@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Clock;
 import java.time.LocalDate;
 
 @RestController
@@ -14,9 +15,11 @@ import java.time.LocalDate;
 public class StatsController {
 
     private final StatsService statsService;
+    private final Clock clock;
 
-    public StatsController(StatsService statsService) {
+    public StatsController(StatsService statsService, Clock clock) {
         this.statsService = statsService;
+        this.clock = clock;
     }
 
     @GetMapping
@@ -24,8 +27,8 @@ public class StatsController {
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer month) {
 
-        int resolvedYear = year != null ? year : LocalDate.now().getYear();
-        int resolvedMonth = month != null ? month : LocalDate.now().getMonthValue();
+        int resolvedYear = year != null ? year : LocalDate.now(clock).getYear();
+        int resolvedMonth = month != null ? month : LocalDate.now(clock).getMonthValue();
 
         return statsService.getStats(resolvedYear, resolvedMonth);
     }

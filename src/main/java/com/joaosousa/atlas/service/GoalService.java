@@ -10,7 +10,9 @@ import com.joaosousa.atlas.repository.GoalRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -18,14 +20,16 @@ import java.util.*;
 public class GoalService {
     private final GoalRepository goalRepository;
     private final BodyMetricsRepository bodyMetricsRepository;
+    private final Clock clock;
 
-    public GoalService(GoalRepository goalRepository, BodyMetricsRepository bodyMetricsRepository) {
+    public GoalService(GoalRepository goalRepository, BodyMetricsRepository bodyMetricsRepository, Clock clock) {
         this.goalRepository = goalRepository;
         this.bodyMetricsRepository = bodyMetricsRepository;
+        this.clock = clock;
     }
 
     public Goal save(Goal goal) {
-        goal.setCreatedAt(java.time.LocalDateTime.now());
+        goal.setCreatedAt(LocalDateTime.now(clock));
 
         List<BodyMetrics> metrics = bodyMetricsRepository.findAll(Sort.by(Sort.Direction.DESC, "measuredOn"));
         if (!metrics.isEmpty()) {
@@ -134,9 +138,9 @@ public class GoalService {
         };
     }
 
-    private String computeEta(java.time.LocalDateTime createdAt, double start, double current, double target) {
+    private String computeEta(LocalDateTime createdAt, double start, double current, double target) {
         if (createdAt == null) return null;
-        long daysElapsed = ChronoUnit.DAYS.between(createdAt.toLocalDate(), LocalDate.now());
+        long daysElapsed = ChronoUnit.DAYS.between(createdAt.toLocalDate(), LocalDate.now(clock));
         if (daysElapsed < 1) return null;
 
         double ratePerDay = (current - start) / daysElapsed;
@@ -148,14 +152,14 @@ public class GoalService {
         long daysRemaining = Math.round(remaining / ratePerDay);
         if (daysRemaining <= 0 || daysRemaining > 365 * 5) return null;
 
-        return LocalDate.now().plusDays(daysRemaining).toString();
+        return LocalDate.now(clock).plusDays(daysRemaining).toString();
     }
 
-    private String computePace(LocalDate targetDate, java.time.LocalDateTime createdAt,
+    private String computePace(LocalDate targetDate, LocalDateTime createdAt,
                                double start, double current, double target) {
         if (createdAt == null || targetDate == null) return null;
-        long daysElapsed = ChronoUnit.DAYS.between(createdAt.toLocalDate(), LocalDate.now());
-        long daysRemaining = ChronoUnit.DAYS.between(LocalDate.now(), targetDate);
+        long daysElapsed = ChronoUnit.DAYS.between(createdAt.toLocalDate(), LocalDate.now(clock));
+        long daysRemaining = ChronoUnit.DAYS.between(LocalDate.now(clock), targetDate);
 
         if (daysElapsed < 1 || daysRemaining < 1) return null;
         if (Math.abs(target - current) < 0.05) return null;

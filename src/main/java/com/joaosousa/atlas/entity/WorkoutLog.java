@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Table(name = "workout_logs")
 public class WorkoutLog {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
