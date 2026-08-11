@@ -113,6 +113,15 @@
         <p v-if="mappingError" class="form-error">{{ mappingError }}</p>
       </div>
     </section>
+    <section v-if="isDemo">
+      <h2>Demo data</h2>
+      <div class="card card-fit">
+        <p class="section-desc">
+          This is a demo — your changes are stored in this browser only. Reset to restore the seeded data.
+        </p>
+        <button class="btn-small btn-danger" @click="resetDemo">Reset demo data</button>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -124,6 +133,14 @@ import { useToastStore } from '../stores/toast'
 import { getWorkoutTypes, createWorkoutType, deleteWorkoutType } from '../services/workoutService'
 import { getMappings, addMapping, deleteMapping } from '../services/syncService'
 import { Target, X } from 'lucide-vue-next'
+
+const isDemo = import.meta.env.MODE === 'demo'
+
+async function resetDemo() {
+  if (!confirm('Reset all demo data to the seeded state?')) return
+  const { resetDemoData } = await import('../demo/demoApi')
+  resetDemoData()
+}
 
 const toast = useToastStore()
 

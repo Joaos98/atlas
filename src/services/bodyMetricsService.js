@@ -1,4 +1,4 @@
-import api from './api'
+import api from '@/services/api'
 
 export function getBodyMetrics() {
   return api.get('/body-metrics')

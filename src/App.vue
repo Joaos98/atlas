@@ -1,7 +1,11 @@
 <template>
-  <div class="app-shell">
-    <NavBar v-if="auth.isAuthenticated" />
-    <main class="content" :class="{ 'no-padding': !auth.isAuthenticated }"><router-view /></main>
+  <div class="app-column">
+    <DemoBanner v-if="isDemo" />
+    <div class="app-shell">
+      <NavBar />
+      <main class="content"><router-view /></main>
+    </div>
+    <InsightGateModal v-if="isDemo" />
     <ToastContainer />
   </div>
 </template>
@@ -9,12 +13,14 @@
 <script setup>
 import NavBar from './components/NavBar.vue'
 import ToastContainer from './components/ToastContainer.vue'
-import { useAuthStore } from './stores/auth'
-const auth = useAuthStore()
+import DemoBanner from './demo/DemoBanner.vue'
+import InsightGateModal from './demo/InsightGateModal.vue'
+
+const isDemo = import.meta.env.MODE === 'demo'
 </script>
 
 <style scoped>
-.app-shell { display: flex; }
+.app-column { min-height: 100vh; display: flex; flex-direction: column; }
+.app-shell { display: flex; flex: 1; }
 .content { flex: 1; padding: 24px 32px; }
-.content.no-padding { padding: 0; }
 </style>

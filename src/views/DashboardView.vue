@@ -141,6 +141,7 @@ import WeeklyWorkoutsChart from '../components/WeeklyWorkoutsChart.vue'
 import LatestMeasurementStats from '../components/LatestMeasurementStats.vue'
 import InsightCard from '../components/InsightCard.vue'
 import { useToastStore } from '../stores/toast'
+import { openInsightGate } from '../demo/insightGate'
 import { Flame, Scale, TrendingUp, TrendingDown, CalendarCheck, Dumbbell } from 'lucide-vue-next'
 
 const toast = useToastStore()
@@ -232,6 +233,10 @@ function compColor(value, good) {
 }
 
 async function refreshInsight() {
+  if (import.meta.env.MODE === 'demo') {
+    openInsightGate()
+    return
+  }
   insightLoading.value = true
   try {
     const res = await regenerateInsights()

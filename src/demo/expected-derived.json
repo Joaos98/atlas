@@ -1,0 +1,2244 @@
+{
+  "version" : 1,
+  "referenceDate" : "2026-08-02",
+  "stats" : {
+    "year" : 2026,
+    "month" : 8,
+    "response" : {
+      "workoutStats" : {
+        "totalWorkoutsThisMonth" : 2,
+        "totalWorkoutsThisYear" : 123,
+        "longestSessionEver" : 70,
+        "longestSessionThisMonth" : 45,
+        "averageDurationThisMonth" : 37.5,
+        "averageDurationThisYear" : 40.48780487804878,
+        "mostFrequentTypeThisMonth" : "Run",
+        "mostFrequentTypeThisYear" : "Run",
+        "totalMinutesThisMonth" : 75,
+        "totalMinutesThisYear" : 4980
+      },
+      "bodyCompositionStats" : {
+        "weightChangeKg" : -5.900000000000006,
+        "muscleMassChangeKg" : 2.299999999999997,
+        "bodyFatPctChange" : -2.8999999999999986,
+        "totalMeasurements" : 20
+      },
+      "streakStats" : {
+        "currentStreak" : 35,
+        "longestStreak" : 40
+      }
+    }
+  },
+  "streaks" : {
+    "response" : {
+      "currentStreak" : 35,
+      "longestStreak" : 40
+    }
+  },
+  "heatmap" : {
+    "startOffsetDays" : -560,
+    "endOffsetDays" : 0,
+    "response" : [ {
+      "date" : "2025-01-20",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-01-22",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 60
+      } ]
+    }, {
+      "date" : "2025-01-24",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-01-25",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 50
+      } ]
+    }, {
+      "date" : "2025-01-26",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-01-28",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-01-30",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 65
+      } ]
+    }, {
+      "date" : "2025-02-01",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-02-02",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-02-03",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-02-04",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 60
+      } ]
+    }, {
+      "date" : "2025-02-07",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-02-10",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-02-12",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-02-13",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-02-15",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-02-17",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-02-19",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-02-21",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-02-22",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-02-23",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-02-25",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 20
+      } ]
+    }, {
+      "date" : "2025-02-27",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 50
+      } ]
+    }, {
+      "date" : "2025-03-01",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-03-02",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-03-03",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-03-04",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-03-07",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-03-10",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 50
+      } ]
+    }, {
+      "date" : "2025-03-12",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 60
+      } ]
+    }, {
+      "date" : "2025-03-13",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-03-15",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-03-17",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-03-19",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 65
+      } ]
+    }, {
+      "date" : "2025-03-21",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-03-22",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 55
+      } ]
+    }, {
+      "date" : "2025-03-23",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-03-25",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-03-27",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 70
+      } ]
+    }, {
+      "date" : "2025-03-29",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-03-30",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 20
+      } ]
+    }, {
+      "date" : "2025-03-31",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-04-01",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-04-04",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-04-07",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-04-09",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-04-10",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-04-12",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-04-14",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-04-16",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 50
+      } ]
+    }, {
+      "date" : "2025-04-18",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-04-19",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-04-20",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-04-22",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-04-24",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 55
+      } ]
+    }, {
+      "date" : "2025-04-26",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-04-27",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-04-28",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-04-29",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 50
+      } ]
+    }, {
+      "date" : "2025-05-02",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-05-05",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 55
+      } ]
+    }, {
+      "date" : "2025-05-07",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 65
+      } ]
+    }, {
+      "date" : "2025-05-08",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-05-10",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-05-12",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-05-14",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 70
+      } ]
+    }, {
+      "date" : "2025-05-16",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-05-17",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 60
+      } ]
+    }, {
+      "date" : "2025-05-18",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-05-20",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-05-22",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-05-24",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-05-25",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-05-26",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-05-27",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-05-30",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-06-02",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-06-04",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 50
+      } ]
+    }, {
+      "date" : "2025-06-05",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-06-07",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-06-09",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-06-11",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 55
+      } ]
+    }, {
+      "date" : "2025-06-13",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-06-14",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-06-15",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-06-17",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-06-19",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 60
+      } ]
+    }, {
+      "date" : "2025-06-21",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-06-22",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-06-23",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-06-24",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 55
+      } ]
+    }, {
+      "date" : "2025-06-27",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-06-30",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 60
+      } ]
+    }, {
+      "date" : "2025-07-02",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 70
+      } ]
+    }, {
+      "date" : "2025-07-03",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-07-05",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-07-07",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-07-09",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-07-11",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-07-12",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-07-13",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-07-15",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 20
+      } ]
+    }, {
+      "date" : "2025-07-17",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-07-19",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-07-20",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-07-21",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-07-22",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-07-25",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-07-28",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-07-30",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 55
+      } ]
+    }, {
+      "date" : "2025-07-31",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-08-02",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-08-04",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-08-06",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 60
+      } ]
+    }, {
+      "date" : "2025-08-08",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-08-09",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 50
+      } ]
+    }, {
+      "date" : "2025-08-10",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-08-12",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-08-14",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 65
+      } ]
+    }, {
+      "date" : "2025-08-16",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-08-17",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 20
+      } ]
+    }, {
+      "date" : "2025-08-18",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-08-19",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 60
+      } ]
+    }, {
+      "date" : "2025-08-22",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-08-25",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-08-27",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-08-28",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-08-30",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-09-01",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-09-03",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-09-05",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-09-06",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-09-07",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-09-09",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-09-11",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 50
+      } ]
+    }, {
+      "date" : "2025-09-13",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-09-14",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-09-15",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-09-16",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-09-19",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-09-22",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 50
+      } ]
+    }, {
+      "date" : "2025-09-24",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 60
+      } ]
+    }, {
+      "date" : "2025-09-25",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-09-27",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-09-29",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-10-01",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 65
+      } ]
+    }, {
+      "date" : "2025-10-03",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-10-04",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 55
+      } ]
+    }, {
+      "date" : "2025-10-05",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-10-07",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-10-09",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 70
+      } ]
+    }, {
+      "date" : "2025-10-11",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-10-12",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-10-13",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-10-14",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-10-17",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-10-20",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-10-22",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-10-23",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-10-25",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-10-28",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 50
+      } ]
+    }, {
+      "date" : "2025-11-04",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 55
+      }, {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 55
+      } ]
+    }, {
+      "date" : "2025-11-11",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 60
+      } ]
+    }, {
+      "date" : "2025-11-18",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 65
+      }, {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 65
+      } ]
+    }, {
+      "date" : "2025-11-25",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 70
+      } ]
+    }, {
+      "date" : "2025-11-30",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-12-02",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 20
+      } ]
+    }, {
+      "date" : "2025-12-04",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-12-06",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-12-07",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2025-12-08",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-12-09",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-12-12",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2025-12-15",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-12-17",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 50
+      } ]
+    }, {
+      "date" : "2025-12-18",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-12-20",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2025-12-22",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-12-24",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 55
+      } ]
+    }, {
+      "date" : "2025-12-26",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2025-12-27",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-12-28",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2025-12-30",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-01-01",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 60
+      } ]
+    }, {
+      "date" : "2026-01-03",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2026-01-04",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 20
+      } ]
+    }, {
+      "date" : "2026-01-05",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2026-01-06",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 55
+      } ]
+    }, {
+      "date" : "2026-01-09",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2026-01-12",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 60
+      } ]
+    }, {
+      "date" : "2026-01-14",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 70
+      } ]
+    }, {
+      "date" : "2026-01-15",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2026-01-17",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2026-01-19",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2026-01-21",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-01-23",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2026-01-24",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2026-01-25",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-01-27",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2026-01-29",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2026-01-31",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-02-01",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-02-02",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2026-02-03",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-02-06",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2026-02-09",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2026-02-11",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 55
+      } ]
+    }, {
+      "date" : "2026-02-12",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2026-02-14",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2026-02-16",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2026-02-18",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 60
+      } ]
+    }, {
+      "date" : "2026-02-20",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2026-02-21",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 50
+      } ]
+    }, {
+      "date" : "2026-02-22",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2026-02-24",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2026-02-26",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 65
+      } ]
+    }, {
+      "date" : "2026-02-28",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2026-03-01",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2026-03-02",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-03-03",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 60
+      } ]
+    }, {
+      "date" : "2026-03-06",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-03-09",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2026-03-11",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-03-12",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2026-03-14",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2026-03-16",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2026-03-18",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2026-03-20",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2026-03-21",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2026-03-22",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2026-03-24",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2026-03-26",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 50
+      } ]
+    }, {
+      "date" : "2026-03-28",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2026-03-29",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2026-03-30",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2026-03-31",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2026-04-03",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2026-04-06",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 50
+      } ]
+    }, {
+      "date" : "2026-04-08",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 60
+      } ]
+    }, {
+      "date" : "2026-04-09",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-04-11",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-04-13",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2026-04-15",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 65
+      } ]
+    }, {
+      "date" : "2026-04-17",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2026-04-18",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 55
+      } ]
+    }, {
+      "date" : "2026-04-19",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2026-04-21",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 20
+      } ]
+    }, {
+      "date" : "2026-04-23",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 70
+      } ]
+    }, {
+      "date" : "2026-04-25",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2026-04-26",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2026-04-27",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2026-04-28",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2026-05-01",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2026-05-04",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2026-05-06",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2026-05-07",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2026-05-09",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2026-05-11",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-05-13",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 50
+      } ]
+    }, {
+      "date" : "2026-05-15",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-05-16",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-05-17",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2026-05-19",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-05-21",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 55
+      } ]
+    }, {
+      "date" : "2026-05-23",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2026-05-24",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 20
+      } ]
+    }, {
+      "date" : "2026-05-25",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2026-05-26",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 50
+      } ]
+    }, {
+      "date" : "2026-05-29",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2026-06-01",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 55
+      } ]
+    }, {
+      "date" : "2026-06-03",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 65
+      } ]
+    }, {
+      "date" : "2026-06-04",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2026-06-06",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2026-06-08",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2026-06-10",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 70
+      } ]
+    }, {
+      "date" : "2026-06-12",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2026-06-13",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 60
+      } ]
+    }, {
+      "date" : "2026-06-14",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-06-16",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2026-06-18",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-06-20",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-06-21",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-06-22",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2026-06-23",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2026-06-26",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2026-06-29",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-07-01",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 50
+      } ]
+    }, {
+      "date" : "2026-07-02",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2026-07-04",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 25
+      } ]
+    }, {
+      "date" : "2026-07-06",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2026-07-08",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 55
+      } ]
+    }, {
+      "date" : "2026-07-10",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2026-07-11",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2026-07-12",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2026-07-14",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 30
+      } ]
+    }, {
+      "date" : "2026-07-16",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 60
+      } ]
+    }, {
+      "date" : "2026-07-18",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2026-07-19",
+      "workouts" : [ {
+        "type" : "Swimming",
+        "colorHex" : "#e9c46a",
+        "durationMinutes" : 35
+      } ]
+    }, {
+      "date" : "2026-07-20",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-07-21",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 55
+      } ]
+    }, {
+      "date" : "2026-07-24",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 40
+      } ]
+    }, {
+      "date" : "2026-07-27",
+      "workouts" : [ {
+        "type" : "Cycling",
+        "colorHex" : "#2a9d8f",
+        "durationMinutes" : 60
+      } ]
+    }, {
+      "date" : "2026-07-29",
+      "workouts" : [ {
+        "type" : "Strength",
+        "colorHex" : "#457b9d",
+        "durationMinutes" : 70
+      } ]
+    }, {
+      "date" : "2026-07-30",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2026-08-01",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 45
+      } ]
+    }, {
+      "date" : "2026-08-02",
+      "workouts" : [ {
+        "type" : "Run",
+        "colorHex" : "#e63946",
+        "durationMinutes" : 30
+      } ]
+    } ]
+  },
+  "goals" : {
+    "response" : [ {
+      "id" : 1,
+      "metricType" : "WEIGHT",
+      "targetValue" : 80.0,
+      "targetDate" : null,
+      "status" : "ACHIEVED",
+      "createdAt" : "2026-01-04T00:00:00",
+      "startValue" : 82.4,
+      "currentValue" : 79.1,
+      "progressPercent" : null,
+      "eta" : null,
+      "paceStatus" : null
+    }, {
+      "id" : 2,
+      "metricType" : "WEIGHT",
+      "targetValue" : 78.6,
+      "targetDate" : "2026-09-13",
+      "status" : "ACTIVE",
+      "createdAt" : "2026-06-07T00:00:00",
+      "startValue" : 79.8,
+      "currentValue" : 79.1,
+      "progressPercent" : 58.333333333333435,
+      "eta" : null,
+      "paceStatus" : "on_track"
+    }, {
+      "id" : 3,
+      "metricType" : "WEIGHT",
+      "targetValue" : 77.0,
+      "targetDate" : "2026-08-16",
+      "status" : "ACTIVE",
+      "createdAt" : "2026-06-07T00:00:00",
+      "startValue" : 79.8,
+      "currentValue" : 79.1,
+      "progressPercent" : 25.000000000000128,
+      "eta" : null,
+      "paceStatus" : "behind"
+    }, {
+      "id" : 4,
+      "metricType" : "WEIGHT",
+      "targetValue" : 77.8,
+      "targetDate" : null,
+      "status" : "ACTIVE",
+      "createdAt" : "2026-06-07T00:00:00",
+      "startValue" : 79.8,
+      "currentValue" : 79.1,
+      "progressPercent" : 35.00000000000014,
+      "eta" : "2026-11-14",
+      "paceStatus" : null
+    } ]
+  }
+}

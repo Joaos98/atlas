@@ -1,107 +1,133 @@
 # Atlas — Project Context
- 
+
 ## What this is
- 
-A personal fitness tracking web app for a **single user** (the owner). It logs workouts and body composition measurements, visualizes both over time, and surfaces simple rule-based insights connecting the two. It is not a multi-user product — there is no sign-up, no user management, and no public-facing features.
- 
+
+A personal fitness tracking web app for a **single user** (the owner). It logs
+workouts and body composition measurements, visualizes both over time, computes
+weekly streaks and goal progress, and surfaces AI insights connecting the two.
+It is not a multi-user product — there is no sign-up, no user management, and
+no public-facing features.
+
+**Atlas is not internet-facing.** It has no authentication and is designed to
+run on the owner's own hardware, behind their network or reverse proxy. Do not
+expose it publicly.
+
+Two builds ship from one codebase:
+
+- **Self-hosted build** — Spring Boot serves the built Vue frontend from
+  `static/` (same origin), SQLite in a file, one Docker container. This is the
+  real app.
+- **Demo build** — the same frontend against browser storage, seeded with
+  realistic data, hosted statically. This is the portfolio artifact and the way
+  anyone tries the app before self-hosting. AI insight *generation* is
+  unavailable in the demo and says so — it requires the real backend with a
+  Gemini API key.
+
 ---
- 
+
 ## Tech stack
- 
-### Backend
+
+### Backend (`atlas-backend`)
 - **Java 21**, **Spring Boot 4.1**, **Maven**
 - **Spring Data JPA** (Hibernate 7) for ORM
-- **Spring Security** with HTTP Basic Auth — single hardcoded user stored in the `users` table with a BCrypt-hashed password
-- **PostgreSQL** hosted on **Neon** (managed free tier)
-- **Lombok** for reducing boilerplate on entity classes (`@Getter`, `@Setter`)
-- REST API, runs on port **9090** locally
-### Frontend
-- **Vue 3** (Composition API, `<script setup>` syntax), **Vite**
+- **SQLite** via `sqlite-jdbc` + the Hibernate community dialect — one file,
+  `ddl-auto=update`, no auth, no CORS
+- **Lombok** for boilerplate reduction on entities (`@Getter`, `@Setter`)
+- **Google Gemini API** — AI insight generation (optional; without a key the
+  insight falls back to an error message)
+- REST API, serves the built frontend from `static/`
+
+### Frontend (`atlas-frontend`)
+- **Vue 3** (Composition API, `<script setup>`), **Vite**
 - **Vue Router** for navigation
-- **Pinia** for auth state management
-- **Axios** for API calls, wrapped in `src/services/api.js` with a request interceptor that attaches Basic Auth credentials from the Pinia store
-- **vue-chartjs** + **Chart.js** for line charts
+- **Pinia** for toast state
+- **Axios** for API calls, wrapped in `src/services/api.js`
+- **vue-chartjs** + **Chart.js** for charts
 - **lucide-vue-next** for icons
-- Runs on port **5173** locally
-### Deployment (planned, not done yet)
-- Backend: Railway / Render / Fly.io (free tier)
-- Frontend: Netlify or Vercel
-- CORS is already configured on the backend via `@Value("${app.cors.allowed-origin}")` — update `application.properties` or set the env var when deploying
+- **Vitest** for tests
+
 ---
- 
+
 ## Repository structure
- 
+
 Two separate repositories:
 - `atlas-backend` — Spring Boot project
 - `atlas-frontend` — Vue project
+
 ### Backend package structure (`com.joaosousa.atlas`)
 ```
+config/         — TimeConfig (Clock bean), SpaForwardFilter (SPA fallback),
+                  AppSettingsSeeder (idempotent settings row at startup)
+controller/     — REST controllers
+service/        — Business logic (WorkoutLogService, StatsService, GoalService,
+                  InsightService, SyncService, ...)
 entity/         — JPA entity classes (one per DB table)
 repository/     — Spring Data JPA interfaces (one per entity)
-service/        — Business logic
-controller/     — REST controllers
 dto/            — Data Transfer Objects for API responses
-enums/          — MetricType, GoalStatus
-config/         — SecurityConfig (Spring Security + CORS)
 ```
- 
+
 ### Frontend src structure
 ```
-views/          — One component per page (LoginView, DashboardView, WorkoutsView, BodyMetricsView, GoalsView, SettingsView)
-components/     — Reusable pieces (NavBar, StatCard, WorkoutHeatmap, WorkoutForm, MetricChart, BodyMetricsForm, GoalForm, DatePicker, WeeklySessionsChart, WorkoutTypeDonut, LatestMeasurementStats, MetricSparkline)
-services/       — API wrappers (api.js, workoutService.js, bodyMetricsService.js, goalsService.js, statsService.js, settingsService.js, insightService.js)
-stores/         — Pinia stores (auth.js — stores username/password in localStorage for Basic Auth)
-styles/         — tokens.css (CSS variables for colors, fonts, spacing + global input/select styling), forms.css (shared form field/button/feedback classes)
-router/         — index.js with route guard that redirects to /login if not authenticated
-utils/          — date.js (UTC-safe local date helpers: toLocalDateStr, todayLocal, formatDateBr)
+views/          — One component per page (DashboardView, WorkoutsView,
+                  BodyMetricsView, GoalsView, SettingsView)
+components/     — Reusable pieces (NavBar, StatCard, WorkoutHeatmap,
+                  WorkoutForm, MetricChart, BodyMetricsForm, GoalForm,
+                  DatePicker, InsightCard, charts, ...)
+services/       — API wrappers (api.js, workoutService.js, bodyMetricsService.js,
+                  goalsService.js, statsService.js, settingsService.js,
+                  insightService.js, syncService.js)
+demo/           — Demo build only: demoApi.js (localStorage adapter),
+                  derived.js (JS port of derived logic), seed.js,
+                  demo-seed.json + expected-derived.json (generated fixtures),
+                  fixture.test.js, demoApi.test.js, DemoBanner.vue,
+                  InsightGateModal.vue
+stores/         — Pinia stores (toast.js)
+styles/         — tokens.css (design tokens), forms.css (shared form styles)
+router/         — index.js route definitions (no auth guard)
+utils/          — date.js (UTC-safe local date helpers)
 ```
- 
+
 ---
- 
+
 ## Database schema
- 
-All PKs are auto-incrementing `bigint`. No `user_id` on domain tables — single-user by design.
- 
-### `users`
-| Field | Type |
-|---|---|
-| id | bigint PK |
-| username | string |
-| password_hash | string |
- 
+
+All PKs are auto-incrementing `bigint`. No `user_id` on domain tables —
+single-user by design. Stored in a single SQLite file (`atlas.db` by default).
+
+### `app_settings`
+Single row (id=1), seeded at startup by `AppSettingsSeeder`.
+Contains `target_workouts_per_week` (default 3), used for streak calculation.
+Week starts on Sunday (fixed constant, not stored).
+
 ### `workout_types`
 | Field | Type | Notes |
 |---|---|---|
 | id | bigint PK | |
 | name | string | User-managed, not hardcoded |
 | color_hex | string | Used for heatmap coloring |
- 
-Current workout type colors follow a fixed 5-color palette:
-- Gym → `#4F8DFF` (blue)
-- Crossfit → `#8B5CF6` (purple)
-- 3rd type → `#2DD4BF` (teal)
-- 4th type → `#F472B6` (pink)
-- 5th type → `#FACC15` (amber)
+
 ### `workout_logs`
 | Field | Type | Notes |
 |---|---|---|
-| id | bigint PK | |
+| id | bigint PK | IDENTITY |
 | workout_type_id | bigint FK | |
 | log_date | date | Multiple logs per date allowed |
 | duration_minutes | int | Required |
-| calories | int | Optional, manual entry only |
- 
+| sync_signature | string | Dedup key for Health Connect sync |
+
 ### `body_metrics`
 | Field | Type | Notes |
 |---|---|---|
 | id | bigint PK | |
-| measured_on | date | ~2-month cadence |
-| weight_kg | decimal | Required |
-| muscle_mass_kg | decimal | Required |
-| water_liters | decimal | Required |
-| body_fat_kg | decimal | Required |
-| body_fat_pct | decimal | Required |
- 
+| measured_on | date | |
+| weight_kg | decimal | |
+| muscle_mass_kg | decimal | |
+| water_liters | decimal | |
+| body_fat_kg | decimal | |
+| body_fat_pct | decimal | |
+| insight_text | text | AI insight for this measurement |
+| insight_generated_at | timestamp | |
+
 ### `goals`
 | Field | Type | Notes |
 |---|---|---|
@@ -109,139 +135,110 @@ Current workout type colors follow a fixed 5-color palette:
 | metric_type | enum | WEIGHT, MUSCLE_MASS, WATER, BODY_FAT_KG, BODY_FAT_PCT |
 | target_value | decimal | |
 | target_date | date | Nullable — if null, show trend-projected ETA |
-| status | enum | ACTIVE, ACHIEVED, ABANDONED — never deleted, kept for history |
+| status | enum | ACTIVE, ACHIEVED, ABANDONED |
 | created_at | timestamp | Set automatically when the goal is created |
-| start_value | decimal | Snapshot of the metric value at goal creation time, used for progress bar |
- 
-### `app_settings`
-Single row (id=1). Contains `target_workouts_per_week` (default 4), used for streak calculation. Week starts on Sunday (fixed constant, not stored).
- 
+| start_value | decimal | Snapshot of the metric value at goal creation time |
+
+### `exercise_type_mapping`
+Maps Health Connect exercise type codes to `workout_types` so auto-synced
+workouts are logged correctly.
+
 ---
- 
+
 ## API endpoints
- 
-### Auth
-- `GET /api/auth/me` — validates credentials, returns `{ username }`. Used by the login page to test credentials before storing them.
+
 ### Workout types
 - `GET /api/workout-types`
 - `POST /api/workout-types`
-- `DELETE /api/workout-types/{id}` — returns 204 on success, 409 Conflict if the type has existing workout logs
+- `DELETE /api/workout-types/{id}` — 409 Conflict if the type has logs
+
 ### Workout logs
-- `GET /api/workout-logs`
+- `GET /api/workout-logs` (paginated, sorted by date desc)
 - `POST /api/workout-logs`
 - `PUT /api/workout-logs/{id}`
 - `DELETE /api/workout-logs/{id}`
-- `GET /api/workout-logs/heatmap?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD` — returns aggregated daily data for the heatmap (see response shape below)
-- `GET /api/workout-logs/streaks` — returns `{ currentStreak, longestStreak }` in weeks
+- `GET /api/workout-logs/heatmap?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD` — aggregated daily data
+- `GET /api/workout-logs/streaks` — `{ currentStreak, longestStreak }` in weeks
+
 ### Body metrics
-- `GET /api/body-metrics` — returns plain entries (insight per measurement removed)
-- `POST /api/body-metrics`
+- `GET /api/body-metrics`
+- `POST /api/body-metrics` — triggers AI insight generation for the new measurement
 - `PUT /api/body-metrics/{id}`
 - `DELETE /api/body-metrics/{id}`
+
 ### Insights
-- `GET /api/insights` — returns the latest AI-generated insight text, timestamp, and fallback flag
-- `POST /api/insights/regenerate` — regenerates and persists a new insight for the latest measurement
+- `GET /api/insights` — latest AI-generated insight for the latest measurement
+- `POST /api/insights/regenerate` — regenerates and persists
+
 ### Goals
-- `GET /api/goals` — returns enriched data with `currentValue`, `progressPercent`, `eta` (for undated goals), `paceStatus` (for dated goals)
-- `POST /api/goals` — captures `createdAt` and `startValue` automatically from the latest measurement
+- `GET /api/goals` — enriched: `currentValue`, `progressPercent`, `eta`
+  (undated goals), `paceStatus` (dated goals)
+- `POST /api/goals` — captures `createdAt` and `startValue` automatically
 - `PATCH /api/goals/{id}/status?status=ACHIEVED|ABANDONED`
+
 ### Stats
-- `GET /api/stats?year=YYYY&month=M` — both params optional, defaults to current month/year. Returns workout stats, body composition changes since first measurement, and streak data.
+- `GET /api/stats?year=YYYY&month=M` — both params optional, defaults to the
+  clock's current year/month. Returns workout stats, body composition change
+  since the first measurement, and streak data.
+
 ### Settings
 - `GET /api/settings`
 - `PUT /api/settings`
-### Key response shapes
- 
-**Heatmap (`GET /api/workout-logs/heatmap`)**
-```json
-[
-  {
-    "date": "2026-07-14",
-    "workouts": [
-      { "type": "Gym", "colorHex": "#4F8DFF", "durationMinutes": 45, "calories": 320 },
-      { "type": "Crossfit", "colorHex": "#8B5CF6", "durationMinutes": 35, "calories": null }
-    ]
-  }
-]
-```
-Days with no workouts are omitted. Multiple logs of the same type on the same day each get their own entry (no merging).
- 
-**Body metrics (`GET /api/body-metrics`)**
-```json
-{
-  "id": 1,
-  "measuredOn": "2026-07-01",
-  "weightKg": 78.2,
-  "muscleMassKg": 34.1,
-  "waterLiters": 41.6,
-  "bodyFatKg": 14.8,
-  "bodyFatPct": 18.9,
-  "insightText": "...",
-  "insightGeneratedAt": "2026-07-01T14:30:00"
-}
-```
-The first entry always has `null` for both insight fields (no prior baseline when it was created).
- 
----
- 
-## Features implemented
- 
-### Backend (complete)
-- CRUD for all entities
-- Heatmap aggregation with per-day workout grouping
-- Weekly streak calculation (distinct workout days per week, Sunday–Saturday)
-- Insight engine: Gemini Flash AI generates a single natural-language analysis on the Dashboard after each new measurement is saved. Insight text is stored on the `body_metrics` row. Falls back to a templated summary if the AI API is unavailable.
-- Stats endpoint: workout stats (this month + this year), body composition change since first measurement, streaks
-- Spring Security with BCrypt, single user account
-- CORS configured via property
-### Frontend (mostly complete, some pages need polish)
-- Login page with credential validation against `/api/auth/me`
-- Route guard redirecting unauthenticated users to `/login`
-- Sticky sidebar nav with Lucide icons
-- Dashboard: Insights card (AI-generated analysis, regenerates with each new measurement) with a 2-column stats grid beside it (workout stats — weekly target progress + streaks — and all-time body composition changes), a latest-measurement stats row (LatestMeasurementStats, shared with the Body Metrics page), then the workout history heatmap with a workouts-per-week bar chart beside it (WeeklySessionsChart, shared with the Workouts page). The on-dashboard measurement cards (LatestMeasurementStats) include tiny sparkline trend lines.
-- Workouts page: log form, workout type management (add/delete types with color picker), weekly sessions bar chart with target line, type-breakdown donut, log history table with per-row delete, workout activity heatmap (same component as Dashboard)
-- The heatmap always fills its card's full width with square cells: the visible date range auto-fits the available width (more weeks on wider screens, ~20px cells, clamped to 8–53 weeks, ending today)
-- Body Metrics page: log form, latest-measurement cards with Δ vs previous, 5 line charts (one per metric) with optional active-goal target lines, history table with edit/delete
-- Goals page: create goal form, active goals with current→target display + progress bar + remaining-distance text + ETA (for undated goals) + pace check (for dated goals), past goals with status tags
-- Settings page: update target workouts per week (1–7), used for streak calculation and weekly target display
-### Design system
-- Dark theme: `--bg: #12141A`, `--surface: #1B1E27`, `--border: #2A2E3A`
-- Accents: `--blue: #4F8DFF`, `--green: #3DD68C`, `--purple: #8B5CF6`, `--orange: #FB923C`
-- Fonts: Space Grotesk (headers), Inter (body), JetBrains Mono (all numeric data, `.data-value` class)
-- Color semantics: green = positive/improving, orange = flag/declining, purple = streaks/goals, blue = workouts/neutral data
----
- 
-## What still needs to be done
 
-### High priority
-- [x] **Pagination** — `GET /api/workout-logs` and `GET /api/body-metrics` currently return all rows. Add Spring `Pageable` support to the backend and paginated tables on the frontend. Stats, heatmap, and chart endpoints must remain unpaginated (they serve aggregated data from separate endpoints already).
-- [x] **Webhook for auto-logged workouts** — new `POST /api/workout-logs/sync` endpoint to receive workout data from Google Health Connect (generated from Mi Band). Data structure to be defined when ready.
-- [ ] **Deployment**
-  - [ ] Deploy backend to Railway / Render / Fly.io free tier
-  - [ ] Deploy frontend to Netlify or Vercel
-  - [ ] Set environment variables:
-    - Backend: `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`, `APP_CORS_ALLOWED_ORIGIN`, `GEMINI_API_KEY`
-    - Frontend: `VITE_API_URL`
-  - [ ] Update `app.cors.allowed-origin` to the deployed frontend URL
-  - [ ] Auto-seed `app_settings` row (currently requires manual INSERT after first deploy)
+### Sync
+- `POST /api/sync` — Health Connect webhook (X-API-Key required)
+- `GET/POST/DELETE /api/sync/mappings`
 
-### Medium priority
-- [x] **Empty state screens** — friendly CTAs on each view when no data exists (e.g. "Log your first workout")
-- [x] **Extra workout info on Workouts page** — surface streak data and weekly goal progress (X/{{target}} workouts this week)
-
-### Low priority
-- [x] **Toast/notification improvements** — audit existing toast usage, add where missing (goal creation, settings save, body metrics CRUD)
-- [x] **Body metrics charts layout refinement** — explore better grid arrangement for the 5 individual charts
-- [x] **Skeleton loaders** — replace loading indicators with skeleton placeholders on cards and charts
 ---
- 
+
+## Time handling
+
+All date-dependent logic (streaks, stats defaults, goal ETA/pace) goes through
+an injected `java.time.Clock` bean — production uses the system clock, tests
+pin it to a fixed reference date. This is what makes the seed generator and
+fixture tests deterministic.
+
+## The seed generator / fixture contract
+
+The demo is verified against the real backend, not just "similar to" it:
+
+- `SeedGenerator` (backend test, tagged `seed-generator`) drives the real API
+  via MockMvc against a fixed clock: creates types, logs ~19 months of
+  workouts, ~monthly body metrics, and goals. It emits two files into the
+  frontend repo:
+  - `demo-seed.json` — all rows with **day offsets** from a reference Sunday
+  - `expected-derived.json` — the actual HTTP responses for stats, streaks,
+    heatmap, and goals
+- Regenerate deliberately: `mvnw test -Dtest=SeedGenerator -Dsurefire.excludedGroups=`
+  (set `GEMINI_API_KEY` to freeze a real insight onto the latest measurement;
+  the free tier rate-limits, so it retries with backoff)
+- The demo materializes the seed's offsets against the visitor's most recent
+  Sunday (whole-week shifts, so week bucketing matches what Java computed)
+- `fixture.test.js` (frontend) loads the seed, runs the ported JS logic, and
+  asserts it equals the recorded Java responses — if either drifts, the test
+  fails loudly
+
 ## Known quirks / decisions to be aware of
- 
-- **Date handling:** always be aware of how to work with dates so that they stay the correct day after the browser's UTC parsing shifts dates by the user's UTC offset (UTC-3 in the user's case), causing off-by-one day bugs in the heatmap. Use the helpers in `src/utils/date.js`. All date inputs use the custom `DatePicker` component (displays `dd/mm/yyyy`, emits `yyyy-MM-dd`) — native date inputs can't be reformatted and are no longer used.
-- **Basic Auth in localStorage:** credentials are stored in `localStorage` for simplicity — acceptable for a single-user personal app behind HTTPS, but not a general best practice
-- **`app_settings` seeding:** the `app_settings` table requires a manual `INSERT` after first run since Hibernate creates the table but doesn't seed it: `INSERT INTO app_settings (id, target_workouts_per_week) VALUES (1, 4);`
-- **Insight suppression:** any analytics or insight that requires a baseline (streaks need data, insights need 2+ measurements) are suppressed rather than shown with misleading partial data
-- **Body metrics all required:** all five metric fields on `body_metrics` are required — this was a deliberate decision to avoid null-handling complexity in the insight and goal logic. The assumption is that the user's bioimpedance scale reports all five values in a single reading.
-- **Goal `created_at` / `start_value` columns:** these were added to the `goals` schema after initial creation. If Hibernate's ddl-auto doesn't add them automatically, run: `ALTER TABLE goals ADD COLUMN created_at TIMESTAMP; ALTER TABLE goals ADD COLUMN start_value DOUBLE PRECISION;`. Existing goals will have NULL for both and the progress features will gracefully hide (no crash).
-- **Insight columns on `body_metrics`:** two new columns (`insight_text TEXT`, `insight_generated_at TIMESTAMP`) were added. Run: `ALTER TABLE body_metrics ADD COLUMN insight_text TEXT; ALTER TABLE body_metrics ADD COLUMN insight_generated_at TIMESTAMP;`. The insight is generated when a new measurement is saved (POST), not hydrated from existing rows.
-- **Gemini API key:** set `GEMINI_API_KEY` as an environment variable. If missing, the insight falls back to a templated summary (auto-generated, labeled as fallback).
+
+- **Date handling:** the frontend works with `yyyy-MM-dd` strings and
+  UTC-safe helpers (`src/utils/date.js`) to avoid browser UTC-parsing
+  off-by-one shifts. Use those helpers; avoid `toISOString()`.
+- **`app_settings` seeding:** `AppSettingsSeeder` inserts the single row
+  (id=1, target=3) idempotently at startup — no manual SQL needed.
+- **Insight suppression:** analytics that require a baseline (streaks need
+  data, insights need a measurement) are suppressed rather than shown with
+  misleading partial data.
+- **Body metrics all required:** all five metric fields are required — a
+  deliberate decision to avoid null-handling complexity in insight and goal
+  logic. The bioimpedance scale reports all five in one reading.
+- **Gemini API key:** set `GEMINI_API_KEY`. If missing, insight generation
+  returns an error message (the UI surfaces it as unavailable). In the demo,
+  the regenerate action is gated with a warning modal.
+- **SQLite is single-writer:** Hikari pool capped at 1 connection.
+- **Backup = copy the file:** `cp atlas.db` (or `docker compose exec atlas
+  sh -c 'cat /data/atlas.db' > backup.db`) is the entire backup story.
+
+## Deployment
+
+See the backend README for the one-container Docker quickstart. The demo build
+is a static folder — deploy `dist/` anywhere.

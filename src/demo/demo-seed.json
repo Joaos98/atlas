@@ -1,0 +1,1779 @@
+{
+  "version" : 1,
+  "referenceDate" : "2026-08-02",
+  "appSettings" : {
+    "targetWorkoutsPerWeek" : 3
+  },
+  "workoutTypes" : [ {
+    "id" : 1,
+    "name" : "Run",
+    "colorHex" : "#e63946"
+  }, {
+    "id" : 2,
+    "name" : "Strength",
+    "colorHex" : "#457b9d"
+  }, {
+    "id" : 3,
+    "name" : "Cycling",
+    "colorHex" : "#2a9d8f"
+  }, {
+    "id" : 4,
+    "name" : "Swimming",
+    "colorHex" : "#e9c46a"
+  } ],
+  "workoutLogs" : [ {
+    "id" : 1,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -559,
+    "durationMinutes" : 25
+  }, {
+    "id" : 2,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -557,
+    "durationMinutes" : 60
+  }, {
+    "id" : 3,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -555,
+    "durationMinutes" : 25
+  }, {
+    "id" : 4,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -554,
+    "durationMinutes" : 50
+  }, {
+    "id" : 5,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -553,
+    "durationMinutes" : 30
+  }, {
+    "id" : 6,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -551,
+    "durationMinutes" : 25
+  }, {
+    "id" : 7,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -549,
+    "durationMinutes" : 65
+  }, {
+    "id" : 8,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -547,
+    "durationMinutes" : 30
+  }, {
+    "id" : 9,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -545,
+    "durationMinutes" : 35
+  }, {
+    "id" : 10,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -544,
+    "durationMinutes" : 60
+  }, {
+    "id" : 11,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -541,
+    "durationMinutes" : 35
+  }, {
+    "id" : 12,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -546,
+    "durationMinutes" : 30
+  }, {
+    "id" : 13,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -536,
+    "durationMinutes" : 40
+  }, {
+    "id" : 14,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -535,
+    "durationMinutes" : 40
+  }, {
+    "id" : 15,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -533,
+    "durationMinutes" : 40
+  }, {
+    "id" : 16,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -538,
+    "durationMinutes" : 30
+  }, {
+    "id" : 17,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -531,
+    "durationMinutes" : 45
+  }, {
+    "id" : 18,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -529,
+    "durationMinutes" : 45
+  }, {
+    "id" : 19,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -527,
+    "durationMinutes" : 45
+  }, {
+    "id" : 20,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -526,
+    "durationMinutes" : 35
+  }, {
+    "id" : 21,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -525,
+    "durationMinutes" : 25
+  }, {
+    "id" : 22,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -523,
+    "durationMinutes" : 20
+  }, {
+    "id" : 23,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -521,
+    "durationMinutes" : 50
+  }, {
+    "id" : 24,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -519,
+    "durationMinutes" : 25
+  }, {
+    "id" : 25,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -517,
+    "durationMinutes" : 30
+  }, {
+    "id" : 26,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -516,
+    "durationMinutes" : 45
+  }, {
+    "id" : 27,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -513,
+    "durationMinutes" : 30
+  }, {
+    "id" : 28,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -518,
+    "durationMinutes" : 25
+  }, {
+    "id" : 29,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -508,
+    "durationMinutes" : 60
+  }, {
+    "id" : 30,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -507,
+    "durationMinutes" : 35
+  }, {
+    "id" : 31,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -505,
+    "durationMinutes" : 35
+  }, {
+    "id" : 32,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -510,
+    "durationMinutes" : 50
+  }, {
+    "id" : 33,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -503,
+    "durationMinutes" : 40
+  }, {
+    "id" : 34,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -501,
+    "durationMinutes" : 65
+  }, {
+    "id" : 35,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -499,
+    "durationMinutes" : 40
+  }, {
+    "id" : 36,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -498,
+    "durationMinutes" : 55
+  }, {
+    "id" : 37,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -497,
+    "durationMinutes" : 45
+  }, {
+    "id" : 38,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -495,
+    "durationMinutes" : 40
+  }, {
+    "id" : 39,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -493,
+    "durationMinutes" : 70
+  }, {
+    "id" : 40,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -491,
+    "durationMinutes" : 45
+  }, {
+    "id" : 41,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -489,
+    "durationMinutes" : 25
+  }, {
+    "id" : 42,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -488,
+    "durationMinutes" : 30
+  }, {
+    "id" : 43,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -485,
+    "durationMinutes" : 25
+  }, {
+    "id" : 44,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -490,
+    "durationMinutes" : 20
+  }, {
+    "id" : 45,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -480,
+    "durationMinutes" : 45
+  }, {
+    "id" : 46,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -479,
+    "durationMinutes" : 30
+  }, {
+    "id" : 47,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -477,
+    "durationMinutes" : 30
+  }, {
+    "id" : 48,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -482,
+    "durationMinutes" : 35
+  }, {
+    "id" : 49,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -475,
+    "durationMinutes" : 35
+  }, {
+    "id" : 50,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -473,
+    "durationMinutes" : 50
+  }, {
+    "id" : 51,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -471,
+    "durationMinutes" : 35
+  }, {
+    "id" : 52,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -470,
+    "durationMinutes" : 40
+  }, {
+    "id" : 53,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -469,
+    "durationMinutes" : 40
+  }, {
+    "id" : 54,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -467,
+    "durationMinutes" : 35
+  }, {
+    "id" : 55,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -465,
+    "durationMinutes" : 55
+  }, {
+    "id" : 56,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -463,
+    "durationMinutes" : 40
+  }, {
+    "id" : 57,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -461,
+    "durationMinutes" : 45
+  }, {
+    "id" : 58,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -460,
+    "durationMinutes" : 50
+  }, {
+    "id" : 59,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -457,
+    "durationMinutes" : 45
+  }, {
+    "id" : 60,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -462,
+    "durationMinutes" : 40
+  }, {
+    "id" : 61,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -452,
+    "durationMinutes" : 65
+  }, {
+    "id" : 62,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -451,
+    "durationMinutes" : 25
+  }, {
+    "id" : 63,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -449,
+    "durationMinutes" : 25
+  }, {
+    "id" : 64,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -454,
+    "durationMinutes" : 55
+  }, {
+    "id" : 65,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -447,
+    "durationMinutes" : 30
+  }, {
+    "id" : 66,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -445,
+    "durationMinutes" : 70
+  }, {
+    "id" : 67,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -443,
+    "durationMinutes" : 30
+  }, {
+    "id" : 68,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -442,
+    "durationMinutes" : 60
+  }, {
+    "id" : 69,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -441,
+    "durationMinutes" : 35
+  }, {
+    "id" : 70,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -439,
+    "durationMinutes" : 30
+  }, {
+    "id" : 71,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -437,
+    "durationMinutes" : 40
+  }, {
+    "id" : 72,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -435,
+    "durationMinutes" : 35
+  }, {
+    "id" : 73,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -433,
+    "durationMinutes" : 40
+  }, {
+    "id" : 74,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -432,
+    "durationMinutes" : 35
+  }, {
+    "id" : 75,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -429,
+    "durationMinutes" : 40
+  }, {
+    "id" : 76,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -434,
+    "durationMinutes" : 35
+  }, {
+    "id" : 77,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -424,
+    "durationMinutes" : 50
+  }, {
+    "id" : 78,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -423,
+    "durationMinutes" : 45
+  }, {
+    "id" : 79,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -421,
+    "durationMinutes" : 45
+  }, {
+    "id" : 80,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -426,
+    "durationMinutes" : 40
+  }, {
+    "id" : 81,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -419,
+    "durationMinutes" : 25
+  }, {
+    "id" : 82,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -417,
+    "durationMinutes" : 55
+  }, {
+    "id" : 83,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -415,
+    "durationMinutes" : 25
+  }, {
+    "id" : 84,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -414,
+    "durationMinutes" : 45
+  }, {
+    "id" : 85,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -413,
+    "durationMinutes" : 30
+  }, {
+    "id" : 86,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -411,
+    "durationMinutes" : 25
+  }, {
+    "id" : 87,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -409,
+    "durationMinutes" : 60
+  }, {
+    "id" : 88,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -407,
+    "durationMinutes" : 30
+  }, {
+    "id" : 89,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -405,
+    "durationMinutes" : 35
+  }, {
+    "id" : 90,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -404,
+    "durationMinutes" : 55
+  }, {
+    "id" : 91,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -401,
+    "durationMinutes" : 35
+  }, {
+    "id" : 92,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -406,
+    "durationMinutes" : 30
+  }, {
+    "id" : 93,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -396,
+    "durationMinutes" : 70
+  }, {
+    "id" : 94,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -395,
+    "durationMinutes" : 40
+  }, {
+    "id" : 95,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -393,
+    "durationMinutes" : 40
+  }, {
+    "id" : 96,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -398,
+    "durationMinutes" : 60
+  }, {
+    "id" : 97,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -391,
+    "durationMinutes" : 45
+  }, {
+    "id" : 98,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -389,
+    "durationMinutes" : 40
+  }, {
+    "id" : 99,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -387,
+    "durationMinutes" : 45
+  }, {
+    "id" : 100,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -386,
+    "durationMinutes" : 30
+  }, {
+    "id" : 101,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -385,
+    "durationMinutes" : 25
+  }, {
+    "id" : 102,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -383,
+    "durationMinutes" : 20
+  }, {
+    "id" : 103,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -381,
+    "durationMinutes" : 45
+  }, {
+    "id" : 104,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -379,
+    "durationMinutes" : 25
+  }, {
+    "id" : 105,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -377,
+    "durationMinutes" : 30
+  }, {
+    "id" : 106,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -376,
+    "durationMinutes" : 40
+  }, {
+    "id" : 107,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -373,
+    "durationMinutes" : 30
+  }, {
+    "id" : 108,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -378,
+    "durationMinutes" : 25
+  }, {
+    "id" : 109,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -368,
+    "durationMinutes" : 55
+  }, {
+    "id" : 110,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -367,
+    "durationMinutes" : 35
+  }, {
+    "id" : 111,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -365,
+    "durationMinutes" : 35
+  }, {
+    "id" : 112,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -370,
+    "durationMinutes" : 45
+  }, {
+    "id" : 113,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -363,
+    "durationMinutes" : 40
+  }, {
+    "id" : 114,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -361,
+    "durationMinutes" : 60
+  }, {
+    "id" : 115,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -359,
+    "durationMinutes" : 40
+  }, {
+    "id" : 116,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -358,
+    "durationMinutes" : 50
+  }, {
+    "id" : 117,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -357,
+    "durationMinutes" : 45
+  }, {
+    "id" : 118,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -355,
+    "durationMinutes" : 40
+  }, {
+    "id" : 119,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -353,
+    "durationMinutes" : 65
+  }, {
+    "id" : 120,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -351,
+    "durationMinutes" : 45
+  }, {
+    "id" : 121,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -349,
+    "durationMinutes" : 25
+  }, {
+    "id" : 122,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -348,
+    "durationMinutes" : 60
+  }, {
+    "id" : 123,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -345,
+    "durationMinutes" : 25
+  }, {
+    "id" : 124,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -350,
+    "durationMinutes" : 20
+  }, {
+    "id" : 125,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -340,
+    "durationMinutes" : 40
+  }, {
+    "id" : 126,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -339,
+    "durationMinutes" : 30
+  }, {
+    "id" : 127,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -337,
+    "durationMinutes" : 30
+  }, {
+    "id" : 128,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -342,
+    "durationMinutes" : 30
+  }, {
+    "id" : 129,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -335,
+    "durationMinutes" : 35
+  }, {
+    "id" : 130,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -333,
+    "durationMinutes" : 45
+  }, {
+    "id" : 131,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -331,
+    "durationMinutes" : 35
+  }, {
+    "id" : 132,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -330,
+    "durationMinutes" : 35
+  }, {
+    "id" : 133,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -329,
+    "durationMinutes" : 40
+  }, {
+    "id" : 134,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -327,
+    "durationMinutes" : 35
+  }, {
+    "id" : 135,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -325,
+    "durationMinutes" : 50
+  }, {
+    "id" : 136,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -323,
+    "durationMinutes" : 40
+  }, {
+    "id" : 137,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -321,
+    "durationMinutes" : 45
+  }, {
+    "id" : 138,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -320,
+    "durationMinutes" : 45
+  }, {
+    "id" : 139,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -317,
+    "durationMinutes" : 45
+  }, {
+    "id" : 140,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -322,
+    "durationMinutes" : 40
+  }, {
+    "id" : 141,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -312,
+    "durationMinutes" : 60
+  }, {
+    "id" : 142,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -311,
+    "durationMinutes" : 25
+  }, {
+    "id" : 143,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -309,
+    "durationMinutes" : 25
+  }, {
+    "id" : 144,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -314,
+    "durationMinutes" : 50
+  }, {
+    "id" : 145,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -307,
+    "durationMinutes" : 30
+  }, {
+    "id" : 146,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -305,
+    "durationMinutes" : 65
+  }, {
+    "id" : 147,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -303,
+    "durationMinutes" : 30
+  }, {
+    "id" : 148,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -302,
+    "durationMinutes" : 55
+  }, {
+    "id" : 149,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -301,
+    "durationMinutes" : 35
+  }, {
+    "id" : 150,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -299,
+    "durationMinutes" : 30
+  }, {
+    "id" : 151,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -297,
+    "durationMinutes" : 70
+  }, {
+    "id" : 152,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -295,
+    "durationMinutes" : 35
+  }, {
+    "id" : 153,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -293,
+    "durationMinutes" : 40
+  }, {
+    "id" : 154,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -292,
+    "durationMinutes" : 30
+  }, {
+    "id" : 155,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -289,
+    "durationMinutes" : 40
+  }, {
+    "id" : 156,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -294,
+    "durationMinutes" : 35
+  }, {
+    "id" : 157,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -284,
+    "durationMinutes" : 45
+  }, {
+    "id" : 158,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -283,
+    "durationMinutes" : 45
+  }, {
+    "id" : 159,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -281,
+    "durationMinutes" : 45
+  }, {
+    "id" : 160,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -286,
+    "durationMinutes" : 35
+  }, {
+    "id" : 161,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -278,
+    "durationMinutes" : 50
+  }, {
+    "id" : 162,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -271,
+    "durationMinutes" : 55
+  }, {
+    "id" : 163,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -271,
+    "durationMinutes" : 55
+  }, {
+    "id" : 164,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -264,
+    "durationMinutes" : 60
+  }, {
+    "id" : 165,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -257,
+    "durationMinutes" : 65
+  }, {
+    "id" : 166,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -257,
+    "durationMinutes" : 65
+  }, {
+    "id" : 167,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -250,
+    "durationMinutes" : 70
+  }, {
+    "id" : 168,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -245,
+    "durationMinutes" : 25
+  }, {
+    "id" : 169,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -243,
+    "durationMinutes" : 20
+  }, {
+    "id" : 170,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -241,
+    "durationMinutes" : 40
+  }, {
+    "id" : 171,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -239,
+    "durationMinutes" : 25
+  }, {
+    "id" : 172,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -237,
+    "durationMinutes" : 30
+  }, {
+    "id" : 173,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -236,
+    "durationMinutes" : 35
+  }, {
+    "id" : 174,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -233,
+    "durationMinutes" : 30
+  }, {
+    "id" : 175,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -238,
+    "durationMinutes" : 25
+  }, {
+    "id" : 176,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -228,
+    "durationMinutes" : 50
+  }, {
+    "id" : 177,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -227,
+    "durationMinutes" : 35
+  }, {
+    "id" : 178,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -225,
+    "durationMinutes" : 35
+  }, {
+    "id" : 179,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -230,
+    "durationMinutes" : 40
+  }, {
+    "id" : 180,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -223,
+    "durationMinutes" : 40
+  }, {
+    "id" : 181,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -221,
+    "durationMinutes" : 55
+  }, {
+    "id" : 182,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -219,
+    "durationMinutes" : 40
+  }, {
+    "id" : 183,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -218,
+    "durationMinutes" : 45
+  }, {
+    "id" : 184,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -217,
+    "durationMinutes" : 45
+  }, {
+    "id" : 185,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -215,
+    "durationMinutes" : 40
+  }, {
+    "id" : 186,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -213,
+    "durationMinutes" : 60
+  }, {
+    "id" : 187,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -211,
+    "durationMinutes" : 45
+  }, {
+    "id" : 188,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -209,
+    "durationMinutes" : 25
+  }, {
+    "id" : 189,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -208,
+    "durationMinutes" : 55
+  }, {
+    "id" : 190,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -205,
+    "durationMinutes" : 25
+  }, {
+    "id" : 191,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -210,
+    "durationMinutes" : 20
+  }, {
+    "id" : 192,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -200,
+    "durationMinutes" : 70
+  }, {
+    "id" : 193,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -199,
+    "durationMinutes" : 30
+  }, {
+    "id" : 194,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -197,
+    "durationMinutes" : 30
+  }, {
+    "id" : 195,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -202,
+    "durationMinutes" : 60
+  }, {
+    "id" : 196,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -195,
+    "durationMinutes" : 35
+  }, {
+    "id" : 197,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -193,
+    "durationMinutes" : 40
+  }, {
+    "id" : 198,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -191,
+    "durationMinutes" : 35
+  }, {
+    "id" : 199,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -190,
+    "durationMinutes" : 30
+  }, {
+    "id" : 200,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -189,
+    "durationMinutes" : 40
+  }, {
+    "id" : 201,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -187,
+    "durationMinutes" : 35
+  }, {
+    "id" : 202,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -185,
+    "durationMinutes" : 45
+  }, {
+    "id" : 203,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -183,
+    "durationMinutes" : 40
+  }, {
+    "id" : 204,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -181,
+    "durationMinutes" : 45
+  }, {
+    "id" : 205,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -180,
+    "durationMinutes" : 40
+  }, {
+    "id" : 206,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -177,
+    "durationMinutes" : 45
+  }, {
+    "id" : 207,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -182,
+    "durationMinutes" : 40
+  }, {
+    "id" : 208,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -172,
+    "durationMinutes" : 55
+  }, {
+    "id" : 209,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -171,
+    "durationMinutes" : 25
+  }, {
+    "id" : 210,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -169,
+    "durationMinutes" : 25
+  }, {
+    "id" : 211,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -174,
+    "durationMinutes" : 45
+  }, {
+    "id" : 212,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -167,
+    "durationMinutes" : 30
+  }, {
+    "id" : 213,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -165,
+    "durationMinutes" : 60
+  }, {
+    "id" : 214,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -163,
+    "durationMinutes" : 30
+  }, {
+    "id" : 215,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -162,
+    "durationMinutes" : 50
+  }, {
+    "id" : 216,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -161,
+    "durationMinutes" : 35
+  }, {
+    "id" : 217,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -159,
+    "durationMinutes" : 30
+  }, {
+    "id" : 218,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -157,
+    "durationMinutes" : 65
+  }, {
+    "id" : 219,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -155,
+    "durationMinutes" : 35
+  }, {
+    "id" : 220,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -153,
+    "durationMinutes" : 40
+  }, {
+    "id" : 221,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -152,
+    "durationMinutes" : 60
+  }, {
+    "id" : 222,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -149,
+    "durationMinutes" : 40
+  }, {
+    "id" : 223,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -154,
+    "durationMinutes" : 35
+  }, {
+    "id" : 224,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -144,
+    "durationMinutes" : 40
+  }, {
+    "id" : 225,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -143,
+    "durationMinutes" : 45
+  }, {
+    "id" : 226,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -141,
+    "durationMinutes" : 45
+  }, {
+    "id" : 227,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -146,
+    "durationMinutes" : 30
+  }, {
+    "id" : 228,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -139,
+    "durationMinutes" : 25
+  }, {
+    "id" : 229,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -137,
+    "durationMinutes" : 45
+  }, {
+    "id" : 230,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -135,
+    "durationMinutes" : 25
+  }, {
+    "id" : 231,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -134,
+    "durationMinutes" : 35
+  }, {
+    "id" : 232,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -133,
+    "durationMinutes" : 30
+  }, {
+    "id" : 233,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -131,
+    "durationMinutes" : 25
+  }, {
+    "id" : 234,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -129,
+    "durationMinutes" : 50
+  }, {
+    "id" : 235,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -127,
+    "durationMinutes" : 30
+  }, {
+    "id" : 236,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -125,
+    "durationMinutes" : 35
+  }, {
+    "id" : 237,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -124,
+    "durationMinutes" : 45
+  }, {
+    "id" : 238,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -121,
+    "durationMinutes" : 35
+  }, {
+    "id" : 239,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -126,
+    "durationMinutes" : 30
+  }, {
+    "id" : 240,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -116,
+    "durationMinutes" : 60
+  }, {
+    "id" : 241,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -115,
+    "durationMinutes" : 40
+  }, {
+    "id" : 242,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -113,
+    "durationMinutes" : 40
+  }, {
+    "id" : 243,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -118,
+    "durationMinutes" : 50
+  }, {
+    "id" : 244,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -111,
+    "durationMinutes" : 45
+  }, {
+    "id" : 245,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -109,
+    "durationMinutes" : 65
+  }, {
+    "id" : 246,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -107,
+    "durationMinutes" : 45
+  }, {
+    "id" : 247,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -106,
+    "durationMinutes" : 55
+  }, {
+    "id" : 248,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -105,
+    "durationMinutes" : 25
+  }, {
+    "id" : 249,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -103,
+    "durationMinutes" : 20
+  }, {
+    "id" : 250,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -101,
+    "durationMinutes" : 70
+  }, {
+    "id" : 251,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -99,
+    "durationMinutes" : 25
+  }, {
+    "id" : 252,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -97,
+    "durationMinutes" : 30
+  }, {
+    "id" : 253,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -96,
+    "durationMinutes" : 30
+  }, {
+    "id" : 254,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -93,
+    "durationMinutes" : 30
+  }, {
+    "id" : 255,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -98,
+    "durationMinutes" : 25
+  }, {
+    "id" : 256,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -88,
+    "durationMinutes" : 45
+  }, {
+    "id" : 257,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -87,
+    "durationMinutes" : 35
+  }, {
+    "id" : 258,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -85,
+    "durationMinutes" : 35
+  }, {
+    "id" : 259,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -90,
+    "durationMinutes" : 35
+  }, {
+    "id" : 260,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -83,
+    "durationMinutes" : 40
+  }, {
+    "id" : 261,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -81,
+    "durationMinutes" : 50
+  }, {
+    "id" : 262,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -79,
+    "durationMinutes" : 40
+  }, {
+    "id" : 263,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -78,
+    "durationMinutes" : 40
+  }, {
+    "id" : 264,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -77,
+    "durationMinutes" : 45
+  }, {
+    "id" : 265,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -75,
+    "durationMinutes" : 40
+  }, {
+    "id" : 266,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -73,
+    "durationMinutes" : 55
+  }, {
+    "id" : 267,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -71,
+    "durationMinutes" : 45
+  }, {
+    "id" : 268,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -69,
+    "durationMinutes" : 25
+  }, {
+    "id" : 269,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -68,
+    "durationMinutes" : 50
+  }, {
+    "id" : 270,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -65,
+    "durationMinutes" : 25
+  }, {
+    "id" : 271,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -70,
+    "durationMinutes" : 20
+  }, {
+    "id" : 272,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -60,
+    "durationMinutes" : 65
+  }, {
+    "id" : 273,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -59,
+    "durationMinutes" : 30
+  }, {
+    "id" : 274,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -57,
+    "durationMinutes" : 30
+  }, {
+    "id" : 275,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -62,
+    "durationMinutes" : 55
+  }, {
+    "id" : 276,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -55,
+    "durationMinutes" : 35
+  }, {
+    "id" : 277,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -53,
+    "durationMinutes" : 70
+  }, {
+    "id" : 278,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -51,
+    "durationMinutes" : 35
+  }, {
+    "id" : 279,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -50,
+    "durationMinutes" : 60
+  }, {
+    "id" : 280,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -49,
+    "durationMinutes" : 40
+  }, {
+    "id" : 281,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -47,
+    "durationMinutes" : 35
+  }, {
+    "id" : 282,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -45,
+    "durationMinutes" : 40
+  }, {
+    "id" : 283,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -43,
+    "durationMinutes" : 40
+  }, {
+    "id" : 284,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -41,
+    "durationMinutes" : 45
+  }, {
+    "id" : 285,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -40,
+    "durationMinutes" : 35
+  }, {
+    "id" : 286,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -37,
+    "durationMinutes" : 45
+  }, {
+    "id" : 287,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -42,
+    "durationMinutes" : 40
+  }, {
+    "id" : 288,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -32,
+    "durationMinutes" : 50
+  }, {
+    "id" : 289,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -31,
+    "durationMinutes" : 25
+  }, {
+    "id" : 290,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -29,
+    "durationMinutes" : 25
+  }, {
+    "id" : 291,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -34,
+    "durationMinutes" : 40
+  }, {
+    "id" : 292,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -27,
+    "durationMinutes" : 30
+  }, {
+    "id" : 293,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -25,
+    "durationMinutes" : 55
+  }, {
+    "id" : 294,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -23,
+    "durationMinutes" : 30
+  }, {
+    "id" : 295,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -22,
+    "durationMinutes" : 45
+  }, {
+    "id" : 296,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -21,
+    "durationMinutes" : 35
+  }, {
+    "id" : 297,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -19,
+    "durationMinutes" : 30
+  }, {
+    "id" : 298,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -17,
+    "durationMinutes" : 60
+  }, {
+    "id" : 299,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -15,
+    "durationMinutes" : 35
+  }, {
+    "id" : 300,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -13,
+    "durationMinutes" : 40
+  }, {
+    "id" : 301,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -12,
+    "durationMinutes" : 55
+  }, {
+    "id" : 302,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -9,
+    "durationMinutes" : 40
+  }, {
+    "id" : 303,
+    "workoutTypeId" : 4,
+    "dateOffsetDays" : -14,
+    "durationMinutes" : 35
+  }, {
+    "id" : 304,
+    "workoutTypeId" : 2,
+    "dateOffsetDays" : -4,
+    "durationMinutes" : 70
+  }, {
+    "id" : 305,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -3,
+    "durationMinutes" : 45
+  }, {
+    "id" : 306,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : -1,
+    "durationMinutes" : 45
+  }, {
+    "id" : 307,
+    "workoutTypeId" : 3,
+    "dateOffsetDays" : -6,
+    "durationMinutes" : 60
+  }, {
+    "id" : 308,
+    "workoutTypeId" : 1,
+    "dateOffsetDays" : 0,
+    "durationMinutes" : 30
+  } ],
+  "bodyMetrics" : [ {
+    "dateOffsetDays" : -560,
+    "weightKg" : 85.0,
+    "muscleMassKg" : 36.5,
+    "waterLiters" : 38.2,
+    "bodyFatPct" : 24.0,
+    "bodyFatKg" : 20.4,
+    "insightText" : null,
+    "insightGeneratedAt" : null
+  }, {
+    "dateOffsetDays" : -532,
+    "weightKg" : 84.7,
+    "muscleMassKg" : 36.6,
+    "waterLiters" : 38.3,
+    "bodyFatPct" : 23.8,
+    "bodyFatKg" : 20.2,
+    "insightText" : null,
+    "insightGeneratedAt" : null
+  }, {
+    "dateOffsetDays" : -504,
+    "weightKg" : 84.4,
+    "muscleMassKg" : 36.7,
+    "waterLiters" : 38.4,
+    "bodyFatPct" : 23.7,
+    "bodyFatKg" : 20.0,
+    "insightText" : null,
+    "insightGeneratedAt" : null
+  }, {
+    "dateOffsetDays" : -476,
+    "weightKg" : 84.1,
+    "muscleMassKg" : 36.9,
+    "waterLiters" : 38.5,
+    "bodyFatPct" : 23.5,
+    "bodyFatKg" : 19.8,
+    "insightText" : null,
+    "insightGeneratedAt" : null
+  }, {
+    "dateOffsetDays" : -448,
+    "weightKg" : 83.8,
+    "muscleMassKg" : 37.0,
+    "waterLiters" : 38.6,
+    "bodyFatPct" : 23.4,
+    "bodyFatKg" : 19.6,
+    "insightText" : null,
+    "insightGeneratedAt" : null
+  }, {
+    "dateOffsetDays" : -420,
+    "weightKg" : 83.5,
+    "muscleMassKg" : 37.1,
+    "waterLiters" : 38.8,
+    "bodyFatPct" : 23.2,
+    "bodyFatKg" : 19.4,
+    "insightText" : null,
+    "insightGeneratedAt" : null
+  }, {
+    "dateOffsetDays" : -392,
+    "weightKg" : 83.2,
+    "muscleMassKg" : 37.2,
+    "waterLiters" : 38.9,
+    "bodyFatPct" : 23.1,
+    "bodyFatKg" : 19.2,
+    "insightText" : null,
+    "insightGeneratedAt" : null
+  }, {
+    "dateOffsetDays" : -364,
+    "weightKg" : 82.8,
+    "muscleMassKg" : 37.4,
+    "waterLiters" : 39.0,
+    "bodyFatPct" : 22.9,
+    "bodyFatKg" : 19.0,
+    "insightText" : null,
+    "insightGeneratedAt" : null
+  }, {
+    "dateOffsetDays" : -336,
+    "weightKg" : 82.5,
+    "muscleMassKg" : 37.5,
+    "waterLiters" : 39.1,
+    "bodyFatPct" : 22.8,
+    "bodyFatKg" : 18.8,
+    "insightText" : null,
+    "insightGeneratedAt" : null
+  }, {
+    "dateOffsetDays" : -308,
+    "weightKg" : 82.2,
+    "muscleMassKg" : 37.6,
+    "waterLiters" : 39.2,
+    "bodyFatPct" : 22.6,
+    "bodyFatKg" : 18.6,
+    "insightText" : null,
+    "insightGeneratedAt" : null
+  }, {
+    "dateOffsetDays" : -280,
+    "weightKg" : 82.0,
+    "muscleMassKg" : 37.7,
+    "waterLiters" : 39.3,
+    "bodyFatPct" : 22.5,
+    "bodyFatKg" : 18.4,
+    "insightText" : null,
+    "insightGeneratedAt" : null
+  }, {
+    "dateOffsetDays" : -252,
+    "weightKg" : 82.0,
+    "muscleMassKg" : 37.8,
+    "waterLiters" : 39.4,
+    "bodyFatPct" : 22.3,
+    "bodyFatKg" : 18.3,
+    "insightText" : null,
+    "insightGeneratedAt" : null
+  }, {
+    "dateOffsetDays" : -224,
+    "weightKg" : 82.3,
+    "muscleMassKg" : 38.0,
+    "waterLiters" : 39.5,
+    "bodyFatPct" : 22.2,
+    "bodyFatKg" : 18.2,
+    "insightText" : null,
+    "insightGeneratedAt" : null
+  }, {
+    "dateOffsetDays" : -196,
+    "weightKg" : 82.4,
+    "muscleMassKg" : 38.1,
+    "waterLiters" : 39.6,
+    "bodyFatPct" : 22.0,
+    "bodyFatKg" : 18.2,
+    "insightText" : null,
+    "insightGeneratedAt" : null
+  }, {
+    "dateOffsetDays" : -168,
+    "weightKg" : 82.3,
+    "muscleMassKg" : 38.2,
+    "waterLiters" : 39.8,
+    "bodyFatPct" : 21.9,
+    "bodyFatKg" : 18.0,
+    "insightText" : null,
+    "insightGeneratedAt" : null
+  }, {
+    "dateOffsetDays" : -140,
+    "weightKg" : 81.7,
+    "muscleMassKg" : 38.3,
+    "waterLiters" : 39.9,
+    "bodyFatPct" : 21.7,
+    "bodyFatKg" : 17.7,
+    "insightText" : null,
+    "insightGeneratedAt" : null
+  }, {
+    "dateOffsetDays" : -112,
+    "weightKg" : 81.1,
+    "muscleMassKg" : 38.4,
+    "waterLiters" : 40.0,
+    "bodyFatPct" : 21.6,
+    "bodyFatKg" : 17.5,
+    "insightText" : null,
+    "insightGeneratedAt" : null
+  }, {
+    "dateOffsetDays" : -84,
+    "weightKg" : 80.4,
+    "muscleMassKg" : 38.6,
+    "waterLiters" : 40.1,
+    "bodyFatPct" : 21.4,
+    "bodyFatKg" : 17.2,
+    "insightText" : null,
+    "insightGeneratedAt" : null
+  }, {
+    "dateOffsetDays" : -56,
+    "weightKg" : 79.8,
+    "muscleMassKg" : 38.7,
+    "waterLiters" : 40.2,
+    "bodyFatPct" : 21.3,
+    "bodyFatKg" : 17.0,
+    "insightText" : null,
+    "insightGeneratedAt" : null
+  }, {
+    "dateOffsetDays" : -28,
+    "weightKg" : 79.1,
+    "muscleMassKg" : 38.8,
+    "waterLiters" : 40.3,
+    "bodyFatPct" : 21.1,
+    "bodyFatKg" : 16.7,
+    "insightText" : "VERDICT:Consistent fat loss, preserving muscle\nINSIGHT:You are in a textbook body recomposition phase. Over the last month, you managed to drop body fat while keeping your muscle mass completely intact. This shows that your running-heavy routine is successfully driving a caloric deficit without sacrificing your lean tissue. Your consistency is the real star here; by exceeding your weekly workout target, you have actually accelerated your rate of weight loss compared to your long-term average, putting you in a fantastic position to hit your upcoming weight goals.\n\nTo keep this momentum going and ensure your body continues to protect muscle mass as you get leaner, try incorporating at least one or two short, dedicated strength training sessions into your weekly routine alongside your runs. You are doing amazing work, so keep showing up just like you have been, and make sure you are eating enough protein to support your recovery.",
+    "insightGeneratedAt" : "2026-07-05T00:00"
+  } ],
+  "goals" : [ {
+    "id" : 1,
+    "metricType" : "WEIGHT",
+    "targetValue" : 80.0,
+    "targetDateOffsetDays" : null,
+    "status" : "ACHIEVED",
+    "createdAtOffsetDays" : -210,
+    "startValue" : 82.4
+  }, {
+    "id" : 2,
+    "metricType" : "WEIGHT",
+    "targetValue" : 78.6,
+    "targetDateOffsetDays" : 42,
+    "status" : "ACTIVE",
+    "createdAtOffsetDays" : -56,
+    "startValue" : 79.8
+  }, {
+    "id" : 3,
+    "metricType" : "WEIGHT",
+    "targetValue" : 77.0,
+    "targetDateOffsetDays" : 14,
+    "status" : "ACTIVE",
+    "createdAtOffsetDays" : -56,
+    "startValue" : 79.8
+  }, {
+    "id" : 4,
+    "metricType" : "WEIGHT",
+    "targetValue" : 77.8,
+    "targetDateOffsetDays" : null,
+    "status" : "ACTIVE",
+    "createdAtOffsetDays" : -56,
+    "startValue" : 79.8
+  } ]
+}

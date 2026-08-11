@@ -1,142 +1,99 @@
 # Atlas Frontend
 
-Personal single-user fitness tracking dashboard. Built with **Vue 3** (Composition API), **Vite**, **Pinia**, and **Vue Router**.
+The Vue 3 UI for [Atlas](https://github.com/Joaos98/atlas-backend), a self-hosted single-user fitness tracker. Built with **Vue 3** (Composition API, `<script setup>`), **Vite**, **Pinia**, **Vue Router**, and **Chart.js**.
 
-## Tech Stack
+Two builds ship from this one codebase:
 
-- **Vue 3** — Composition API with `<script setup>`
-- **Vite 8** — dev server and build tool
-- **Pinia** — state management
-- **Vue Router 5** — client-side routing
-- **Axios** — HTTP client with Basic Auth interceptor
-- **Chart.js + vue-chartjs** — data visualization
-- **Lucide** — icon library
+- **Self-hosted build** (`npm run build`) — talks to the Spring Boot backend over same-origin `/api`. Served by the backend itself; used in the one-container Docker deployment.
+- **Demo build** (`npm run build:demo`) — a fully static artifact with no backend. A Vite alias swaps the HTTP API module for a localStorage adapter, and the app renders a seeded year of realistic data. Deploy the `dist/` folder anywhere; nothing can go down.
 
 ## Features
 
-- **Dashboard** — weekly progress stats, streaks, workout heatmap, body composition changes, AI coaching insights
+- **Dashboard** — weekly progress, streaks, workout heatmap, body composition changes, AI insights
 - **Workouts** — log workouts, heatmap calendar, weekly chart, type distribution donut, log history
-- **Body Metrics** — track weight, muscle mass, water, body fat with trend charts
-- **Goals** — set goals with progress bars, ETA predictions, pace tracking
-- **Settings** — weekly workout target, workout type management, Health Connect sync mappings
+- **Body Metrics** — weight, muscle mass, water, body fat with trend charts and goal target lines
+- **Goals** — progress bars, ETA projections, pace tracking, achieved/abandoned history
+- **Settings** — weekly workout target, workout types, Health Connect sync mappings
 
 ## Pages
 
 | Route | Page |
 |---|---|
-| `/login` | Login with Basic Auth |
 | `/` | Dashboard |
 | `/workouts` | Workout tracking |
 | `/body-metrics` | Body composition |
-| `/goals` | Goal management |
-| `/settings` | App settings |
-
-## Project Structure
-
-```
-src/
-├── main.js                  # App entry point
-├── App.vue                  # Root component (navbar + router-view)
-├── components/              # Reusable UI components
-│   ├── NavBar.vue           # Sidebar navigation
-│   ├── WorkoutForm.vue      # Workout log form
-│   ├── BodyMetricsForm.vue  # Body measurement form
-│   ├── GoalForm.vue         # Goal creation form
-│   ├── StatCard.vue         # Dashboard stat cards
-│   ├── InsightCard.vue      # AI insight display
-│   ├── MetricChart.vue      # Line chart for metrics
-│   ├── WorkoutHeatmap.vue   # Calendar heatmap
-│   ├── WeeklyWorkoutsChart.vue # Weekly bar chart
-│   ├── WorkoutTypeDonut.vue # Type distribution chart
-│   ├── DayOfWeekChart.vue   # Day-of-week distribution
-│   ├── DurationHistogram.vue # Duration distribution
-│   ├── MetricSparkline.vue  # Mini sparkline
-│   ├── LatestMeasurementStats.vue # Latest body stats
-│   ├── DatePicker.vue       # Date picker component
-│   ├── SkeletonLoader.vue   # Loading skeleton
-│   ├── EmptyState.vue       # Empty state placeholder
-│   └── ToastContainer.vue   # Toast notifications
-├── views/                   # Page components
-│   ├── LoginView.vue
-│   ├── DashboardView.vue
-│   ├── WorkoutsView.vue
-│   ├── BodyMetricsView.vue
-│   ├── GoalsView.vue
-│   └── SettingsView.vue
-├── router/
-│   └── index.js             # Route definitions + auth guard
-├── stores/
-│   ├── auth.js              # Auth state (username/password in localStorage)
-│   └── toast.js             # Toast notification state
-├── services/
-│   ├── api.js               # Axios instance with Basic Auth
-│   ├── workoutService.js
-│   ├── bodyMetricsService.js
-│   ├── goalsService.js
-│   ├── statsService.js
-│   ├── insightService.js
-│   ├── settingsService.js
-│   └── syncService.js
-├── styles/
-│   ├── tokens.css           # CSS custom properties (design tokens)
-│   └── forms.css            # Shared form styles
-├── utils/
-│   └── date.js              # UTC-safe date helpers
-└── assets/                  # Static assets
-```
+| `/goals` | Goals |
+| `/settings` | Settings |
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js ^22.18.0 \|\| >=24.12.0
-
-### Setup
+Prerequisites: Node.js `^22.18.0 || >=24.12.0`.
 
 ```sh
 npm install
 npm run dev
 ```
 
-The dev server runs on `http://localhost:5173`.
+The dev server runs on `http://localhost:5173` and proxies `/api` to a local backend on `http://localhost:9090` (see `vite.config.js`). No `VITE_API_URL` is needed — the API is same-origin relative.
 
-### Environment Variables
+To run the demo locally:
 
-| Variable | Required | Default | Description |
-|---|---|---|---|
-| `VITE_API_URL` | Yes | `http://localhost:9090/api` | Backend API base URL |
-
-Create a `.env` file in the project root:
-
-```
-VITE_API_URL=http://localhost:9090/api
+```sh
+npm run build:demo
+npm run preview
 ```
 
-For production, set `VITE_API_URL` to your deployed backend URL.
+Open `http://localhost:4173`. The banner explains what you're looking at.
 
 ## Scripts
 
 | Script | Description |
 |---|---|
-| `npm run dev` | Start dev server with hot-reload |
-| `npm run build` | Build for production into `dist/` |
-| `npm run preview` | Preview the production build locally |
+| `npm run dev` | Dev server with hot-reload, `/api` proxied to `localhost:9090` |
+| `npm run build` | Self-hosted build (HTTP API) into `dist/` |
+| `npm run build:demo` | Static demo build (localStorage adapter) into `dist/` |
+| `npm run preview` | Preview the current build locally |
+| `npm run test` | Vitest suite (fixture contract + demo adapter) |
 | `npm run lint` | Run all linters (oxlint + eslint) |
 | `npm run format` | Format code with Prettier |
 
-## Deployment
+## Testing
 
-Build and deploy to any static hosting:
+The demo is not a reimplementation that merely *resembles* the app — it is verified against the real backend:
 
-```sh
-npm run build
+- `src/demo/demo-seed.json` and `src/demo/expected-derived.json` are generated by driving the actual Java API (see the backend's `SeedGenerator` test)
+- `src/demo/fixture.test.js` loads the seed, runs the ported JS logic (streaks, stats, heatmap, goal progress), and asserts it equals the recorded Java responses
+- `src/demo/demoApi.test.js` exercises the full localStorage adapter surface
+
+If the Java logic or the seed ever changes, both files are regenerated together and the JS test fails loudly — the demo cannot silently show different numbers than the real app.
+
+## Project Structure
+
+```
+src/
+├── main.js                  # App entry point
+├── App.vue                  # Root component (demo banner, navbar, router-view)
+├── components/              # Reusable UI components
+├── views/                   # Page components
+├── router/                  # Route definitions
+├── stores/                  # Pinia stores (toast)
+├── services/                # API wrappers, all funnel through api.js
+├── demo/                    # Demo build only
+│   ├── demoApi.js           # localStorage adapter (swapped in via Vite alias)
+│   ├── derived.js           # JS port of the backend's derived logic
+│   ├── seed.js              # Seed materialization + versioned localStorage
+│   ├── demo-seed.json       # Generated by the backend's seed generator
+│   ├── expected-derived.json# Recorded Java responses (fixture contract)
+│   ├── fixture.test.js      # Port-vs-Java fixture test
+│   ├── demoApi.test.js      # Adapter surface test
+│   ├── DemoBanner.vue       # "data stays in your browser" banner
+│   └── InsightGateModal.vue # Gated insight regeneration warning
+├── styles/                  # Design tokens + shared form styles
+└── utils/                   # UTC-safe date helpers
 ```
 
-The `dist/` folder contains the production build. Set `VITE_API_URL` to your backend URL during build.
+## Environment Variables
 
-### Vercel (recommended)
-
-- Framework preset: **Vite**
-- Build command: `npm run build`
-- Output directory: `dist`
-- Environment variable: `VITE_API_URL` set to your Railway backend URL
+| Variable | Used by | Description |
+|---|---|---|
+| `VITE_SELF_HOST_URL` | Demo build only | Optional; sets the banner's "Self-host Atlas" link |

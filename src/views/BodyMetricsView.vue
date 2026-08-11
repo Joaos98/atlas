@@ -132,6 +132,7 @@ import { getBodyMetrics, deleteBodyMetrics, updateBodyMetrics } from '../service
 import { getGoals } from '../services/goalsService'
 import { getInsights, regenerateInsights } from '../services/insightService'
 import { useToastStore } from '../stores/toast'
+import { openInsightGate } from '../demo/insightGate'
 import BodyMetricsForm from '../components/BodyMetricsForm.vue'
 import MetricChart from '../components/MetricChart.vue'
 import InsightCard from '../components/InsightCard.vue'
@@ -248,6 +249,10 @@ onMounted(async () => {
 function onLogged() { load() }
 
 async function refreshInsight() {
+  if (import.meta.env.MODE === 'demo') {
+    openInsightGate()
+    return
+  }
   insightLoading.value = true
   try {
     const res = await regenerateInsights()
