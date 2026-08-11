@@ -31,7 +31,7 @@ public abstract class AbstractSqliteIntegrationTest {
 
     protected final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Value("${atlas.seed.dir:../aio-fitness-frontend/aio-fitness-frontend/src/demo}")
+    @Value("${atlas.seed.dir:../ui/src/demo}")
     protected String seedDir;
 
     protected static void resetDb(String fileName) {

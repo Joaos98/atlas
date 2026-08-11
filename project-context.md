@@ -27,7 +27,7 @@ Two builds ship from one codebase:
 
 ## Tech stack
 
-### Backend (`atlas-backend`)
+### Backend (`server/`)
 - **Java 21**, **Spring Boot 4.1**, **Maven**
 - **Spring Data JPA** (Hibernate 7) for ORM
 - **SQLite** via `sqlite-jdbc` + the Hibernate community dialect — one file,
@@ -37,7 +37,7 @@ Two builds ship from one codebase:
   insight falls back to an error message)
 - REST API, serves the built frontend from `static/`
 
-### Frontend (`atlas-frontend`)
+### Frontend (`ui/`)
 - **Vue 3** (Composition API, `<script setup>`), **Vite**
 - **Vue Router** for navigation
 - **Pinia** for toast state
@@ -50,9 +50,9 @@ Two builds ship from one codebase:
 
 ## Repository structure
 
-Two separate repositories:
-- `atlas-backend` — Spring Boot project
-- `atlas-frontend` — Vue project
+One repository:
+- `server/` — Spring Boot project
+- `ui/` — Vue project
 
 ### Backend package structure (`com.joaosousa.atlas`)
 ```
@@ -204,8 +204,8 @@ The demo is verified against the real backend, not just "similar to" it:
 
 - `SeedGenerator` (backend test, tagged `seed-generator`) drives the real API
   via MockMvc against a fixed clock: creates types, logs ~19 months of
-  workouts, ~monthly body metrics, and goals. It emits two files into the
-  frontend repo:
+  workouts, ~monthly body metrics, and goals. It emits two files into
+  `ui/src/demo/`:
   - `demo-seed.json` — all rows with **day offsets** from a reference Sunday
   - `expected-derived.json` — the actual HTTP responses for stats, streaks,
     heatmap, and goals
@@ -240,5 +240,5 @@ The demo is verified against the real backend, not just "similar to" it:
 
 ## Deployment
 
-See the backend README for the one-container Docker quickstart. The demo build
-is a static folder — deploy `dist/` anywhere.
+See the [repo root README](README.md) for the one-container Docker
+quickstart. The demo build is a static folder — deploy `dist/` anywhere.
