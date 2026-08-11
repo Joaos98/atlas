@@ -1,0 +1,77 @@
+/* Shared form field styles: horizontal rows, labels with icons,
+   unit-suffixed inputs, primary buttons, success/error feedback. */
+
+.form-row {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.form-field label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.form-field input,
+.form-field select,
+.form-field .date-picker {
+  width: 170px;
+}
+
+/* Compact variant: narrower fields and gaps so long forms fit on one row */
+.form-row.compact {
+  gap: var(--space-3);
+}
+.form-row.compact .form-field input,
+.form-row.compact .form-field select,
+.form-row.compact .form-field .date-picker {
+  width: 140px;
+}
+
+.input-wrapper {
+  position: relative;
+  display: inline-flex; /* shrink-wrap the input so .unit aligns to the input's right edge */
+  align-items: center;
+}
+.input-wrapper input { padding-right: 48px; }
+.input-wrapper.wide input { padding-right: 68px; }
+.input-wrapper .unit {
+  position: absolute;
+  right: 12px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.form-actions {
+  display: flex;
+}
+
+.btn-primary {
+  background: var(--blue);
+  color: var(--bg);
+  border: none;
+  padding: 9px 18px;
+}
+.btn-primary:hover { filter: brightness(1.1); }
+
+.form-success { color: var(--green); font-size: 0.8rem; margin: 8px 0 0; }
+.form-error { color: var(--orange); font-size: 0.8rem; margin: 8px 0 0; }
+
+/* Hide number input spinners */
+/* Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
