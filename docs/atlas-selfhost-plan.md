@@ -200,5 +200,5 @@ The SQLite dialect being awkward on Spring Boot 4.1 / Hibernate 7. Everything el
 
 - **Cutover** — migrate personal data out of Neon into SQLite, then decommission the hosted instance. **Blocked by decision:** the owner's home server isn't ready; the hosted version stays in use until it is. Migration mechanism planned: a `tools/` script (Python, `pg8000` + built-in `sqlite3`, preserves explicit IDs, skips the `users` table) run once at cutover. The Neon password is still required for this.
 - **Generalization to-dos** (`atlas-generalization-todos.md`) — not started, need the planning pass described by the owner (fit existing data, `/sync` for other devices, provider-agnostic insights, units, webhook app open-sourcing). Note: item #4 (app_settings bootstrap) is already done via `AppSettingsSeeder`.
-- **Screenshots** — capture instructions ready in `aio-fitness/docs/screenshots/`; images to be added.
-- **Commits** — both repos carry large uncommitted working trees; nothing has been committed since the refactor began.
+- **Screenshots** — capture instructions ready in `docs/screenshots/`; images to be added.
+- **Commits** — done, superseded by `atlas-monorepo-plan.md`. Both repos were committed, then consolidated into one (`atlas-backend`, `server/` + `ui/`), verified via a clean-clone acceptance test, and pushed to the `selfhost` branch. CI (`mvnw test`, `npm test` + both builds, `docker build`) runs on every push. `master` is untouched in both repos pending cutover.
