@@ -8,3 +8,25 @@
 
 ### OS ###
 .DS_Store
+
+### Build output at the repo root ###
+# server/.gitignore only governs server/, so the monorepo root needs its own
+# copies of these — otherwise a root-level build or a stray run drops artifacts
+# that nothing is ignoring.
+target/
+HELP.md
+
+### Local databases — never commit ###
+# A dev run with no ATLAS_DB_PATH set writes atlas.db into the working directory.
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+
+### Local deployment and setup ###
+# This repo is the app. Anything describing how one particular person deploys it
+# — compose overrides, env files, migration tooling for a specific database —
+# lives outside, not here.
+.env
+.env.*
+!.env.example

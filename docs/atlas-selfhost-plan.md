@@ -56,6 +56,12 @@ This is a deliberate divergence from Prometheus, and worth being honest about: P
 - **Spike first.** Add `sqlite-jdbc` and `hibernate-community-dialects`, boot the app, hit `/api/stats` and `/api/workout-logs/heatmap`. The SQLite dialect is community-supported, not core, and this runs on Spring Boot 4.1 / Hibernate 7. If it doesn't work cleanly, that invalidates this whole workstream — so find out in the first hour, before anything else is built on it.
 - **Fix `WorkoutLog`'s ID strategy.** Uses a bare `@GeneratedValue`, i.e. `AUTO`, which Hibernate maps to a sequence. SQLite has no sequences. Every other entity uses `IDENTITY`; make this one match. Worth fixing regardless — it currently creates a stray sequence in Postgres.
 - **Verify date handling.** SQLite has no date type. The repository is built on `BETWEEN :startDate AND :endDate`, which will rely on ISO strings sorting lexicographically. It should work; it's the most likely place for a silent wrong-results bug, so it needs tests (§4.5) rather than eyeballing.
+
+  > **Correction, 2026-08-15: the ISO-string premise is wrong.** Measured against a running Atlas — `POST /api/body-metrics` with `measuredOn="2026-01-02"` stores `1767322800000`. Hibernate's SQLite dialect, via the xerial JDBC driver, writes `date` and `timestamp` columns as **integer epoch milliseconds at local midnight in `app.timezone`**, not as text. Lexicographic sorting never enters into it; `BETWEEN` works because it compares integers.
+  >
+  > The instinct that this was the likeliest silent-wrong-results bug was right, and it very nearly landed: a migration writing ISO text would have inserted without error and then matched nothing on every date range. The migration script converts accordingly, and its conversion was verified against all 460 dated rows in Neon (zero mismatches).
+  >
+  > Consequence for the cutover: **`app.timezone` and the container's `TZ` must agree**, or dates shift by the offset between them.
 - **Good news:** no native queries anywhere in the codebase, all JPQL. The query layer should port without changes.
 - **Decide schema management.** `ddl-auto=update` is defensible for a single-user file database and is the cheap answer to today's blocker (prod runs `validate` with no migration files anywhere, so a fresh install has nothing to create tables from). Flyway is the disciplined answer. Pick one when starting.
 - **Migrate personal data out of Neon** once, then let the Neon project go.
@@ -199,6 +205,12 @@ The SQLite dialect being awkward on Spring Boot 4.1 / Hibernate 7. Everything el
 ## 8. Still pending
 
 - **Cutover** — migrate personal data out of Neon into SQLite, then decommission the hosted instance. **Blocked by decision:** the owner's home server isn't ready; the hosted version stays in use until it is. Migration mechanism planned: a `tools/` script (Python, `pg8000` + built-in `sqlite3`, preserves explicit IDs, skips the `users` table) run once at cutover. The Neon password is still required for this.
+
+  > **Status 2026-08-15: done.** The migration script — dry-run by default, `--apply` to write — is **deliberately not in this repo**: it is tooling for one particular Neon database, not part of the app. It lives with the owner's deployment notes. Trial against a throwaway copy moved all **472 rows** (3 workout_types, 1 app_settings, 6 exercise_type_mapping, 442 workout_logs, 18 body_metrics, 2 goals; history spans 2023-10-02 → 2026-08-14) with **zero date mismatches** verified row-by-row against Neon.
+  >
+  > Not yet run against Saturn, deliberately — the copy would go stale, since the phone still syncs to the hosted instance. Re-run it at cutover.
+  >
+  > Two operational notes for that day: the script **refuses a non-empty target**, so Saturn's `atlas.db` must be emptied (or deleted and recreated by starting Atlas once) before `--apply`; and Saturn's remaining blocker is no longer the home server — Phases 6 and 7 are done, including a tested restore and offsite backups.
 - **Generalization to-dos** (`atlas-generalization-todos.md`) — not started, need the planning pass described by the owner (fit existing data, `/sync` for other devices, provider-agnostic insights, units, webhook app open-sourcing). Note: item #4 (app_settings bootstrap) is already done via `AppSettingsSeeder`.
 - **Screenshots** — capture instructions ready in `docs/screenshots/`; images to be added.
 - **Commits** — done, superseded by `atlas-monorepo-plan.md`. Both repos were committed, then consolidated into one (`atlas-backend`, `server/` + `ui/`), verified via a clean-clone acceptance test, and pushed to the `selfhost` branch. CI (`mvnw test`, `npm test` + both builds, `docker build`) runs on every push. `master` is untouched in both repos pending cutover.
