@@ -1,6 +1,6 @@
 # Atlas Frontend
 
-The Vue 3 UI for [Atlas](https://github.com/Joaos98/atlas-backend), a self-hosted single-user fitness tracker. Built with **Vue 3** (Composition API, `<script setup>`), **Vite**, **Pinia**, **Vue Router**, and **Chart.js**.
+The Vue 3 UI for [Atlas](https://github.com/Joaos98/atlas), a self-hosted single-user fitness tracker. Built with **Vue 3** (Composition API, `<script setup>`), **Vite**, **Pinia**, **Vue Router**, and **Chart.js**.
 
 Two builds ship from this one codebase:
 

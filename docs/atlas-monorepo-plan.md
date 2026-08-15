@@ -6,6 +6,13 @@ Sits between the completed self-hosting work
 [generalization to-dos](atlas-generalization-todos.md), and before the cutover
 described in the self-host plan §8.
 
+> **Naming note, 2026-08-15.** This document refers throughout to `atlas-backend`
+> and `atlas-frontend`, which were the repository names at the time. Since then:
+> `atlas-backend` was **renamed to `atlas`** (the "backend" half stopped being
+> true once the frontend was grafted in), its `selfhost` branch was merged into
+> `master` and deleted, and the `atlas-frontend` repository was deleted outright.
+> The narrative below is left as written, as a record of what was decided when.
+
 > **Status:** all of §5 shipped on `atlas-backend`'s `selfhost` branch, unpushed.
 > `master` in both repos is untouched; the hosted Render/Vercel deployment still
 > serves the pre-refactor app. §5.7's clean-clone acceptance test passed after one
