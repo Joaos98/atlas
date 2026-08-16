@@ -3,6 +3,7 @@ package com.joaosousa.atlas.repository;
 import com.joaosousa.atlas.entity.WorkoutLog;
 import com.joaosousa.atlas.entity.WorkoutType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -12,6 +13,16 @@ import java.util.List;
 public interface WorkoutLogRepository extends JpaRepository<WorkoutLog, Long> {
 
     boolean existsByWorkoutType(WorkoutType workoutType);
+
+    long countByWorkoutTypeId(Long workoutTypeId);
+
+    /**
+     * Part of a merge. There is no foreign key on {@code workout_type_id}, so if this misses
+     * rows nothing will complain — they simply point at a type that no longer exists.
+     */
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE WorkoutLog wl SET wl.workoutType.id = :targetId WHERE wl.workoutType.id = :sourceId")
+    int reassignWorkoutType(@Param("sourceId") Long sourceId, @Param("targetId") Long targetId);
 
     @Query("SELECT wl FROM WorkoutLog wl JOIN FETCH wl.workoutType WHERE wl.logDate BETWEEN :startDate AND :endDate ORDER BY wl.logDate")
     List<WorkoutLog> findByDateRangeFetched(

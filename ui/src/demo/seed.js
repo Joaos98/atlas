@@ -56,7 +56,44 @@ export function materialize(seed, anchor) {
     workoutLogs,
     bodyMetrics,
     goals,
-    mappings: []
+    // One explicit mapping and one ignore rule, so both behaviours are visible in the only
+    // build strangers will run.
+    mappings: [
+      { healthConnectType: 56, workoutTypeId: workoutTypes[0]?.id ?? 1 },
+      { healthConnectType: 79, workoutTypeId: null }
+    ],
+    // One enabled source, and one holding entries so a visitor can press Enable and watch the
+    // backfill arrive. Without something held, quarantine looks like an empty table.
+    syncSources: [
+      {
+        dataOrigin: 'com.example.watch',
+        recordingMethod: 'automatically_recorded',
+        allowed: true,
+        firstSeen: addDays(anchor, -120) + 'T08:00:00',
+        lastSeen: addDays(anchor, -1) + 'T08:00:00'
+      },
+      {
+        dataOrigin: 'com.example.phone',
+        recordingMethod: 'automatically_recorded',
+        allowed: false,
+        firstSeen: addDays(anchor, -14) + 'T08:00:00',
+        lastSeen: addDays(anchor, -1) + 'T08:00:00'
+      }
+    ],
+    quarantined: [
+      {
+        id: 1, dataOrigin: 'com.example.phone', recordingMethod: 'automatically_recorded',
+        type: '25', startTime: addDays(anchor, -6) + 'T07:30:00Z', durationSeconds: 2400
+      },
+      {
+        id: 2, dataOrigin: 'com.example.phone', recordingMethod: 'automatically_recorded',
+        type: '74', startTime: addDays(anchor, -4) + 'T07:15:00Z', durationSeconds: 1800
+      },
+      {
+        id: 3, dataOrigin: 'com.example.phone', recordingMethod: 'automatically_recorded',
+        type: '83', startTime: addDays(anchor, -2) + 'T19:00:00Z', durationSeconds: 3600
+      }
+    ]
   }
 }
 
@@ -65,7 +102,14 @@ export function loadOrInit(seed) {
   if (stored) {
     try {
       const db = JSON.parse(stored)
-      if (db.seedVersion === seed.version) return db
+      // Collections added after a visitor's copy was stored would otherwise be undefined —
+      // the seed version only changes when the *data* is regenerated, not when the shape grows.
+      if (db.seedVersion === seed.version) {
+        db.syncSources ??= []
+        db.quarantined ??= []
+        db.mappings ??= []
+        return db
+      }
     } catch {
       // corrupt storage — fall through to reseed
     }

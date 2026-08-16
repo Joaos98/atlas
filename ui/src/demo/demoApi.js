@@ -27,6 +27,30 @@ function workoutTypeRef(type) {
   return type ? { id: type.id, name: type.name, colorHex: type.colorHex } : null
 }
 
+// A subset of the backend's ExerciseTypeCatalog — enough for the demo's mapping dropdown to
+// show activity names instead of raw codes. Kept short on purpose; the demo is a shop window,
+// not a mirror of the catalog.
+const EXERCISE_TYPES = [
+  { code: 0, name: 'Other workout' },
+  { code: 8, name: 'Biking' },
+  { code: 9, name: 'Biking (stationary)' },
+  { code: 25, name: 'Elliptical' },
+  { code: 37, name: 'Hiking' },
+  { code: 56, name: 'Running' },
+  { code: 57, name: 'Running (treadmill)' },
+  { code: 70, name: 'Strength training' },
+  { code: 74, name: 'Swimming (pool)' },
+  { code: 79, name: 'Walking' },
+  { code: 83, name: 'Yoga' }
+]
+
+const PALETTE = ['#4F8DFF', '#2A9D8F', '#E9C46A', '#E63946', '#8B5CF6', '#457B9D']
+
+/** Resolves workoutTypeId to the type object that derived.js expects on every log. */
+function withType(log) {
+  return { ...log, workoutType: log.workoutType ?? db.workoutTypes.find((t) => t.id === log.workoutTypeId) }
+}
+
 // Mirrors the backend's settings DTO. The key fields are hardcoded to "not configured"
 // rather than read from the seed — the demo seed must never carry a key value.
 function demoSettings(db) {
@@ -124,6 +148,52 @@ function handle(url, method, body, params) {
     return ok(null)
   }
 
+  if (url === '/workout-types/pending-review' && method === 'GET') {
+    // Mirrors PendingReviewTypeDto: the count is what tells you whether a grouping has
+    // quietly started fragmenting, so it is part of the contract, not decoration.
+    return ok(db.workoutTypes.filter((t) => t.pendingReview).map((t) => ({
+      id: t.id,
+      name: t.name,
+      colorHex: t.colorHex,
+      logCount: db.workoutLogs.filter((l) => l.workoutTypeId === t.id).length
+    })))
+  }
+
+  const mergeMatch = url.match(/^\/workout-types\/(\d+)\/merge-into\/(\d+)$/)
+  if (mergeMatch && method === 'POST') {
+    const sourceId = Number(mergeMatch[1])
+    const targetId = Number(mergeMatch[2])
+    if (sourceId === targetId) return fail(400, 'Cannot merge a type into itself')
+
+    const target = db.workoutTypes.find((t) => t.id === targetId)
+    if (!target || !db.workoutTypes.some((t) => t.id === sourceId)) return fail(404, 'Workout type not found')
+
+    // Same three steps as the backend, and the same reason to be careful: nothing here
+    // enforces referential integrity either.
+    db.workoutLogs.forEach((l) => { if (l.workoutTypeId === sourceId) l.workoutTypeId = targetId })
+    db.mappings.forEach((m) => { if (m.workoutTypeId === sourceId) m.workoutTypeId = targetId })
+    db.workoutTypes = db.workoutTypes.filter((t) => t.id !== sourceId)
+    target.pendingReview = false
+    persist(db)
+    return ok(target)
+  }
+
+  const reviewMatch = url.match(/^\/workout-types\/(\d+)\/dismiss-review$/)
+  if (reviewMatch && method === 'POST') {
+    const type = db.workoutTypes.find((t) => t.id === Number(reviewMatch[1]))
+    if (type) { type.pendingReview = false; persist(db) }
+    return ok(null)
+  }
+
+  if (typeMatch && method === 'PATCH') {
+    const type = db.workoutTypes.find((t) => t.id === Number(typeMatch[1]))
+    if (!type) return fail(404, 'Workout type not found')
+    type.name = body.name
+    type.pendingReview = false
+    persist(db)
+    return ok(type)
+  }
+
   // workout-logs
   if (url === '/workout-logs') {
     if (method === 'GET') {
@@ -180,7 +250,11 @@ function handle(url, method, body, params) {
     const now = new Date()
     const year = params?.year ?? now.getFullYear()
     const month = params?.month ?? now.getMonth() + 1
-    return ok(getStats(db.workoutLogs, db.bodyMetrics, year, month, todayLocal(), db.settings.targetWorkoutsPerWeek))
+    // Hydrated here rather than trusted from storage. Seeded logs carry a denormalized
+    // workoutType object, but nothing that *adds* a log had been setting it — so a workout
+    // logged in the demo, or backfilled from quarantine, made getStats throw on
+    // `l.workoutType.name` and the dashboard showed "Could not load stats".
+    return ok(getStats(db.workoutLogs.map(withType), db.bodyMetrics, year, month, todayLocal(), db.settings.targetWorkoutsPerWeek))
   }
 
   // body-metrics
@@ -308,11 +382,83 @@ function handle(url, method, body, params) {
     }
     if (method === 'POST') {
       const typeId = body.workoutTypeId
-      if (!db.workoutTypes.some((t) => t.id === typeId)) return fail(400, 'Workout type not found')
-      db.mappings.push({ healthConnectType: body.healthConnectType, workoutTypeId: typeId })
+      // null is the "ignore this activity" mapping, not a missing value.
+      if (typeId != null && !db.workoutTypes.some((t) => t.id === typeId)) return fail(400, 'Workout type not found')
+      db.mappings = db.mappings.filter((m) => m.healthConnectType !== body.healthConnectType)
+      db.mappings.push({ healthConnectType: body.healthConnectType, workoutTypeId: typeId ?? null })
       persist(db)
       return ok({ healthConnectType: body.healthConnectType, workoutType: workoutTypeRef(db.workoutTypes.find((t) => t.id === typeId)) })
     }
+  }
+
+  if (url === '/sync/exercise-types' && method === 'GET') {
+    return ok(EXERCISE_TYPES)
+  }
+
+  // Sync sources. The demo ships one enabled source and one holding entries, so a visitor can
+  // click Enable and watch the backfill land — the whole point of quarantining rather than
+  // dropping is only visible if there is something to recover.
+  if (url === '/sync/sources' && method === 'GET') {
+    return ok(db.syncSources.map((s) => ({
+      ...s,
+      quarantinedCount: db.quarantined.filter(
+        (q) => q.dataOrigin === s.dataOrigin && q.recordingMethod === s.recordingMethod).length
+    })))
+  }
+
+  const sourceMatch = url.match(/^\/sync\/sources\/([^/]+)\/([^/]+)$/)
+  if (sourceMatch && method === 'PUT') {
+    const origin = decodeURIComponent(sourceMatch[1])
+    const recording = decodeURIComponent(sourceMatch[2])
+    const source = db.syncSources.find((s) => s.dataOrigin === origin && s.recordingMethod === recording)
+    if (!source) return fail(404, 'Unknown sync source')
+
+    source.allowed = !!body.allowed
+    let created = 0
+    if (source.allowed) {
+      const held = db.quarantined.filter((q) => q.dataOrigin === origin && q.recordingMethod === recording)
+      for (const entry of held) {
+        const mapping = db.mappings.find((m) => m.healthConnectType === Number(entry.type))
+        let typeId = mapping ? mapping.workoutTypeId : null
+        if (!mapping) {
+          // Mirrors auto-create: an unmapped code makes its own type from the catalog.
+          const name = EXERCISE_TYPES.find((t) => t.code === Number(entry.type))?.name ?? `Activity ${entry.type}`
+          const existing = db.workoutTypes.find((t) => t.name === name)
+          const type = existing ?? {
+            id: Math.max(0, ...db.workoutTypes.map((t) => t.id)) + 1,
+            name,
+            colorHex: PALETTE[db.workoutTypes.length % PALETTE.length],
+            pendingReview: true
+          }
+          if (!existing) db.workoutTypes.push(type)
+          db.mappings.push({ healthConnectType: Number(entry.type), workoutTypeId: type.id })
+          typeId = type.id
+        }
+        if (typeId != null) {
+          db.workoutLogs.push({
+            id: Math.max(0, ...db.workoutLogs.map((l) => l.id)) + 1,
+            workoutTypeId: typeId,
+            logDate: entry.startTime.slice(0, 10),
+            durationMinutes: Math.ceil(entry.durationSeconds / 60)
+          })
+          created++
+        }
+      }
+      db.quarantined = db.quarantined.filter(
+        (q) => !(q.dataOrigin === origin && q.recordingMethod === recording))
+    }
+    persist(db)
+    return ok({ created, alreadyPresent: 0, unusable: 0 })
+  }
+
+  const quarantineMatch = url.match(/^\/sync\/sources\/([^/]+)\/([^/]+)\/quarantine$/)
+  if (quarantineMatch && method === 'DELETE') {
+    const origin = decodeURIComponent(quarantineMatch[1])
+    const recording = decodeURIComponent(quarantineMatch[2])
+    db.quarantined = db.quarantined.filter(
+      (q) => !(q.dataOrigin === origin && q.recordingMethod === recording))
+    persist(db)
+    return ok(null)
   }
   const mappingMatch = url.match(/^\/sync\/mappings\/(\d+)$/)
   if (mappingMatch && method === 'DELETE') {

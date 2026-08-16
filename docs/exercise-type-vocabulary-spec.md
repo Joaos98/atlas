@@ -1,6 +1,8 @@
 # Spec: Exercise Type Vocabulary — Auto-Created Workout Types
 
-**Status:** Refined, ready for implementation
+**Status:** Implemented 2026-08-16 as one bundle with
+[`sync-source-allowlist-spec.md`](sync-source-allowlist-spec.md). All eight verifications in §7
+pass. See §9 for what implementation found that this spec did not.
 **Date:** 2026-08-12
 **Implements:** `atlas-generalization-todos.md` §2
 **Ships with:** [`sync-source-allowlist-spec.md`](sync-source-allowlist-spec.md) (§3) — one bundle, after the cutover
@@ -253,7 +255,29 @@ On the existing SQLite integration harness.
 
 ## 8. Upgrade checklist for this install
 
-Before the first sync after upgrade (see §3.1):
+**Superseded 2026-08-16 by the owner's decision to go fine-grained.** Steps 1–2 assumed the
+groupings would be preserved; he chose the opposite. Kept below because step 3 still applies.
+
+The mappings this install actually had: `0→Crossfit`, `9→Cardio`, `25→Cardio`, `57→Cardio`,
+`70→Gym`, `79→Cardio`. All six agree with the catalog, so `Cardio` was confirmed as a grouping
+over stationary bike, elliptical, treadmill and walking — exactly §3.1's scenario, with
+Elliptical as its own example.
+
+**Splitting the history was investigated and is not possible.** The HC code survives inside
+`sync_signature` (`startEpochMillis|healthConnectType`), so signed rows can in principle be
+repointed. Only **6 of 442** rows carry one, and they are codes 70 and 0 — no cardio row has a
+signature at all, because signatures only began on 2026-08-04 and the history starts 2023-10-02.
+`Cardio` therefore keeps its 436 rows permanently as a historical bucket with no mapping, and
+fine-grained types apply from the upgrade forward. The operator script for that lives with the
+deployment tooling, not in this repo.
+
+Also decided: `Gym` was renamed to the catalog's `Strength training` (a type-level rename, no
+rows moved), while `0→Crossfit` stays — Health Connect has no CrossFit constant, and the code is
+chosen by the watch, not by Atlas, so remapping to `BOOT_CAMP` or `HIIT` would simply mean
+nothing ever matched. The principle: use the catalog name where it is accurate, relabel where it
+is uninformative.
+
+The original checklist:
 
 1. List the current `workout_types` and note which are groupings (`Cardio` at minimum).
 2. For each grouping, add explicit mapping rows for every HC type it should absorb — otherwise
@@ -264,6 +288,34 @@ Before the first sync after upgrade (see §3.1):
 
 Step 3 is the migration-shaped risk in this spec. There is no code to write for it, but skipping
 it means phone-detected activity starts appearing in the history.
+
+---
+
+## 9. What implementation found — added 2026-08-16
+
+**The catalog could not be verified against its source.** Both of Google's reference pages render
+their constant tables via JavaScript, as §4.1 warned, so the 61 entries were transcribed from
+model knowledge rather than read off the source. The corroboration that exists is §4.2's: all six
+codes this install had mapped by hand agree with the catalog, and a test pins them so a future
+edit to those entries has to be deliberate. Treat the codes outside that set as unverified until
+one of them produces a workout with an obviously wrong name.
+
+**Auto-create reuses a type of the same name** rather than creating a second one. Not in the
+spec; without it a hand-made "Walking" would sit beside an auto-created "Walking", repairable
+only by a merge the user has to notice they need.
+
+**`addMapping` rejected the ignore rule.** §5.2 relies on a null `workout_type_id`, but both the
+controller and the service assumed the id was present — the controller NPE'd on
+`((Number) body.get("workoutTypeId")).longValue()`. A null there is meaningful, not missing.
+
+**Two defects found only by running the app, both invisible to a green suite:**
+
+- The demo's `getStats` threw on `l.workoutType.name` for any log added after seeding, because
+  seeded logs carry a denormalized type object and nothing that *adds* a log was setting it.
+  Pre-existing: logging a workout in the demo would have broken the dashboard the same way.
+- The dashboard notices were placed inside `v-else-if="stats"`, so a failed stats load hid the
+  notice that explains why the dashboard is empty — the exact situation a user with an
+  unrecognised device is in. They now render outside every branch.
 
 ---
 

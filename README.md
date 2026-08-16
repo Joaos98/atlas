@@ -47,7 +47,17 @@ SQLite database lives at `/data/atlas.db` inside a named volume.
 **Back up by copying the file** — the entire app state is one SQLite file:
 
 ```bash
-docker compose exec atlas sh -c 'cat /data/atlas.db' > atlas-backup.db
+docker compose exec -T atlas sh -c 'cat /data/atlas.db' > atlas-backup.db
+```
+
+**The `-T` is required.** `docker compose exec` allocates a TTY by default, and a TTY rewrites
+every `0x0A` byte in the stream — which silently corrupts a binary SQLite file. Without it the
+command still appears to succeed and still writes a file.
+
+Verify a backup before trusting it; anything other than `ok` means it is damaged:
+
+```bash
+sqlite3 atlas-backup.db "PRAGMA integrity_check;"
 ```
 
 To restore, replace the file and restart.

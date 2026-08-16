@@ -1,6 +1,8 @@
 # Spec: Configurable Sync Sources with Quarantine
 
-**Status:** Refined, ready for implementation
+**Status:** Implemented 2026-08-16, together with
+[`exercise-type-vocabulary-spec.md`](exercise-type-vocabulary-spec.md) as one bundle. All eight
+verifications in §7 pass. See §10 for what implementation found that this spec did not.
 **Date:** 2026-08-12
 **Implements:** `atlas-generalization-todos.md` §3
 **Builds on:** [`webhook-sync-deduplication-spec.md`](webhook-sync-deduplication-spec.md) — supersedes its §4 filter decision and §5.2 constraint decision
@@ -337,6 +339,48 @@ Note on §4.1 for the cutover: the index is schema-*convergent*. Neon has carrie
 `ux_workout_logs_sync_signature` since 2026-08-04, so adding it to the entity makes the two
 schemas agree and the Neon→SQLite copy stays a straight copy. §4.2/§4.3 add new tables, which
 the copy simply creates empty.
+
+---
+
+## 10. What implementation found — added 2026-08-16
+
+**§4.1's mechanism does not work on SQLite.** The instruction was to add
+`@Table(uniqueConstraints = ...)` and let `ddl-auto=update` create the index. Hibernate emits
+that as `ALTER TABLE ... ADD CONSTRAINT`, which SQLite does not support; the statement fails,
+`ddl-auto=update` logs and continues, and the table comes out with no constraint at all —
+annotated and completely inert. The generated schema was byte-identical to the one §1.3 quotes
+as broken. Replaced with `SqliteIndexes`, an `ApplicationRunner` issuing
+`CREATE UNIQUE INDEX IF NOT EXISTS`, which SQLite does support and which also applies to an
+existing table. §4.3's quarantine index needed the same treatment.
+
+The claim in §4 that "`ddl-auto=update` creates all of this from the entities" holds for tables
+and columns, and not for unique constraints.
+
+**The duplicate catch had never worked on SQLite either.** With the index finally in place, the
+violation surfaced as `JpaSystemException`, not `DataIntegrityViolationException` — Hibernate's
+SQLite dialect does not classify it. `SyncService`'s catch, written against Postgres, therefore
+matched nothing, and a duplicate would have propagated out of `sync()` and failed the whole
+request rather than being skipped. Two independent breakages that had been masking each other
+since the cutover. Translated in `WorkoutLogInserter`, where the contract is documented.
+
+**Catching a constraint violation inside its own transaction does not work.** The first version
+of `QuarantineWriter` swallowed the duplicate and returned normally; the persistence context is
+already marked rollback-only by then, so the commit failed with `UnexpectedRollbackException`.
+The catch has to live in a caller that is not itself transactional — which is exactly why
+`WorkoutLogInserter` exists as a separate bean, so `QuarantinedEntryInserter` now mirrors it.
+
+**This install had duplicates.** Three copies of one signature (2026-08-14, code 70), inserted on
+cutover night: one from the migration, two from a delivery that double-fired against a database
+with no index. Cleaned up by hand before deploying. `SqliteIndexes` refuses to create the index
+when duplicates exist and logs them at ERROR rather than failing silently or crashing.
+
+**§4.4's sentinel is enforced, not assumed.** A test asserts `(none)`, because `unknown` is a
+real observed `recording_method` and reusing it would merge a genuine source with the malformed
+case.
+
+**Not covered, as predicted:** the concurrent double-fire. `hikari.maximum-pool-size=1`
+serialises SQLite writes, so the race cannot be reproduced on this harness. Stated in a comment
+on `SyncDedupTest` so the gap is visible rather than merely absent.
 
 ---
 

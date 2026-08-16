@@ -233,6 +233,22 @@ The demo is verified against the real backend, not just "similar to" it:
 - **Body metrics all required:** all five metric fields are required — a
   deliberate decision to avoid null-handling complexity in insight and goal
   logic. The bioimpedance scale reports all five in one reading.
+- **Sync sources:** `POST /api/sync` accepts every device. `sync_sources` records each
+  `(data_origin, recording_method)` pair it sees, disallowed by default; entries from a
+  source that is not enabled go to `quarantined_entries` rather than being dropped, because
+  the sender transmits a delta and never re-sends. Enabling replays them through
+  `SyncService.logEntry` — the same path a live sync takes.
+- **Unique indexes are created by `SqliteIndexes`, not by JPA annotations.** SQLite has no
+  `ALTER TABLE ADD CONSTRAINT`, so `@Table(uniqueConstraints = ...)` fails silently under
+  `ddl-auto=update` and leaves no constraint. Add new ones there.
+- **SQLite reports a unique violation as `JpaSystemException`**, not
+  `DataIntegrityViolationException`. `WorkoutLogInserter` translates it. And a violation must
+  be caught *outside* the transaction that caused it — the context is already rollback-only,
+  so catching it inside fails the commit. That is why the `*Inserter` beans exist.
+- **Exercise types auto-create.** An unmapped Health Connect code makes its own `WorkoutType`
+  from `ExerciseTypeCatalog` and logs the workout. An explicit mapping always wins; a mapping
+  with a null workout type means "never log this". Auto-created types carry `pending_review`
+  and are announced on the dashboard.
 - **Units:** `app_settings.unit_system` (`METRIC`/`IMPERIAL`) is a **display** preference.
   The database is always canonical metric; conversion happens at exactly two places, the
   `useUnits()` composable in the frontend and `InsightService.buildPrompt`. Body water
@@ -248,8 +264,10 @@ The demo is verified against the real backend, not just "similar to" it:
   set, insight generation returns an error message (the UI surfaces it as
   unavailable). In the demo, the regenerate action is gated with a warning modal.
 - **SQLite is single-writer:** Hikari pool capped at 1 connection.
-- **Backup = copy the file:** `cp atlas.db` (or `docker compose exec atlas
-  sh -c 'cat /data/atlas.db' > backup.db`) is the entire backup story.
+- **Backup = copy the file:** `cp atlas.db` (or `docker compose exec -T atlas
+  sh -c 'cat /data/atlas.db' > backup.db`) is the entire backup story. The `-T` is
+  load-bearing: `compose exec` allocates a TTY by default, which rewrites `0x0A`
+  bytes and silently corrupts the copy. Verify with `PRAGMA integrity_check`.
 
 ## Deployment
 

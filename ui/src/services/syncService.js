@@ -11,3 +11,21 @@ export function addMapping(data) {
 export function deleteMapping(healthConnectType) {
   return api.delete(`/sync/mappings/${healthConnectType}`)
 }
+
+/** The static Health Connect vocabulary, so the mapping form can offer names, not codes. */
+export function getExerciseTypes() {
+  return api.get('/sync/exercise-types')
+}
+
+export function getSyncSources() {
+  return api.get('/sync/sources')
+}
+
+// Origins are package names, so both path segments have to be encoded.
+export function setSyncSourceAllowed(origin, method, allowed) {
+  return api.put(`/sync/sources/${encodeURIComponent(origin)}/${encodeURIComponent(method)}`, { allowed })
+}
+
+export function dismissQuarantine(origin, method) {
+  return api.delete(`/sync/sources/${encodeURIComponent(origin)}/${encodeURIComponent(method)}/quarantine`)
+}

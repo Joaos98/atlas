@@ -1,4 +1,9 @@
 <template>
+  <!-- Outside every branch on purpose. These notices explain why a dashboard is empty, so
+       they have to survive the case where the rest of it failed to load — which is exactly
+       the situation a user with an unrecognised device is in. -->
+  <SyncNotices v-if="!loading" class="page notices-only" />
+
   <div v-if="loading" class="page">
     <section>
       <div class="insights-row">
@@ -140,6 +145,7 @@ import WorkoutHeatmap from '../components/WorkoutHeatmap.vue'
 import WeeklyWorkoutsChart from '../components/WeeklyWorkoutsChart.vue'
 import LatestMeasurementStats from '../components/LatestMeasurementStats.vue'
 import InsightCard from '../components/InsightCard.vue'
+import SyncNotices from '../components/SyncNotices.vue'
 import { useToastStore } from '../stores/toast'
 import { useUnits } from '../composables/useUnits'
 import { openInsightGate } from '../demo/insightGate'
@@ -259,6 +265,11 @@ function formatInsightDate(dateStr) {
 </script>
 
 <style scoped>
+/* The notices render above the page proper, so they carry no vertical padding of their own. */
+.notices-only {
+  padding-bottom: 0;
+}
+
 .activity-row,
 .insights-row {
   display: grid;

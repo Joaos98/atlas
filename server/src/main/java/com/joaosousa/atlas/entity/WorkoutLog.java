@@ -6,6 +6,15 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
+/**
+ * <b>The unique index on {@code sync_signature} is created by {@link
+ * com.joaosousa.atlas.service.SyncSignatureIndex}, not by an annotation here.</b>
+ *
+ * <p>{@code @Table(uniqueConstraints = ...)} was tried first and does nothing on SQLite:
+ * Hibernate emits it as {@code ALTER TABLE ... ADD CONSTRAINT}, which SQLite does not support,
+ * and {@code ddl-auto=update} logs the failure and carries on — leaving a schema that looks
+ * annotated but has no constraint. See sync-source-allowlist-spec.md §1.3 and §10.
+ */
 @Entity
 @Getter
 @Setter

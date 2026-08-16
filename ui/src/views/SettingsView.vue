@@ -123,9 +123,22 @@
       <h2>Workout types</h2>
       <div class="card card-fit">
         <div class="types-list">
-          <span v-for="type in types" :key="type.id" class="type-tag">
+          <span v-for="type in types" :key="type.id" class="type-tag" :class="{ 'pending-review': type.pendingReview }">
             <span class="type-dot" :style="{ backgroundColor: type.colorHex }"></span>
             {{ type.name }}
+            <span v-if="type.pendingReview" class="new-badge" title="Created automatically by sync">new</span>
+            <select
+              v-if="types.length > 1"
+              class="merge-select"
+              title="Merge into another type"
+              :value="''"
+              @change="mergeType(type, $event)"
+            >
+              <option value="" disabled>Merge into…</option>
+              <option v-for="other in types.filter(t => t.id !== type.id)" :key="other.id" :value="other.id">
+                {{ other.name }}
+              </option>
+            </select>
             <button class="btn-icon" title="Delete type" @click="deleteType(type)"><X :size="12" /></button>
           </span>
           <span v-if="types.length === 0" class="empty-line">No types yet.</span>
@@ -154,8 +167,9 @@
       <h2>Health Connect mappings</h2>
       <div class="card card-fit">
         <p class="section-desc">
-          Map Health Connect exercise type codes to your workout types so auto-synced workouts are logged correctly.
-          Unmapped types will be skipped.
+          Choose which of your workout types each Health Connect activity is logged as. Anything
+          not listed here gets a type of its own the first time it arrives, so nothing is ever
+          dropped — add a mapping to group activities together, or to ignore one entirely.
         </p>
         <table v-if="mappings.length" class="mappings-table">
           <thead>
@@ -167,10 +181,16 @@
           </thead>
           <tbody>
             <tr v-for="m in mappings" :key="m.healthConnectType">
-              <td class="data-value">{{ m.healthConnectType }}</td>
               <td>
-                <span v-if="m.workoutType" class="type-dot" :style="{ backgroundColor: m.workoutType.colorHex }"></span>
-                {{ m.workoutType?.name }}
+                {{ exerciseTypeName(m.healthConnectType) }}
+                <span class="hc-code">{{ m.healthConnectType }}</span>
+              </td>
+              <td>
+                <template v-if="m.workoutType">
+                  <span class="type-dot" :style="{ backgroundColor: m.workoutType.colorHex }"></span>
+                  {{ m.workoutType.name }}
+                </template>
+                <span v-else class="ignored-tag">Ignored</span>
               </td>
               <td>
                 <button class="btn-icon" title="Delete mapping" @click="deleteMappingHandler(m.healthConnectType)"><X :size="12" /></button>
@@ -181,16 +201,59 @@
         <p v-else class="empty-line">No mappings yet.</p>
 
         <div class="mapping-add">
-          <input v-model.number="newMappingType" type="number" min="0" placeholder="HC type code" class="type-input" />
+          <select v-model.number="newMappingType" class="wide-input">
+            <option :value="null" disabled>Select an activity</option>
+            <option v-for="option in exerciseTypes" :key="option.code" :value="option.code">
+              {{ option.name }} ({{ option.code }})
+            </option>
+          </select>
           <select v-model="newMappingWorkoutTypeId" class="type-input">
             <option :value="null" disabled>Select workout type</option>
             <option v-for="type in types" :key="type.id" :value="type.id">{{ type.name }}</option>
+            <option :value="IGNORE">Ignore this activity</option>
           </select>
-          <button class="btn-small" @click="addMappingHandler" :disabled="newMappingType === null || newMappingType === '' || !newMappingWorkoutTypeId">Add</button>
+          <button class="btn-small" @click="addMappingHandler" :disabled="newMappingType === null || !newMappingWorkoutTypeId">Add</button>
         </div>
         <p v-if="mappingError" class="form-error">{{ mappingError }}</p>
       </div>
     </section>
+    <section>
+      <h2>Sync sources</h2>
+      <div class="card card-fit">
+        <p class="section-desc">
+          Devices and apps that have sent workouts to Atlas. Nothing is logged until you enable
+          its source; anything received meanwhile is held here rather than discarded, because the
+          sender only transmits new changes and will not send them again.
+        </p>
+        <table v-if="sources.length" class="mappings-table">
+          <thead>
+            <tr>
+              <th>Source</th><th>Recording</th><th>First seen</th><th>Last seen</th><th>Held</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="s in sources" :key="s.dataOrigin + s.recordingMethod">
+              <td class="data-value">{{ s.dataOrigin }}</td>
+              <td>{{ s.recordingMethod }}</td>
+              <td>{{ shortDate(s.firstSeen) }}</td>
+              <td>{{ shortDate(s.lastSeen) }}</td>
+              <td class="data-value">{{ s.quarantinedCount || '—' }}</td>
+              <!-- Live in the demo on purpose: enabling a held source and watching the backfill
+                   arrive is the only way the quarantine design is visible at all. -->
+              <td class="source-actions">
+                <button v-if="!s.allowed" class="btn-small" @click="enableSource(s)">Enable</button>
+                <button v-else class="btn-small btn-danger" @click="disableSource(s)">Disable</button>
+                <button v-if="s.quarantinedCount" class="btn-small btn-danger" @click="dismissHeld(s)">Dismiss</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p v-else class="empty-line">No sources yet — they appear the first time a device sends a workout.</p>
+        <p v-if="sourceMessage" class="form-success">{{ sourceMessage }}</p>
+        <p v-if="sourceError" class="form-error">{{ sourceError }}</p>
+      </div>
+    </section>
+
     <section v-if="isDemo">
       <h2>Demo data</h2>
       <div class="card card-fit">
@@ -208,8 +271,12 @@ import { ref, computed, onMounted } from 'vue'
 import SkeletonLoader from '../components/SkeletonLoader.vue'
 import { useSettingsStore } from '../stores/settings'
 import { useToastStore } from '../stores/toast'
-import { getWorkoutTypes, createWorkoutType, deleteWorkoutType } from '../services/workoutService'
-import { getMappings, addMapping, deleteMapping } from '../services/syncService'
+import { getWorkoutTypes, createWorkoutType, deleteWorkoutType, mergeWorkoutType } from '../services/workoutService'
+import {
+  getMappings, addMapping, deleteMapping,
+  getExerciseTypes, getSyncSources, setSyncSourceAllowed, dismissQuarantine
+} from '../services/syncService'
+import { formatDateBr } from '../utils/date'
 import { Target, X, Sparkles, KeyRound, Box } from 'lucide-vue-next'
 
 const isDemo = import.meta.env.MODE === 'demo'
@@ -261,21 +328,104 @@ const newTypeName = ref('')
 const newTypeColor = ref(PALETTE[0])
 const typeError = ref('')
 
+// Sentinel for the mapping dropdown: a mapping to no workout type means "never log this".
+const IGNORE = 'IGNORE'
+
 const newMappingType = ref(null)
 const newMappingWorkoutTypeId = ref(null)
 const mappingError = ref('')
+const exerciseTypes = ref([])
+
+const sources = ref([])
+const sourceMessage = ref('')
+const sourceError = ref('')
+
+function exerciseTypeName(code) {
+  return exerciseTypes.value.find(t => t.code === code)?.name ?? `Activity ${code}`
+}
+
+function shortDate(value) {
+  return value ? formatDateBr(String(value).split('T')[0]) : '—'
+}
+
+async function enableSource(source) {
+  sourceMessage.value = ''
+  sourceError.value = ''
+  if (source.quarantinedCount && !confirm(
+    `Enable ${source.dataOrigin}?\n\n` +
+    `${source.quarantinedCount} held workout(s) will be added.\n\n` +
+    'Atlas deduplicates workouts by their exact start time. A source that revises timestamps ' +
+    'between syncs will create duplicate entries.'
+  )) return
+
+  try {
+    const { data } = await setSyncSourceAllowed(source.dataOrigin, source.recordingMethod, true)
+    await load()
+    sourceMessage.value = data.created
+      ? `Added ${data.created} workout(s) from ${source.dataOrigin}`
+      : `${source.dataOrigin} enabled`
+    setTimeout(() => { sourceMessage.value = '' }, 5000)
+  } catch {
+    sourceError.value = 'Failed to enable source'
+  }
+}
+
+async function disableSource(source) {
+  // Existing workouts are kept: turning a source off is not a claim its history was wrong.
+  if (!confirm(`Stop logging workouts from ${source.dataOrigin}? Existing workouts are kept.`)) return
+  sourceError.value = ''
+  try {
+    await setSyncSourceAllowed(source.dataOrigin, source.recordingMethod, false)
+    await load()
+  } catch {
+    sourceError.value = 'Failed to disable source'
+  }
+}
+
+async function dismissHeld(source) {
+  if (!confirm(`Discard ${source.quarantinedCount} held workout(s) from ${source.dataOrigin}? This cannot be undone.`)) return
+  sourceError.value = ''
+  try {
+    await dismissQuarantine(source.dataOrigin, source.recordingMethod)
+    await load()
+  } catch {
+    sourceError.value = 'Failed to dismiss held workouts'
+  }
+}
+
+async function mergeType(type, event) {
+  const targetId = Number(event.target.value)
+  event.target.value = ''
+  if (!targetId) return
+
+  const target = types.value.find(t => t.id === targetId)
+  if (!confirm(`Merge "${type.name}" into "${target.name}"? Its workouts and mappings move across, and "${type.name}" is removed.`)) return
+
+  typeError.value = ''
+  try {
+    await mergeWorkoutType(type.id, targetId)
+    await load()
+    toast.success(`Merged into ${target.name}`)
+  } catch {
+    typeError.value = 'Could not merge types.'
+  }
+}
 
 async function load() {
   try {
-    const [settings, typesRes, mappingsRes] = await Promise.all([
+    const [settings, typesRes, mappingsRes, catalogRes, sourcesRes] = await Promise.all([
       settingsStore.load({ force: true }),
       getWorkoutTypes(),
-      getMappings()
+      getMappings(),
+      getExerciseTypes(),
+      getSyncSources()
     ])
     target.value = settings.targetWorkoutsPerWeek
     applyInsightSettings(settings)
     types.value = typesRes.data
     mappings.value = mappingsRes.data
+    exerciseTypes.value = catalogRes.data
+    sources.value = sourcesRes.data
   } catch {
     targetError.value = 'Failed to load settings'
   }
@@ -365,7 +515,11 @@ async function deleteType(type) {
 async function addMappingHandler() {
   mappingError.value = ''
   try {
-    await addMapping({ healthConnectType: newMappingType.value, workoutTypeId: newMappingWorkoutTypeId.value })
+    // A null workoutTypeId is the "ignore this activity" mapping, not a missing value.
+    await addMapping({
+      healthConnectType: newMappingType.value,
+      workoutTypeId: newMappingWorkoutTypeId.value === IGNORE ? null : newMappingWorkoutTypeId.value
+    })
     newMappingType.value = null
     newMappingWorkoutTypeId.value = null
     await load()
@@ -451,6 +605,46 @@ onMounted(async () => {
 }
 .type-input {
   width: 160px;
+}
+
+.hc-code {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-left: 6px;
+}
+.ignored-tag {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  border: 1px dashed var(--border);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+.source-actions {
+  display: flex;
+  gap: 6px;
+  white-space: nowrap;
+}
+.type-tag.pending-review {
+  border-color: var(--blue);
+}
+.new-badge {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--blue);
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  padding: 0 4px;
+}
+.merge-select {
+  font-size: 0.7rem;
+  padding: 1px 4px;
+  max-width: 90px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 4px;
 }
 
 .unit-toggle {

@@ -122,8 +122,55 @@ describe('demo adapter endpoint surface', () => {
     await ok(api.put('/settings', { targetWorkoutsPerWeek: 4 }))
     expect((await ok(api.get('/settings'))).targetWorkoutsPerWeek).toBe(4)
 
+    // The demo seeds one explicit mapping and one ignore rule, so both behaviours are
+    // visible without the visitor having to configure anything.
     const mappings = await ok(api.get('/sync/mappings'))
-    expect(mappings).toEqual([])
+    expect(mappings).toHaveLength(2)
+    expect(mappings.find((m) => m.healthConnectType === 56).workoutType).toBeTruthy()
+    expect(mappings.find((m) => m.healthConnectType === 79).workoutType).toBeNull()
+  })
+
+  it('quarantines from a source that is not enabled, and backfills when it is', async () => {
+    const before = await ok(api.get('/sync/sources'))
+    const held = before.find((s) => !s.allowed)
+    expect(held.quarantinedCount).toBeGreaterThan(0)
+
+    const logsBefore = (await ok(api.get('/workout-logs', { params: { size: 500 } }))).totalElements
+
+    const result = await ok(api.put(`/sync/sources/${encodeURIComponent(held.dataOrigin)}/${held.recordingMethod}`, { allowed: true }))
+    expect(result.created).toBe(held.quarantinedCount)
+
+    const after = await ok(api.get('/sync/sources'))
+    expect(after.find((s) => s.dataOrigin === held.dataOrigin).quarantinedCount).toBe(0)
+    expect(after.find((s) => s.dataOrigin === held.dataOrigin).allowed).toBe(true)
+
+    const logsAfter = (await ok(api.get('/workout-logs', { params: { size: 500 } }))).totalElements
+    expect(logsAfter).toBe(logsBefore + held.quarantinedCount)
+  })
+
+  // Runs after the backfill above, which is what created the pending-review types.
+  it('auto-creates types for replayed activities and can merge them away', async () => {
+    const pending = await ok(api.get('/workout-types/pending-review'))
+    expect(pending.length).toBeGreaterThan(0)
+
+    const source = pending[0]
+    const target = (await ok(api.get('/workout-types'))).find((t) => t.id !== source.id)
+    await ok(api.post(`/workout-types/${source.id}/merge-into/${target.id}`))
+
+    const types = await ok(api.get('/workout-types'))
+    expect(types.find((t) => t.id === source.id)).toBeUndefined()
+    expect(types.find((t) => t.id === target.id).pendingReview).toBe(false)
+
+    // No log may be left pointing at the type that just went away.
+    const logs = (await ok(api.get('/workout-logs', { params: { size: 500 } }))).content
+    const typeIds = new Set(types.map((t) => t.id))
+    expect(logs.every((l) => !l.type || typeIds.has(types.find((t) => t.name === l.type)?.id))).toBe(true)
+  })
+
+  it('rejects merging a type into itself', async () => {
+    const types = await ok(api.get('/workout-types'))
+    await expect(api.post(`/workout-types/${types[0].id}/merge-into/${types[0].id}`))
+      .rejects.toMatchObject({ response: { status: 400 } })
   })
 
   it('never reports a configured insight key, and the seed carries no key value', async () => {

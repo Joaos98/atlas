@@ -87,8 +87,22 @@ and the model is a property with a Gemini default
 
 ## 2. Health Connect exercise types by default — no manual type conversion
 
-**Status: REFINED 2026-08-12 — see [`exercise-type-vocabulary-spec.md`](exercise-type-vocabulary-spec.md).
-Implementation pending; ships as one bundle with §3.**
+**Status: DONE 2026-08-16 — see [`exercise-type-vocabulary-spec.md`](exercise-type-vocabulary-spec.md),
+whose §9 records what the refinement did not anticipate. Shipped as one bundle with §3.**
+
+An unmapped Health Connect code now creates its own type from a 61-entry catalog and logs the
+workout; "unmapped" has stopped being a reason to skip anything. An explicit mapping always
+wins, so hand-made labels survive untouched, and a mapping to *nothing* means "never log this",
+which replaces the capability that not-mapping used to provide. Near-duplicates are repaired by
+merge, and auto-created types announce themselves on the dashboard rather than appearing
+silently.
+
+**The owner chose fine-grained types over preserving the `Cardio` grouping.** Splitting the
+existing history turned out to be impossible: the HC code survives inside `sync_signature`, but
+only 6 of 442 rows have one and none of them are cardio. `Cardio` keeps its 436 rows as a
+historical bucket with no mapping; fine-grained types apply from the upgrade forward. `Gym` was
+renamed to the catalog's `Strength training`; `0 → Crossfit` stays, because the watch chooses
+the code and Health Connect has no CrossFit constant.
 
 The refinement rejected seeding the HC vocabulary as the canonical `WorkoutType` set (an
 ~70-item dropdown, plus the reconciliation risk this to-do worried about) in favour of
@@ -123,8 +137,29 @@ table before the sync does anything useful.
 
 ## 3. Configurable device origin / recording-method filter
 
-**Status: REFINED 2026-08-12 — see [`sync-source-allowlist-spec.md`](sync-source-allowlist-spec.md).
-Implementation pending.**
+**Status: DONE 2026-08-16 — see [`sync-source-allowlist-spec.md`](sync-source-allowlist-spec.md),
+whose §10 records what the refinement did not anticipate. Shipped as one bundle with §2.**
+
+The hardcoded `com.xiaomi.wearable` filter is gone. Sources are discovered from real payloads
+and recorded before they are judged, so an unrecognised device is visible in Settings instead of
+producing a silent `{created: 0}`. Entries from a source that is not enabled are **quarantined,
+not dropped** — the sender transmits a delta, so anything refused would otherwise be lost for
+good — and enabling a source replays them through the identical code path a live sync takes.
+
+**Three defects were hiding behind each other, all pre-dating this work:**
+
+- **The unique index on `sync_signature` did not exist**, so cross-sync dedup was dead. The
+  spec's fix — a JPA `uniqueConstraints` annotation — does not work on SQLite either: Hibernate
+  emits `ALTER TABLE ADD CONSTRAINT`, SQLite rejects it, and `ddl-auto=update` swallows the
+  failure. It now runs as explicit `CREATE UNIQUE INDEX`.
+- **The duplicate catch had never matched.** SQLite surfaces the violation as
+  `JpaSystemException`, not `DataIntegrityViolationException`, so with the index working a
+  duplicate would have failed the whole sync rather than being skipped.
+- **This install had three copies of one workout** from cutover night, cleaned up by hand.
+
+Catching a constraint violation inside its own transaction turns out not to work at all — the
+context is already rollback-only — which is precisely why `WorkoutLogInserter` had always been a
+separate bean. Worth remembering before "simplifying" it.
 
 The refinement settled it as a *dedup-safety gate*, not a device preference: a DB-backed
 allow-list keyed on `(data_origin, recording_method)`, empty on fresh installs, with

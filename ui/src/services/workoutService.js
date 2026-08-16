@@ -12,6 +12,23 @@ export function deleteWorkoutType(id) {
   return api.delete(`/workout-types/${id}`)
 }
 
+/** Types sync created on its own, awaiting a look. */
+export function getPendingReviewTypes() {
+  return api.get('/workout-types/pending-review')
+}
+
+export function mergeWorkoutType(sourceId, targetId) {
+  return api.post(`/workout-types/${sourceId}/merge-into/${targetId}`)
+}
+
+export function renameWorkoutType(id, name) {
+  return api.patch(`/workout-types/${id}`, { name })
+}
+
+export function dismissTypeReview(id) {
+  return api.post(`/workout-types/${id}/dismiss-review`)
+}
+
 export function getWorkoutLogs({ page = 0, size = 20 } = {}) {
   return api.get('/workout-logs', { params: { page, size } })
 }
