@@ -13,6 +13,7 @@ globalThis.localStorage = {
 vi.stubGlobal('location', { reload: vi.fn() })
 
 const { default: api, resetDemoData } = await import('./demoApi.js')
+const { default: seed } = await import('./demo-seed.json')
 
 const ok = async (p) => {
   const res = await p
@@ -123,6 +124,18 @@ describe('demo adapter endpoint surface', () => {
 
     const mappings = await ok(api.get('/sync/mappings'))
     expect(mappings).toEqual([])
+  })
+
+  it('never reports a configured insight key, and the seed carries no key value', async () => {
+    const settings = await ok(api.get('/settings'))
+    expect(settings.insightApiKeyConfigured).toBe(false)
+    expect(settings.insightApiKeyLast4).toBeNull()
+    expect(JSON.stringify(seed)).not.toMatch(/insightApiKey/i)
+
+    // A save must not be able to talk the demo into holding one.
+    const saved = await ok(api.put('/settings', { insightApiKey: 'sk-should-be-ignored' }))
+    expect(saved.insightApiKeyConfigured).toBe(false)
+    expect(JSON.stringify(saved)).not.toContain('sk-should-be-ignored')
   })
 
   it('type delete conflicts when logs exist', async () => {

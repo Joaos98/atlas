@@ -26,25 +26,23 @@ public class BodyMetricsService {
         BodyMetrics saved = bodyMetricsRepository.save(bodyMetrics);
 
         InsightService.InsightResult result = insightService.generateInsight(saved);
-        String storedText = result.verdict() != null
-                ? "VERDICT:" + result.verdict() + "\nINSIGHT:" + result.text()
-                : result.text();
-        saved.setInsightText(storedText);
-        saved.setInsightGeneratedAt(result.generatedAt());
-
-        return bodyMetricsRepository.save(saved);
+        if (InsightService.applyIfGenerated(saved, result)) {
+            saved = bodyMetricsRepository.save(saved);
+        }
+        return saved;
     }
 
+    /**
+     * Unreferenced as of 2026-08-16 — no controller exposes it and nothing else calls it. The
+     * frontend's regenerate goes to {@code POST /api/insights/regenerate} instead. Kept only
+     * because a per-measurement regenerate is a plausible feature; delete it if that never comes.
+     */
     public BodyMetrics regenerateInsight(Long id) {
         BodyMetrics entry = bodyMetricsRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         InsightService.InsightResult result = insightService.generateInsight(entry);
-        String storedText = result.verdict() != null
-                ? "VERDICT:" + result.verdict() + "\nINSIGHT:" + result.text()
-                : result.text();
-        entry.setInsightText(storedText);
-        entry.setInsightGeneratedAt(result.generatedAt());
+        InsightService.applyIfGenerated(entry, result);
 
         return bodyMetricsRepository.save(entry);
     }

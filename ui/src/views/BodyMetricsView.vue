@@ -207,14 +207,12 @@ const deltas = computed(() => {
 
 const latestInsight = computed(() => {
   if (!insight.value?.text) return null
-  const unavailable = insight.value.text.includes('could not be generated')
   const [datePart] = (insight.value.generatedAt || '').split('T')
   return {
     text: insight.value.text,
     verdict: insight.value.verdict || null,
     date: datePart,
-    fallback: insight.value.fallback ?? false,
-    unavailable
+    state: insight.value.state ?? 'OK'
   }
 })
 

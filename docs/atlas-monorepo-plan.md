@@ -179,6 +179,8 @@ add, not after.
 - **compose.yaml** to the root, tracked. `context: .` is finally correct rather than
   accidentally correct. Keep the env surface exactly as it is: `SYNC_API_KEY`,
   `GEMINI_API_KEY`, `ATLAS_DB_PATH`, `PORT`, the named volume.
+  **Changed 2026-08-16, after this plan completed:** generalization to-do §1 removed
+  `GEMINI_API_KEY` — the insight provider is configured in `app_settings` via the UI.
 - **`.gitignore` / `.gitattributes` / `.dockerignore`**: both repos have all three.
   Merge to root where the rule is global (build output, IDE files, line endings) and
   leave path-specific rules in `server/` and `ui/`. Nested ignore files are fine and

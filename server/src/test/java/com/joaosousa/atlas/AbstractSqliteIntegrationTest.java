@@ -19,9 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(properties = {
         "spring.jpa.database-platform=org.hibernate.community.dialect.SQLiteDialect",
         "spring.jpa.hibernate.ddl-auto=update",
-        "app.sync.api-key=spike-key",
-        "app.insight.api-key=",
-        "app.insight.model=gemini-3.5-flash"
+        "app.sync.api-key=spike-key"
 })
 @Import(FixedClockConfig.class)
 public abstract class AbstractSqliteIntegrationTest {

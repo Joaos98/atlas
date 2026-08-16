@@ -27,6 +27,18 @@ function workoutTypeRef(type) {
   return type ? { id: type.id, name: type.name, colorHex: type.colorHex } : null
 }
 
+// Mirrors the backend's settings DTO. The key fields are hardcoded to "not configured"
+// rather than read from the seed — the demo seed must never carry a key value.
+function demoSettings(db) {
+  return {
+    targetWorkoutsPerWeek: db.settings.targetWorkoutsPerWeek,
+    insightBaseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
+    insightModel: 'gemini-3.5-flash',
+    insightApiKeyConfigured: false,
+    insightApiKeyLast4: null
+  }
+}
+
 function logEntity(log) {
   const type = db.workoutTypes.find((t) => t.id === log.workoutTypeId)
   return {
@@ -258,20 +270,25 @@ function handle(url, method, body, params) {
       verdict: parsed.verdict,
       text: parsed.text,
       generatedAt: latest.insightGeneratedAt,
+      state: 'OK',
       fallback: false
     })
   }
   if (url === '/insights/regenerate' && method === 'POST') {
-    return fail(403, 'Insight generation requires self-hosting with your own Gemini API key.')
+    return fail(403, 'Insight generation requires self-hosting with your own provider API key.')
   }
 
   // settings
+  // The demo never holds an API key, so it reports the provider defaults and a key that
+  // is permanently unconfigured; SettingsView renders those fields read-only here.
   if (url === '/settings') {
-    if (method === 'GET') return ok(db.settings)
+    if (method === 'GET') return ok(demoSettings(db))
     if (method === 'PUT') {
-      db.settings.targetWorkoutsPerWeek = body.targetWorkoutsPerWeek
+      if (body.targetWorkoutsPerWeek !== undefined) {
+        db.settings.targetWorkoutsPerWeek = body.targetWorkoutsPerWeek
+      }
       persist(db)
-      return ok(db.settings)
+      return ok(demoSettings(db))
     }
   }
 

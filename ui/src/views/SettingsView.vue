@@ -8,6 +8,13 @@
       </div>
     </section>
     <section>
+      <h2>Insights</h2>
+      <div class="card card-fit">
+        <SkeletonLoader height="2.5rem" width="320px" />
+        <SkeletonLoader height="2.5rem" width="280px" />
+      </div>
+    </section>
+    <section>
       <h2>Workout types</h2>
       <div class="card card-fit">
         <SkeletonLoader height="2.5rem" width="320px" />
@@ -38,6 +45,50 @@
         </form>
         <p v-if="targetMessage" class="form-success">{{ targetMessage }}</p>
         <p v-if="targetError" class="form-error">{{ targetError }}</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Insights</h2>
+      <div class="card card-fit">
+        <p class="section-desc">
+          AI insights work with any OpenAI-compatible provider — OpenAI, Gemini, Groq, OpenRouter,
+          or a local Ollama. The base URL selects the provider. Leave the key unset to turn insights off.
+        </p>
+        <p v-if="isDemo" class="muted-note">
+          Insight settings are read-only in the demo — regeneration needs a real backend.
+        </p>
+        <form class="insight-form" @submit.prevent="saveInsights">
+          <div class="form-field">
+            <label><Sparkles :size="14" /> Base URL</label>
+            <input v-model="insightBaseUrl" type="url" class="wide-input" :disabled="isDemo"
+                   placeholder="https://api.openai.com/v1" required />
+          </div>
+          <div class="form-field">
+            <label><Box :size="14" /> Model</label>
+            <input v-model="insightModel" class="wide-input" :disabled="isDemo"
+                   placeholder="gpt-4o-mini" required />
+          </div>
+          <div class="form-field">
+            <label><KeyRound :size="14" /> API key</label>
+            <!-- Never bound to a fetched value: the key is write-only, so there is none. -->
+            <div v-if="keyConfigured && !replacingKey" class="key-state">
+              <span class="key-mask">Configured ✓ ····{{ insightKeyLast4 }}</span>
+              <button type="button" class="btn-small" :disabled="isDemo" @click="replacingKey = true">Replace</button>
+              <button type="button" class="btn-small btn-danger" :disabled="isDemo" @click="removeKey">Remove</button>
+            </div>
+            <div v-else class="key-state">
+              <input v-model="newInsightKey" type="password" class="wide-input" :disabled="isDemo"
+                     autocomplete="off" placeholder="Paste your provider API key" />
+              <button v-if="keyConfigured" type="button" class="btn-small" @click="cancelReplace">Cancel</button>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" :disabled="isDemo">Save</button>
+          </div>
+        </form>
+        <p v-if="insightMessage" class="form-success">{{ insightMessage }}</p>
+        <p v-if="insightError" class="form-error">{{ insightError }}</p>
       </div>
     </section>
 
@@ -132,7 +183,7 @@ import { getSettings, updateSettings } from '../services/settingsService'
 import { useToastStore } from '../stores/toast'
 import { getWorkoutTypes, createWorkoutType, deleteWorkoutType } from '../services/workoutService'
 import { getMappings, addMapping, deleteMapping } from '../services/syncService'
-import { Target, X } from 'lucide-vue-next'
+import { Target, X, Sparkles, KeyRound, Box } from 'lucide-vue-next'
 
 const isDemo = import.meta.env.MODE === 'demo'
 
@@ -154,6 +205,15 @@ const target = ref(4)
 const targetMessage = ref('')
 const targetError = ref('')
 
+const insightBaseUrl = ref('')
+const insightModel = ref('')
+const keyConfigured = ref(false)
+const insightKeyLast4 = ref('')
+const newInsightKey = ref('')
+const replacingKey = ref(false)
+const insightMessage = ref('')
+const insightError = ref('')
+
 const newTypeName = ref('')
 const newTypeColor = ref(PALETTE[0])
 const typeError = ref('')
@@ -170,11 +230,57 @@ async function load() {
       getMappings()
     ])
     target.value = settingsRes.data.targetWorkoutsPerWeek
+    applyInsightSettings(settingsRes.data)
     types.value = typesRes.data
     mappings.value = mappingsRes.data
   } catch {
     targetError.value = 'Failed to load settings'
   }
+}
+
+function applyInsightSettings(settings) {
+  insightBaseUrl.value = settings.insightBaseUrl ?? ''
+  insightModel.value = settings.insightModel ?? ''
+  keyConfigured.value = settings.insightApiKeyConfigured ?? false
+  insightKeyLast4.value = settings.insightApiKeyLast4 ?? ''
+  newInsightKey.value = ''
+  replacingKey.value = false
+}
+
+async function saveInsights() {
+  insightMessage.value = ''
+  insightError.value = ''
+  try {
+    // An omitted key means "leave it alone" — that is what stops saving a URL from
+    // wiping a key the form never had a copy of.
+    const payload = { insightBaseUrl: insightBaseUrl.value, insightModel: insightModel.value }
+    if (newInsightKey.value.trim()) payload.insightApiKey = newInsightKey.value
+
+    const { data } = await updateSettings(payload)
+    applyInsightSettings(data)
+    insightMessage.value = 'Saved'
+    setTimeout(() => { insightMessage.value = '' }, 3000)
+  } catch {
+    insightError.value = 'Failed to save insight settings'
+  }
+}
+
+async function removeKey() {
+  if (!confirm('Remove the stored API key? Insights will be turned off until you add another.')) return
+  insightMessage.value = ''
+  insightError.value = ''
+  try {
+    const { data } = await updateSettings({ clearInsightApiKey: true })
+    applyInsightSettings(data)
+    toast.success('API key removed')
+  } catch {
+    insightError.value = 'Failed to remove the API key'
+  }
+}
+
+function cancelReplace() {
+  newInsightKey.value = ''
+  replacingKey.value = false
 }
 
 async function saveTarget() {
@@ -306,6 +412,32 @@ onMounted(async () => {
   width: 160px;
 }
 
+.insight-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+.wide-input {
+  width: 340px;
+  max-width: 100%;
+}
+.key-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.key-mask {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
 .section-desc {
   color: var(--text-muted);
   font-size: 0.85rem;
@@ -341,6 +473,16 @@ onMounted(async () => {
 .btn-small:disabled {
   opacity: 0.3;
   cursor: default;
+}
+/* Was already used by "Reset demo data" without ever being defined. */
+.btn-small.btn-danger {
+  background: transparent;
+  color: var(--red, #ef4444);
+  border: 1px solid currentColor;
+}
+.btn-small.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  filter: none;
 }
 .btn-icon {
   display: flex;

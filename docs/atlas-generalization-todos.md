@@ -11,7 +11,58 @@ portfolio project.
 
 ## 1. LLM-agnostic insights with user-supplied API keys
 
-**Status:** to be refined.
+**Status: IMPLEMENTED 2026-08-16 — see [`insight-provider-spec.md`](insight-provider-spec.md),
+whose §13 records what the refinement got wrong.**
+
+Insights now run against any OpenAI-compatible endpoint, configured in the UI under
+**Settings → Insights** and stored in `app_settings`. `GEMINI_API_KEY` is gone from
+`compose.yaml`, `application.properties` and the README, so **`SYNC_API_KEY` is the only
+environment secret** — the condition §7 was waiting on. The key is write-only over HTTP:
+`GET /api/settings` returns a configured flag and last-4, asserted against the raw response
+body so a future entity field cannot reintroduce the leak.
+
+Three things worth carrying forward:
+
+- **Seeding a new column is not automatic.** `ddl-auto=update` adds columns as NULL to rows
+  that already exist, and the seeder used to skip any install that had a settings row — so the
+  defaults would have reached only fresh databases. `ensureSeeded()` now backfills. §5 adds
+  `unit_system` to the same table and gets this for free.
+- **§8's defect had two more sites than the spec found**, including one where merely *creating
+  a measurement* stored an error string as its insight. Found by running the app; the test
+  suite was green throughout. The store-only-on-success rule is now in one function.
+- **Failure states are a field, not a message.** The frontend used to detect them by
+  string-matching the error prose, which reworded messages would have broken silently.
+
+- **The success path was the only one with no coverage.** Every test written for the failure
+  states exercised a failure; nothing had ever sent a request and read a reply. A stub HTTP
+  server now asserts both directions of the wire format.
+
+**All ten verifications pass.** The tenth — a real generation against a live provider — was run
+by hand through the Settings UI, since the sandbox blocks an agent from submitting an API key.
+It also confirmed `gemini-3.5-flash` is valid on the OpenAI-compatible endpoint, so the seeded
+default is correct as shipped.
+
+The refinement rejected this item's central assumption. There is **no provider interface**:
+one OpenAI-compatible client with three DB-backed settings (`baseUrl`, `apiKey`, `model`)
+covers OpenAI, Gemini, Groq, OpenRouter, Ollama and LM Studio, so `baseUrl` is the provider
+selector and switching providers is a settings change, not a code change. The key lives in
+`app_settings`, is write-only over HTTP (GET returns a configured flag and last-4), and
+`GEMINI_API_KEY` disappears — leaving `SYNC_API_KEY` as the only environment secret, which
+is what §7's spec was waiting on.
+
+Two findings the to-do did not anticipate:
+
+- **`AppSettingsController` serializes the entity directly on GET.** Adding a key column
+  would leak it over an unauthenticated LAN endpoint with no further mistake required. A DTO
+  is a prerequisite, not a nicety.
+- **Failed generations overwrite good insights.** `regenerate()` persists error text into
+  `body_metrics.insight_text` and re-serves it as an insight. Rare today; routine once a
+  mistyped key returns 401 on first run. Fixed in the same pass.
+
+The prompt-copy bullet closed with no action — the copy is generic, and the only real
+coupling is units, deferred to §5.
+
+The original finding, kept for history:
 
 Insight generation is wired to Gemini only: `InsightService` builds a
 Gemini-shaped request (`callGemini` / `doGeminiCall`, [InsightService.java](aio-fitness/src/main/java/com/joaosousa/atlas/service/InsightService.java#L262)),
@@ -36,7 +87,21 @@ and the model is a property with a Gemini default
 
 ## 2. Health Connect exercise types by default — no manual type conversion
 
-**Status:** to be refined.
+**Status: REFINED 2026-08-12 — see [`exercise-type-vocabulary-spec.md`](exercise-type-vocabulary-spec.md).
+Implementation pending; ships as one bundle with §3.**
+
+The refinement rejected seeding the HC vocabulary as the canonical `WorkoutType` set (an
+~70-item dropdown, plus the reconciliation risk this to-do worried about) in favour of
+**auto-creating** a type the first time an unmapped HC code arrives, named from a static
+catalog. An explicit mapping row always wins, so existing installs need **no migration** —
+the orphaning risk below does not arise. A null mapping means "ignore this activity",
+replacing the capability that not-mapping provides today, and types can now be merged.
+
+The real risk it surfaced is different from the one recorded here: this install has
+*grouping* types (`Cardio`), and auto-create fragments them one activity at a time. Hence
+the new-type notice and the §8 upgrade checklist in that spec.
+
+The original finding, kept for history:
 
 Today the user creates `WorkoutType` rows by hand, and Health Connect's numeric
 exercise types are mapped to them via `exercise_type_mapping`; anything unmapped
@@ -58,7 +123,22 @@ table before the sync does anything useful.
 
 ## 3. Configurable device origin / recording-method filter
 
-**Status:** to be added — found while reviewing the dedup work.
+**Status: REFINED 2026-08-12 — see [`sync-source-allowlist-spec.md`](sync-source-allowlist-spec.md).
+Implementation pending.**
+
+The refinement settled it as a *dedup-safety gate*, not a device preference: a DB-backed
+allow-list keyed on `(data_origin, recording_method)`, empty on fresh installs, with
+rejected entries **quarantined** rather than dropped and replayed when the user enables the
+source. Quarantine is not optional — the sender transmits a delta, so a rejected entry is
+never re-sent and plain rejection would lose data permanently.
+
+It also surfaced a prerequisite defect: **`workout_logs.sync_signature` has no unique index
+on a fresh install**, so cross-sync dedup is silently dead there. The dedup spec's §5.2
+"do not add `unique = true`" was correct under `ddl-auto=validate` and expired when
+self-hosting moved the app to `ddl-auto=update`. That fix goes first, and is
+cutover-convergent — Neon already has the index.
+
+The original finding, kept for history:
 
 `SyncService` hardcodes `EXPECTED_ORIGIN = "com.xiaomi.wearable"` and
 `EXPECTED_METHOD = "automatically_recorded"` — every other device origin is
@@ -102,7 +182,34 @@ depends on a pre-existing row.)
 
 ## 5. Units are hardcoded to metric
 
-**Status:** to be added.
+**Status: REFINED 2026-08-13 — see [`units-preference-spec.md`](units-preference-spec.md).
+Implementation pending.**
+
+Settled as: **canonical metric in the database, converted at the display boundary**, driven
+by one `unit_system` column on `app_settings`. The API keeps its current shape — no DTO
+gains a unit field — so there are exactly two conversion sites: a `useUnits()` composable in
+the frontend, and `InsightService.buildPrompt(...)`, which writes units into text a human
+reads and would otherwise contradict the UI.
+
+Three things the refinement found:
+
+- **The scope is smaller than it looks.** Workouts have no distance field — only
+  `durationMinutes`, which is unit-neutral. This is body composition only.
+- **Body composition is hand-entered, not synced.** `SyncService` never touches
+  `BodyMetrics`; `SyncRequest` carries only `exercise` entries. So there is no ingest
+  conversion boundary and no upstream unit to inherit — the values are whatever someone
+  typed into the form.
+- **The unit is in the vocabulary.** `MetricType.BODY_FAT_KG` is persisted as a string in
+  `goals.metric_type`. Renaming it needs a hand-written data fixup because the app has no
+  migration tooling, so the spec keeps the name and treats it as an opaque identifier.
+- **Body water is a volume, not a mass.** It converts L → lb, not to any imperial volume, so
+  the conversion table is per-metric rather than one global factor.
+
+The trap the spec spends most effort on: display rounds to 1 dp, so an unedited save in
+imperial mode silently walks the stored value (82.3 kg → 181.4 lb → 82.28 kg). Forms must
+submit the original canonical value when the displayed value is unchanged.
+
+The original finding, kept for history:
 
 Every unit string in the frontend is metric and hardcoded — `kg` across
 BodyMetricsView, DashboardView, GoalsView, GoalForm and LatestMeasurementStats
@@ -119,9 +226,57 @@ or store the user's unit (simpler). Decide when refining.
 **To refine:** where conversion lives (frontend vs. backend), and whether the
 AI insight prompt needs units spelled out either way.
 
+**Consumer to account for:** `InsightService` builds the AI prompt with metric labels baked
+in (`- Weight: 82.3 kg`, `- Body water: 41.2 L`, goal targets via `metricUnit(...)`). That is
+correct today because the units are stated explicitly, and
+[`insight-provider-spec.md`](insight-provider-spec.md) §7 deliberately left it alone rather
+than guess this item's storage decision. Once a display preference exists, the prompt must
+follow it — otherwise the card shows pounds while the insight text says kilos.
+
 ## 6. The Health Connect webhook app is not in the repo
 
-**Status:** to be added.
+**Status: REFINED 2026-08-13 — see [`webhook-sender-spec.md`](webhook-sender-spec.md).
+Implementation pending.**
+
+**This item's premise was wrong.** The sender is not the author's app to open-source: it is
+**HC Webhook** (<https://hcwebhook.com/>), a third-party product on the Play Store and App
+Store — and it is **already open source**, at
+<https://github.com/mcnaveen/health-connect-webhook> under AGPL-3.0 with a commercial-use
+addendum. The to-do's proposal is already done, by someone else. Link it; forking it into this
+repo would inherit AGPL obligations and go stale. Its double-fire is likewise not Atlas's to
+fix, so the backend is authoritative permanently.
+
+What replaces it: document the sender in the README **and** treat `POST /api/sync` as a
+published interface, so HC Webhook is an example that satisfies the contract rather than a
+hard dependency. The contract is descriptive — it states what the endpoint accepts and
+guarantees, headlined by idempotency ("re-send freely, repeat deliveries are safe"). A strict
+schema was rejected because the only known working sender emits two timestamp formats inside
+one payload and would fail its own validation.
+
+Upstream publishes a field-level payload reference (`docs/webhook.md`), so Atlas links it
+rather than restating it and documents only what upstream cannot know — plus **four
+divergences between those docs and real traffic**, including that the docs omit the
+`data_origin` / `recording_method` metadata the entire allow-list design depends on.
+
+Two findings that reach other specs:
+
+- **The 48-hour rolling window with a per-type watermark** is documented upstream, which
+  confirms the dedup spec's delta inference and explains the carried-over workout as window
+  overlap. Upstream's 3-attempt exponential backoff plus this install's 144–173 s cold starts
+  also gives the double-fire a likelier cause than a defective app: a client timeout retrying
+  a request that succeeds anyway.
+- **`type` is numeric — verified 2026-08-13** against a real delivery from sender version
+  `1.9.14` (`"type":"79"`, `"type":"0"`). Upstream's "string form" wording was ambiguous and
+  the breaking reading would have silently skipped every entry; it does not apply. §2 is
+  unblocked. That delivery also confirmed the two-timestamp-format variance and the presence
+  of the `metadata` fields upstream's field table omits.
+
+Scope note: the README carries what makes the pipeline reproducible; the full treatment goes
+on the planned Saturn documentation site. **§6 closes on the README section** — Atlas is not
+gated on a cross-project site. The spec's §5 records what that page must cover so the
+material is not reverse-engineered twice.
+
+The original finding, kept for history:
 
 The sync pipeline's phone side — the Android app that fires the daily webhook —
 lives outside this repository. The backend spec (`webhook-sync-deduplication-spec.md`)
@@ -132,6 +287,74 @@ without the sender app, and its double-fire bug is undocumented as a bug.
 **To refine:** open-source the webhook app into this (or a sibling) repository
 with its own README; decide whether fixing its double-fire is in scope or it
 stays a documented quirk that the backend is authoritative over.
+
+## 7. Secrets on disk, and a key logged at startup
+
+**Status: IMPLEMENTED 2026-08-16 — see [`secrets-handling-spec.md`](secrets-handling-spec.md).
+Every code change has landed; key rotation (spec §3.4) is outstanding and owner-only.**
+
+What shipped: the startup log line is gone (with its `Logger` import), the key comparison is
+now `MessageDigest.isEqual`, and `application-local.properties` is deleted. By deletion time
+the file held nothing live but the two keys — its Neon datasource pointed at a database
+deleted the day before, and its CORS property had been dead since the self-host work removed
+CORS. A permanent regression test (`SecretsNotBundledTest`) fails if the file ever returns to
+the build output, which is what the spec's `pom.xml`/`.dockerignore` exclusions were for; those
+were skipped as dead config once the file itself was gone.
+
+`server/.gitignore` was trimmed to the two entries the root `.gitignore` does not already
+match at any depth. A future `application-local.properties` is deliberately no longer ignored,
+so it would surface in `git status` rather than sit invisible.
+
+All four of the spec's automated verifications pass, including the one that mattered most for
+justifying the deletion: with `SYNC_API_KEY` unset the app fails at startup naming the missing
+property, so the deleted log line's diagnostic value really was zero.
+
+**Still outstanding, and not something to do on the owner's behalf:** revoke and reissue the
+LLM provider key, and rotate the sync API key. The latter is a shared secret with the phone
+webhook app and the sender transmits a delta, so a fumbled rotation loses a day of workouts
+rather than one request. Render's decommissioning removed the reason to delay it.
+
+The refinement found two of this item's three premises no longer hold, and the leak path
+that does matter was not among them. `application-local.properties` is **not** in the
+repository — it is gitignored at `server/.gitignore:6` and `git log --all -S` for each of
+the three secrets comes back empty on every branch, so there is no history to rewrite.
+`ddl-auto` is back to `validate`, resolving the dedup spec's §10.1 BLOCKING condition.
+
+What is real: the file is bundled into **build artifacts** — `mvn package` copies it into
+`BOOT-INF/classes/` (verified in the current jar) and the Dockerfile's `COPY server/src`
+carries it into every `atlas:local` image, because `.dockerignore` does not exclude it.
+Gitignore never protected the artifact. And `SyncController.java:30` still logs the sync
+key in full at INFO, which on the live Render deployment writes the only credential
+guarding `POST /api/sync` into retained logs on every restart — the one exposure that is
+active rather than local.
+
+A third path turned up on a full-tree sweep: the sync key was quoted verbatim in **this
+file** (§7's history block) and in the dedup spec's §10.2 — the first of which is tracked,
+so the next commit would have written the key into history permanently. Both were redacted
+2026-08-12, before any commit, so no history rewrite is needed.
+
+The spec orders the work as: scrub the docs (done), delete the log line, stop shipping the
+file, *then* rotate
+(rotating first would mint new secrets into the same holes), and delete the file at
+cutover. Rotation of the sync key is coupled to the phone app (§6) and to the sender's
+delta behaviour — a fumbled rotation loses a day of workouts, not just a request.
+
+The original finding, kept for history:
+
+`server/src/main/resources/application-local.properties` contains, in plaintext: the Neon
+database password, a Gemini API key, and the sync API key (redacted 2026-08-12; it was
+quoted in full here) — which
+is the only thing protecting `POST /api/sync`. Separately, `SyncController.java:29` logs
+that key in full, at INFO, on every startup.
+
+That file also still points `spring.jpa.hibernate.ddl-auto=update` at the production Neon
+database, the condition §10.1 of the dedup spec called BLOCKING; it was resolved at the time
+by repointing at a dev branch, and has since drifted back.
+
+**To refine:** rotate all three secrets, move them to environment variables the way
+`application.properties` already does, remove the startup log line, and decide whether
+`application-local.properties` should exist in the repository at all now that the
+self-hosted profile takes its configuration from the environment.
 
 ---
 

@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.joaosousa.atlas.AbstractSqliteIntegrationTest;
+import com.joaosousa.atlas.dto.AppSettingsUpdateRequest;
 import com.joaosousa.atlas.entity.BodyMetrics;
 import com.joaosousa.atlas.repository.BodyMetricsRepository;
 import com.joaosousa.atlas.repository.GoalRepository;
+import com.joaosousa.atlas.service.AppSettingsService;
 import com.joaosousa.atlas.service.InsightService;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -17,7 +19,6 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,7 +26,8 @@ import java.util.List;
 
 /**
  * Regenerate deliberately: mvnw test -Dtest=SeedGenerator -Dsurefire.excludedGroups=
- * Set GEMINI_API_KEY to freeze a real insight onto the latest measurement.
+ * Set INSIGHT_API_KEY to freeze a real insight onto the latest measurement; it is
+ * written into app_settings, against whichever provider that row points at.
  * The free Gemini tier rate-limits heavily, so the insight call retries with
  * a backoff until a genuine response arrives, instead of the single call the
  * plan's §4.7 wording ("once") originally described.
@@ -56,6 +58,9 @@ class SeedGenerator extends AbstractSqliteIntegrationTest {
 
     @Autowired
     private BodyMetricsRepository bodyMetricsRepository;
+
+    @Autowired
+    private AppSettingsService appSettingsService;
 
     @Test
     void generateSeedAndFixture() throws Exception {
@@ -95,16 +100,21 @@ class SeedGenerator extends AbstractSqliteIntegrationTest {
     }
 
     private void maybeFreezeInsight(ObjectNode seed) throws Exception {
-        String key = System.getenv("GEMINI_API_KEY");
+        String key = System.getenv("INSIGHT_API_KEY");
         if (key == null || key.isBlank()) {
-            log.info("GEMINI_API_KEY not set; seed will carry no insight text");
+            log.info("INSIGHT_API_KEY not set; seed will carry no insight text");
             return;
         }
         List<BodyMetrics> all = bodyMetricsRepository.findAll(Sort.by(Sort.Direction.DESC, "measuredOn"));
         if (all.isEmpty()) {
             return;
         }
-        ReflectionTestUtils.setField(insightService, "apiKey", key);
+        // The key is a setting now, so this configures the app the same way a user would
+        // rather than reaching into a private field. Base URL and model keep their seeded
+        // defaults, so an unset provider means Gemini, as before.
+        AppSettingsUpdateRequest configureKey = new AppSettingsUpdateRequest();
+        configureKey.setInsightApiKey(key);
+        appSettingsService.update(configureKey);
 
         BodyMetrics latest = all.get(0);
         InsightService.InsightResult result = null;

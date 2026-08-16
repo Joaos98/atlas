@@ -57,9 +57,14 @@ To restore, replace the file and restart.
 | Variable | Required | Default | Description |
 |---|---|---|---|
 | `SYNC_API_KEY` | Yes | — | API key for the Health Connect sync endpoint |
-| `GEMINI_API_KEY` | No | — | Enables AI insight generation; without it insights show an unavailable message |
 | `PORT` | No | `8080` | HTTP port |
 | `ATLAS_DB_PATH` | No | `atlas.db` | Path to the SQLite database file |
+
+`SYNC_API_KEY` is the only secret in the environment. AI insights are configured in
+the app under **Settings → Insights**, not here: provider URL, model and API key are
+stored in the database, so switching provider needs no redeploy. Any OpenAI-compatible
+endpoint works — OpenAI, Gemini, Groq, OpenRouter, Ollama, LM Studio — and without a
+key configured, insights are simply off.
 
 ## Local development
 

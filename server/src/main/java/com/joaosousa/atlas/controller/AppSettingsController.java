@@ -1,6 +1,7 @@
 package com.joaosousa.atlas.controller;
 
-import com.joaosousa.atlas.entity.AppSettings;
+import com.joaosousa.atlas.dto.AppSettingsDto;
+import com.joaosousa.atlas.dto.AppSettingsUpdateRequest;
 import com.joaosousa.atlas.service.AppSettingsService;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,12 +16,12 @@ public class AppSettingsController {
     }
 
     @GetMapping
-    public AppSettings get() {
-        return appSettingsService.get();
+    public AppSettingsDto get() {
+        return AppSettingsDto.from(appSettingsService.get());
     }
 
     @PutMapping
-    public AppSettings update(@RequestBody AppSettings appSettings) {
-        return appSettingsService.update(appSettings);
+    public AppSettingsDto update(@RequestBody AppSettingsUpdateRequest request) {
+        return AppSettingsDto.from(appSettingsService.update(request));
     }
 }

@@ -1,15 +1,20 @@
 <template>
-  <div class="card insight-card" :class="{ unavailable: insight.unavailable }">
+  <div class="card insight-card" :class="{ unavailable: isError, 'not-configured': isNotConfigured }">
     <p v-if="insight.verdict" class="insight-verdict">
       <Sparkles :size="16" class="verdict-icon" /> {{ insight.verdict }}
     </p>
     <p class="insight-text" :class="{ dimmed: loading }">{{ insight.text || 'No insight yet.' }}</p>
-    <div v-if="!insight.text" class="insight-cta">
+
+    <div v-if="isNotConfigured" class="insight-cta">
+      <RouterLink to="/settings">Set up an insight provider</RouterLink>
+    </div>
+    <div v-else-if="!insight.text" class="insight-cta">
       <slot name="cta" />
     </div>
-    <div class="insight-footer">
+
+    <!-- Nothing to regenerate and nothing to date until a provider exists. -->
+    <div v-if="!isNotConfigured" class="insight-footer">
       <span v-if="insight.date && !loading" class="insight-date">Updated after your {{ insight.date }} measurement</span>
-      <span v-if="insight.fallback && !insight.unavailable" class="insight-fallback">(auto-generated)</span>
       <span v-if="loading" class="insight-loading">Regenerating...</span>
       <button class="btn-icon" title="Regenerate" @click="$emit('regenerate')" :disabled="loading">
         <RefreshCw :size="14" />
@@ -19,14 +24,22 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
 import { Sparkles, RefreshCw } from 'lucide-vue-next'
 
-defineProps({
+const props = defineProps({
   insight: { type: Object, required: true },
   loading: { type: Boolean, default: false }
 })
 
 defineEmits(['regenerate'])
+
+// The backend says which of these it is; nothing here reads the message text to find out.
+const isNotConfigured = computed(() => props.insight.state === 'NOT_CONFIGURED')
+const isError = computed(
+  () => props.insight.state === 'UNREACHABLE' || props.insight.state === 'PROVIDER_ERROR'
+)
 </script>
 
 <style scoped>
@@ -35,6 +48,13 @@ defineEmits(['regenerate'])
 }
 .insight-card.unavailable {
   border-left-color: var(--orange);
+}
+/* Not an error — a fresh install has simply not set this up yet. */
+.insight-card.not-configured {
+  border-left-color: var(--border);
+}
+.insight-card.not-configured .insight-text {
+  color: var(--text-muted);
 }
 .insight-verdict {
   display: inline-flex;
@@ -95,10 +115,6 @@ defineEmits(['regenerate'])
 .insight-date {
   font-size: 0.75rem;
   color: var(--text-muted);
-}
-.insight-fallback {
-  font-size: 0.7rem;
-  color: var(--orange);
 }
 .insight-loading {
   font-size: 0.8rem;

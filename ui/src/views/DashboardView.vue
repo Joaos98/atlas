@@ -154,18 +154,15 @@ const insight = ref(null)
 const insightLoading = ref(false)
 const bodyMetrics = ref([])
 
+// Drives the layout: undefined means the insight request returned nothing at all
+// (no measurements yet), which is different from having a card with a message in it.
 const insightText = computed(() => insight.value?.text)
-const insightVerdict = computed(() => insight.value?.verdict || null)
-const insightDate = computed(() => insight.value?.generatedAt ? formatInsightDate(insight.value.generatedAt) : null)
-const insightFallback = computed(() => insight.value?.fallback ?? false)
-const insightUnavailable = computed(() => insightText.value?.includes('could not be generated') ?? false)
 
 const insightCardData = computed(() => ({
   text: insight.value?.text,
   verdict: insight.value?.verdict || null,
   date: insight.value?.generatedAt ? formatInsightDate(insight.value.generatedAt) : null,
-  fallback: insight.value?.fallback ?? false,
-  unavailable: insightText.value?.includes('could not be generated') ?? false
+  state: insight.value?.state ?? 'OK'
 }))
 
 onMounted(async () => {

@@ -4,21 +4,20 @@ import com.joaosousa.atlas.dto.SyncRequest;
 import com.joaosousa.atlas.dto.SyncResponse;
 import com.joaosousa.atlas.entity.ExerciseTypeMapping;
 import com.joaosousa.atlas.service.SyncService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.security.MessageDigest;
 import java.util.List;
 import java.util.Map;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @RestController
 @RequestMapping("/api/sync")
 public class SyncController {
-
-    private static final Logger log = LoggerFactory.getLogger(SyncController.class);
 
     private final SyncService syncService;
     private final String syncApiKey;
@@ -27,13 +26,12 @@ public class SyncController {
                           @Value("${app.sync.api-key}") String syncApiKey) {
         this.syncService = syncService;
         this.syncApiKey = syncApiKey;
-        log.info("Sync API key loaded: [{}] (length={})", syncApiKey, syncApiKey != null ? syncApiKey.length() : 0);
     }
 
     @PostMapping
     public SyncResponse sync(@RequestBody SyncRequest request,
                              @RequestHeader(value = "X-API-Key", required = false) String apiKey) {
-        if (!syncApiKey.equals(apiKey)) {
+        if (apiKey == null || !MessageDigest.isEqual(syncApiKey.getBytes(UTF_8), apiKey.getBytes(UTF_8))) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or missing API key");
         }
         return syncService.sync(request);

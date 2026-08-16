@@ -1,6 +1,7 @@
 package com.joaosousa.atlas.controller;
 
 import com.joaosousa.atlas.dto.InsightResponse;
+import com.joaosousa.atlas.dto.InsightState;
 import com.joaosousa.atlas.entity.BodyMetrics;
 import com.joaosousa.atlas.repository.BodyMetricsRepository;
 import com.joaosousa.atlas.service.InsightService;
@@ -29,12 +30,19 @@ public class InsightController {
             return null;
         }
         BodyMetrics latest = all.get(0);
+
+        // Nothing generated yet and nothing to generate with: a fresh install's normal state.
+        if (latest.getInsightText() == null && !insightService.isProviderConfigured()) {
+            return new InsightResponse(null, InsightService.NOT_CONFIGURED_MESSAGE, null, InsightState.NOT_CONFIGURED);
+        }
+
         InsightService.ParsedInsight parsed = InsightService.parseRawText(latest.getInsightText());
+        // Only successful generations are ever stored (see below), so what is here is genuine.
         return new InsightResponse(
             parsed.verdict(),
             parsed.text(),
             latest.getInsightGeneratedAt(),
-            false
+            InsightState.OK
         );
     }
 
@@ -48,13 +56,10 @@ public class InsightController {
         BodyMetrics entry = all.get(0);
         InsightService.InsightResult result = insightService.generateInsight(entry);
 
-        String storedText = result.verdict() != null
-                ? "VERDICT:" + result.verdict() + "\nINSIGHT:" + result.text()
-                : result.text();
-        entry.setInsightText(storedText);
-        entry.setInsightGeneratedAt(result.generatedAt());
-        bodyMetricsRepository.save(entry);
+        if (InsightService.applyIfGenerated(entry, result)) {
+            bodyMetricsRepository.save(entry);
+        }
 
-        return new InsightResponse(result.verdict(), result.text(), result.generatedAt(), result.fallback());
+        return new InsightResponse(result.verdict(), result.text(), result.generatedAt(), result.state());
     }
 }

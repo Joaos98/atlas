@@ -10,8 +10,24 @@ Run against SQLite on a dev port (the frontend dev server proxies `/api`
 here — see `ui/README.md`):
 
 ```bash
-./mvnw spring-boot:run -Dspring-boot.run.arguments="--server.port=9090"
+SYNC_API_KEY=dev ./mvnw spring-boot:run -Dspring-boot.run.arguments="--server.port=9090"
 ```
+
+PowerShell, where there is no inline `VAR=value` prefix and the `-D` argument needs
+quoting or it splits on the `=`:
+
+```powershell
+$env:SYNC_API_KEY='dev'; .\mvnw.cmd spring-boot:run '-Dspring-boot.run.arguments=--server.port=9090'
+```
+
+`SYNC_API_KEY` has no default and the context will not start without it — any
+throwaway value works locally, since it only guards `POST /api/sync`. It is the
+only environment variable the app needs; the insight provider is configured in
+the UI under **Settings → Insights** and stored in the database.
+
+There is deliberately no `application-local.properties`. It used to supply the
+dev port and the secrets, and shipped them inside every jar and image it was
+built into — see [`docs/secrets-handling-spec.md`](../docs/secrets-handling-spec.md).
 
 ## Testing
 
@@ -24,8 +40,9 @@ MockMvc; regenerate deliberately with:
 ./mvnw test -Dtest=SeedGenerator -Dsurefire.excludedGroups=
 ```
 
-Set `GEMINI_API_KEY` when regenerating to freeze a real insight onto the
-latest seeded measurement (the free tier rate-limits, so it retries with
-backoff). A frontend Vitest test replays the seed and asserts the ported JS
+Set `INSIGHT_API_KEY` when regenerating to freeze a real insight onto the
+latest seeded measurement; it is written into `app_settings` and used against
+whatever provider that row points at, Gemini by default (whose free tier
+rate-limits, so it retries with backoff). A frontend Vitest test replays the seed and asserts the ported JS
 logic still matches the recorded responses — the demo cannot silently drift
 from this backend.

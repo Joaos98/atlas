@@ -9,7 +9,8 @@
         </div>
         <p class="modal-text">
           This is a static demo — insight generation needs a real backend. Self-host Atlas
-          with your own Gemini API key to regenerate insights from your data.
+          and point it at any OpenAI-compatible provider — including a local Ollama — to
+          regenerate insights from your data.
         </p>
         <div class="modal-actions">
           <button class="btn-primary" @click="close">Got it</button>

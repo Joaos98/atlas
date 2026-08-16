@@ -17,4 +17,22 @@ public class AppSettings {
 
     @Column(name = "target_workouts_per_week")
     private int targetWorkoutsPerWeek;
+
+    /**
+     * Provider selector for insights: any OpenAI-compatible chat-completions base URL.
+     * Seeded to Gemini's compat endpoint rather than left blank so the field documents
+     * its own format — see insight-provider-spec.md §3.1.
+     */
+    @Column(name = "insight_base_url")
+    private String insightBaseUrl;
+
+    /**
+     * Never leaves the server. {@code AppSettingsDto} has no field for it, which is what
+     * keeps {@code GET /api/settings} — unauthenticated by design — from serving it.
+     */
+    @Column(name = "insight_api_key")
+    private String insightApiKey;
+
+    @Column(name = "insight_model")
+    private String insightModel;
 }

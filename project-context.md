@@ -210,8 +210,8 @@ The demo is verified against the real backend, not just "similar to" it:
   - `expected-derived.json` — the actual HTTP responses for stats, streaks,
     heatmap, and goals
 - Regenerate deliberately: `mvnw test -Dtest=SeedGenerator -Dsurefire.excludedGroups=`
-  (set `GEMINI_API_KEY` to freeze a real insight onto the latest measurement;
-  the free tier rate-limits, so it retries with backoff)
+  (set `INSIGHT_API_KEY` to freeze a real insight onto the latest measurement;
+  Gemini's free tier rate-limits, so it retries with backoff)
 - The demo materializes the seed's offsets against the visitor's most recent
   Sunday (whole-week shifts, so week bucketing matches what Java computed)
 - `fixture.test.js` (frontend) loads the seed, runs the ported JS logic, and
@@ -224,16 +224,22 @@ The demo is verified against the real backend, not just "similar to" it:
   UTC-safe helpers (`src/utils/date.js`) to avoid browser UTC-parsing
   off-by-one shifts. Use those helpers; avoid `toISOString()`.
 - **`app_settings` seeding:** `AppSettingsSeeder` inserts the single row
-  (id=1, target=3) idempotently at startup — no manual SQL needed.
+  (id=1, target=3) idempotently at startup — no manual SQL needed. It also
+  backfills columns added later: `ddl-auto=update` leaves them NULL on rows
+  that already exist, which is every install holding real data.
 - **Insight suppression:** analytics that require a baseline (streaks need
   data, insights need a measurement) are suppressed rather than shown with
   misleading partial data.
 - **Body metrics all required:** all five metric fields are required — a
   deliberate decision to avoid null-handling complexity in insight and goal
   logic. The bioimpedance scale reports all five in one reading.
-- **Gemini API key:** set `GEMINI_API_KEY`. If missing, insight generation
-  returns an error message (the UI surfaces it as unavailable). In the demo,
-  the regenerate action is gated with a warning modal.
+- **Insight provider:** configured in `app_settings` (`insight_base_url`,
+  `insight_api_key`, `insight_model`), not the environment. One
+  OpenAI-compatible client, so the base URL *is* the provider selector —
+  seeded to Gemini's compat endpoint. The key is never served over HTTP:
+  `GET /api/settings` returns a configured flag and last-4 only. If no key is
+  set, insight generation returns an error message (the UI surfaces it as
+  unavailable). In the demo, the regenerate action is gated with a warning modal.
 - **SQLite is single-writer:** Hikari pool capped at 1 connection.
 - **Backup = copy the file:** `cp atlas.db` (or `docker compose exec atlas
   sh -c 'cat /data/atlas.db' > backup.db`) is the entire backup story.
