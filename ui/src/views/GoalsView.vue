@@ -34,9 +34,9 @@
         <div v-for="goal in activeGoals" :key="goal.id" class="goal-card" :class="{ 'on-track': goal.paceStatus === 'on_track', 'behind': goal.paceStatus === 'behind' }">
           <p class="metric-label">{{ metricLabel(goal.metricType) }}</p>
           <p class="data-value">
-            {{ currentValue(goal.metricType) }}{{ metricUnit(goal.metricType) }}
+            {{ currentValue(goal.metricType) }}
             <span class="arrow">→</span>
-            {{ goal.targetValue }}{{ metricUnit(goal.metricType) }}
+            {{ formatWithUnit(goal.targetValue, goal.metricType) }}
           </p>
 
           <div class="progress-wrapper">
@@ -77,9 +77,9 @@
         <div v-for="goal in pastGoals" :key="goal.id" class="goal-card past">
           <p class="metric-label">{{ metricLabel(goal.metricType) }}</p>
           <p class="data-value past-range">
-            {{ goal.startValue != null ? goal.startValue + metricUnit(goal.metricType) : '—' }}
+            {{ goal.startValue != null ? formatWithUnit(goal.startValue, goal.metricType) : '—' }}
             <span class="arrow">→</span>
-            {{ goal.targetValue }}{{ metricUnit(goal.metricType) }}
+            {{ formatWithUnit(goal.targetValue, goal.metricType) }}
             <span class="status-tag" :class="goal.status.toLowerCase()">{{ goal.status.toLowerCase() }}</span>
           </p>
           <p class="past-meta">
@@ -101,10 +101,12 @@ import EmptyState from '../components/EmptyState.vue'
 import SkeletonLoader from '../components/SkeletonLoader.vue'
 import { getBodyMetrics } from '../services/bodyMetricsService'
 import { useToastStore } from '../stores/toast'
+import { useUnits } from '../composables/useUnits'
 import { formatDateBr } from '../utils/date'
 import { Trash2, Target } from 'lucide-vue-next'
 
 const toast = useToastStore()
+const { formatWithUnit } = useUnits()
 
 const loading = ref(true)
 const latestMetrics = ref(null)
@@ -161,17 +163,12 @@ const labels = {
   WEIGHT: 'Weight', MUSCLE_MASS: 'Muscle mass',
   WATER: 'Water', BODY_FAT_KG: 'Body fat', BODY_FAT_PCT: 'Body fat'
 }
-const units = {
-  WEIGHT: ' kg', MUSCLE_MASS: ' kg',
-  WATER: ' L', BODY_FAT_KG: ' kg', BODY_FAT_PCT: '%'
-}
-
 function metricLabel(type) { return labels[type] || type }
-function metricUnit(type) { return units[type] || '' }
+
 function currentValue(metricType) {
   if (!latestMetrics.value) return '—'
-  const field = metricFields[metricType]
-  return latestMetrics.value[field] ?? '—'
+  const value = latestMetrics.value[metricFields[metricType]]
+  return value == null ? '—' : formatWithUnit(value, metricType)
 }
 
 function goalProgress(goal) {
@@ -194,8 +191,9 @@ function goalProgress(goal) {
 
   if (reached) return { text: 'Target reached ✓', cls: 'reached' }
 
-  const distance = Math.abs(current - goal.targetValue).toFixed(1)
-  return { text: `${distance}${metricUnit(goal.metricType)} to go`, cls: 'pending' }
+  // Compared in canonical units above; only the distance being shown gets converted.
+  const distance = formatWithUnit(Math.abs(current - goal.targetValue), goal.metricType)
+  return { text: `${distance} to go`, cls: 'pending' }
 }
 </script>
 

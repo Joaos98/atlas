@@ -2,6 +2,7 @@ package com.joaosousa.atlas.service;
 
 import com.joaosousa.atlas.dto.AppSettingsUpdateRequest;
 import com.joaosousa.atlas.entity.AppSettings;
+import com.joaosousa.atlas.entity.UnitSystem;
 import com.joaosousa.atlas.repository.AppSettingsRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,9 @@ public class AppSettingsService {
     /** Gemini's OpenAI-compatible endpoint. The provider is a setting, not a code path. */
     public static final String DEFAULT_INSIGHT_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai";
     public static final String DEFAULT_INSIGHT_MODEL = "gemini-3.5-flash";
+
+    /** Metric by default, so an existing install renders exactly as it did before. */
+    public static final UnitSystem DEFAULT_UNIT_SYSTEM = UnitSystem.METRIC;
 
     private final AppSettingsRepository appSettingsRepository;
 
@@ -34,7 +38,8 @@ public class AppSettingsService {
             appSettingsRepository.insertWithId(AppSettings.SETTINGS_ID, DEFAULT_TARGET_WORKOUTS_PER_WEEK);
         }
         appSettingsRepository.backfillDefaults(
-                AppSettings.SETTINGS_ID, DEFAULT_INSIGHT_BASE_URL, DEFAULT_INSIGHT_MODEL);
+                AppSettings.SETTINGS_ID, DEFAULT_INSIGHT_BASE_URL, DEFAULT_INSIGHT_MODEL,
+                DEFAULT_UNIT_SYSTEM.name());
     }
 
     public AppSettings get() {
@@ -57,6 +62,9 @@ public class AppSettingsService {
         }
         if (request.getInsightModel() != null) {
             existing.setInsightModel(request.getInsightModel().trim());
+        }
+        if (request.getUnitSystem() != null) {
+            existing.setUnitSystem(request.getUnitSystem());
         }
 
         if (request.isClearInsightApiKey()) {

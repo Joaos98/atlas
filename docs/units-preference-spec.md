@@ -1,6 +1,8 @@
 # Spec: Unit System Preference — Canonical Metric, Converted at Display
 
-**Status:** Refined, ready for implementation
+**Status:** Implemented and verified 2026-08-16. All seven verifications in §7 pass, checked in
+a running app rather than only in tests — including §7.4's round-trip, which is the one that
+fails silently. See §10 for what implementation found that this spec did not.
 **Date:** 2026-08-13
 **Implements:** `atlas-generalization-todos.md` §5
 **Consumer:** [`insight-provider-spec.md`](insight-provider-spec.md) §7 — the AI prompt must follow the preference
@@ -249,6 +251,39 @@ columns to `app_settings` and fields to the same settings DTO and `SettingsView`
 insight spec first — it introduces `AppSettingsDto` and the write-only key handling — then
 add `unitSystem` to the structures it created. Doing it the other way means building the DTO
 twice.
+
+---
+
+## 10. What implementation found — added 2026-08-16
+
+**There was no settings store.** §4 says `useUnits()` reads `unitSystem` "from the settings
+store"; `stores/` held `toast.js` and a dead Vite scaffold `counter.js`. Four components each
+fetched `/api/settings` for themselves — `DashboardView`, `WorkoutsView`, `SettingsView`,
+`WeeklyWorkoutsChart` — so one page issued the request up to three times and nothing shared
+state. That is fatal to §6.1's "changing it re-renders": a toggle in Settings would have left
+every other view stale until reload. A Pinia settings store now owns it, the four call sites are
+folded in, and `targetPerWeek` became a computed in three of them instead of a ref that never
+updated. `counter.js` deleted.
+
+**The prompt's numbers were locale-dependent.** Not a units bug, but §7.6 surfaced it: every
+`String.format("%.1f", …)` in `buildPrompt` used the JVM default locale, so on this pt-BR machine
+the prompt read `- Weight: 82,3 kg`. The same app produced different prompt text depending on
+where it ran, and a comma decimal is ambiguous to a model that may read it as a thousands
+separator. All eight call sites now pin `Locale.ROOT`.
+
+**`format(null)` rendered `0.0`.** Caught by the composable's own test: `Number(null)` is `0`,
+which is finite, so a null slipped past the guard. A goal with no baseline would have displayed a
+confident `0.0 lb`.
+
+**Two labels had units baked into them**, which only reads correctly in metric:
+`BodyMetricsView`'s "Body fat kg" delta card and `GoalForm`'s "Body fat (kg)" option, plus
+`InsightService.goalLabel`'s matching string. All now say "mass".
+
+**Spacing and casing were inconsistent before this touched them** — `LatestMeasurementStats`
+rendered `79.1 Kg` beside a `-0.7 kg` subtitle in the same card, and `GoalsView` wrote `80%`
+where the tiles wrote `21.1 %`. Normalising means §7.1's "metric renders exactly as today" is
+satisfied in substance but not literally: four tiles changed `Kg` to `kg` and percentages gained
+a space. Agreed with the owner before implementing.
 
 ---
 

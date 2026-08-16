@@ -16,7 +16,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { getHeatmap } from '../services/workoutService'
-import { getSettings } from '../services/settingsService'
+import { useSettingsStore } from '../stores/settings'
 import { toLocalDateStr } from '../utils/date'
 import { Bar } from 'vue-chartjs'
 import {
@@ -33,8 +33,10 @@ const props = defineProps({
 
 const WEEKS_DEFAULT = 8
 
+const settingsStore = useSettingsStore()
+
 const loading = ref(true)
-const targetPerWeek = ref(4)
+const targetPerWeek = computed(() => settingsStore.targetWorkoutsPerWeek)
 const weeks = ref([])
 
 function formatWeekLabel(date) {
@@ -62,12 +64,11 @@ async function load() {
 
     const heatmapEnd = props.endDate || toLocalDateStr(end)
 
-    const [heatmapRes, settingsRes] = await Promise.all([
+    const [heatmapRes] = await Promise.all([
       getHeatmap(toLocalDateStr(sundayStart), heatmapEnd),
-      getSettings()
+      settingsStore.load()
     ])
     const data = Array.isArray(heatmapRes.data) ? heatmapRes.data : (heatmapRes.data.content || [])
-    targetPerWeek.value = settingsRes.data.targetWorkoutsPerWeek ?? 4
 
     const dayMap = {}
     for (const d of data) {

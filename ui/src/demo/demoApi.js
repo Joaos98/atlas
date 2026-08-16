@@ -35,7 +35,10 @@ function demoSettings(db) {
     insightBaseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
     insightModel: 'gemini-3.5-flash',
     insightApiKeyConfigured: false,
-    insightApiKeyLast4: null
+    insightApiKeyLast4: null,
+    // Unlike the key, this one is live in the demo: it is a display preference over seeded
+    // data, so switching it is safe and is worth showing off.
+    unitSystem: db.settings.unitSystem ?? 'METRIC'
   }
 }
 
@@ -286,6 +289,9 @@ function handle(url, method, body, params) {
     if (method === 'PUT') {
       if (body.targetWorkoutsPerWeek !== undefined) {
         db.settings.targetWorkoutsPerWeek = body.targetWorkoutsPerWeek
+      }
+      if (body.unitSystem !== undefined) {
+        db.settings.unitSystem = body.unitSystem
       }
       persist(db)
       return ok(demoSettings(db))

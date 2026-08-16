@@ -102,8 +102,11 @@ class AppSettingsApiTest extends AbstractSqliteIntegrationTest {
      */
     @Test
     void seedingBackfillsColumnsAddedToAnAlreadyExistingRow() {
-        jdbc.update("UPDATE app_settings SET insight_base_url = NULL, insight_model = NULL, insight_api_key = NULL WHERE id = ?",
-                AppSettings.SETTINGS_ID);
+        jdbc.update("""
+                UPDATE app_settings
+                   SET insight_base_url = NULL, insight_model = NULL,
+                       insight_api_key = NULL, unit_system = NULL
+                 WHERE id = ?""", AppSettings.SETTINGS_ID);
 
         appSettingsService.ensureSeeded();
 
@@ -111,6 +114,22 @@ class AppSettingsApiTest extends AbstractSqliteIntegrationTest {
         assertEquals(AppSettingsService.DEFAULT_INSIGHT_BASE_URL, settings.getInsightBaseUrl());
         assertEquals(AppSettingsService.DEFAULT_INSIGHT_MODEL, settings.getInsightModel());
         assertEquals("", settings.getInsightApiKey());
+        assertEquals(AppSettingsService.DEFAULT_UNIT_SYSTEM, settings.getUnitSystem());
+    }
+
+    /** The default must leave an existing install rendering exactly as it did before. */
+    @Test
+    void unitSystemIsSeededToMetricAndIsRoundTrippable() throws Exception {
+        assertEquals("METRIC", getJson("/api/settings").get("unitSystem").asText());
+
+        JsonNode response = putSettings("{\"unitSystem\":\"IMPERIAL\"}");
+        assertEquals("IMPERIAL", response.get("unitSystem").asText());
+        assertEquals("IMPERIAL", getJson("/api/settings").get("unitSystem").asText());
+
+        // Still absent-means-unchanged, like every other field.
+        assertEquals("IMPERIAL", putSettings("{\"targetWorkoutsPerWeek\":3}").get("unitSystem").asText());
+
+        putSettings("{\"unitSystem\":\"METRIC\"}");
     }
 
     /** Re-seeding must not walk over a configured install — COALESCE only fills NULLs. */

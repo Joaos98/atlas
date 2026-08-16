@@ -26,10 +26,12 @@ public interface AppSettingsRepository extends JpaRepository<AppSettings, Long> 
             UPDATE app_settings
                SET insight_base_url = COALESCE(insight_base_url, :baseUrl),
                    insight_model    = COALESCE(insight_model, :model),
-                   insight_api_key  = COALESCE(insight_api_key, '')
+                   insight_api_key  = COALESCE(insight_api_key, ''),
+                   unit_system      = COALESCE(unit_system, :unitSystem)
              WHERE id = :id
             """, nativeQuery = true)
     void backfillDefaults(@Param("id") long id,
                           @Param("baseUrl") String baseUrl,
-                          @Param("model") String model);
+                          @Param("model") String model,
+                          @Param("unitSystem") String unitSystem);
 }

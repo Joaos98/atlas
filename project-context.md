@@ -233,6 +233,13 @@ The demo is verified against the real backend, not just "similar to" it:
 - **Body metrics all required:** all five metric fields are required — a
   deliberate decision to avoid null-handling complexity in insight and goal
   logic. The bioimpedance scale reports all five in one reading.
+- **Units:** `app_settings.unit_system` (`METRIC`/`IMPERIAL`) is a **display** preference.
+  The database is always canonical metric; conversion happens at exactly two places, the
+  `useUnits()` composable in the frontend and `InsightService.buildPrompt`. Body water
+  converts L → lb, not to any imperial volume. Edit forms must submit the original stored
+  value when the displayed value is unchanged, or 1 dp rounding walks the data.
+- **Settings are read through `stores/settings.js`**, not by calling `getSettings()` in each
+  view — the unit preference has to re-render every view the moment it changes.
 - **Insight provider:** configured in `app_settings` (`insight_base_url`,
   `insight_api_key`, `insight_model`), not the environment. One
   OpenAI-compatible client, so the base URL *is* the provider selector —

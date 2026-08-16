@@ -1,7 +1,8 @@
 # Spec: Secrets Handling — Close the Leak Paths, Then Rotate
 
-**Status:** Implemented 2026-08-16 — every code change in §3 has landed. **Rotation (§3.4) is
-outstanding and is the owner's to do**; it needs credentials only he can issue.
+**Status:** Complete 2026-08-16. Every code change in §3 has landed; rotation (§3.4) was
+considered and **declined by the owner**, and is recorded there as an accepted risk rather than
+left open.
 **Date:** 2026-08-12
 **Implements:** `atlas-generalization-todos.md` §7
 **Supersedes:** [`webhook-sync-deduplication-spec.md`](webhook-sync-deduplication-spec.md) §10.1 (resolved) and §10.2 (partially resolved — see §1.1); `atlas-selfhost-plan.md` line 72's "remove from version control and gitignore it" (done)
@@ -191,9 +192,25 @@ cleaner end state that §3.5 makes moot anyway.
 
 ### 3.4 Rotate — per secret, with the sequencing each one needs
 
-**OUTSTANDING as of 2026-08-16 — the owner's to do.** Its precondition is met: §3.1 has landed
-and §3.3's intent is satisfied by §3.5, so the holes are closed and rotating no longer mints
-new secrets into them. Restating the three against post-cutover reality:
+**DECLINED 2026-08-16 by the owner. This item is closed, not pending.**
+
+The leak *paths* are shut — that was §3.1 through §3.5 and it is done. What is declined is
+re-issuing the two keys that travelled through them. Recorded as an accepted risk, in the same
+spirit as §3.4's original "skip the Neon password" recommendation, so it does not reappear as a
+perpetually open to-do.
+
+What that leaves standing: the provider key exists in plaintext in `atlas.db` (by design — see
+[`insight-provider-spec.md`](insight-provider-spec.md) §3.4) and in any local jar or image built
+before 2026-08-16; the sync key is in Saturn's environment and the phone app. Both are reachable
+only by someone who already has the machine or the deployment. Nothing about the app's behaviour
+depends on this decision, and any of it can be revisited by issuing new credentials at any time —
+the provider key through Settings, the sync key through the four-step order below.
+
+The original analysis is kept below, since it is what the decision was made against.
+
+Its precondition was met: §3.1 landed and §3.3's intent is satisfied by §3.5, so the holes were
+closed and rotating would no longer have minted new secrets into them. Restating the three
+against post-cutover reality:
 
 | Secret | Now | Action |
 |---|---|---|

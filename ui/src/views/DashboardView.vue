@@ -82,21 +82,21 @@
                   <Scale :size="16" />
                   <span>Weight</span>
                 </div>
-                <p class="body-comp-value">{{ formatChange(stats.bodyCompositionStats.weightChangeKg) }}<span class="unit"> kg</span></p>
+                <p class="body-comp-value">{{ formatChange(stats.bodyCompositionStats.weightChangeKg, 'WEIGHT') }}<span class="unit"> {{ label('WEIGHT') }}</span></p>
               </div>
               <div class="body-comp-card" :class="compColor(stats.bodyCompositionStats.muscleMassChangeKg, 'up')">
                 <div class="body-comp-header">
                   <TrendingUp :size="16" />
                   <span>Muscle mass</span>
                 </div>
-                <p class="body-comp-value">{{ formatChange(stats.bodyCompositionStats.muscleMassChangeKg) }}<span class="unit"> kg</span></p>
+                <p class="body-comp-value">{{ formatChange(stats.bodyCompositionStats.muscleMassChangeKg, 'MUSCLE_MASS') }}<span class="unit"> {{ label('MUSCLE_MASS') }}</span></p>
               </div>
               <div class="body-comp-card" :class="compColor(stats.bodyCompositionStats.bodyFatPctChange, 'down')">
                 <div class="body-comp-header">
                   <TrendingDown :size="16" />
                   <span>Body fat</span>
                 </div>
-                <p class="body-comp-value">{{ formatChange(stats.bodyCompositionStats.bodyFatPctChange) }}<span class="unit"> %</span></p>
+                <p class="body-comp-value">{{ formatChange(stats.bodyCompositionStats.bodyFatPctChange, 'BODY_FAT_PCT') }}<span class="unit"> {{ label('BODY_FAT_PCT') }}</span></p>
               </div>
             </template>
             <div v-else class="card body-comp-empty">
@@ -129,7 +129,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { getStats } from '../services/statsService'
-import { getSettings } from '../services/settingsService'
+import { useSettingsStore } from '../stores/settings'
 import { getHeatmap } from '../services/workoutService'
 import { getBodyMetrics } from '../services/bodyMetricsService'
 import { toLocalDateStr, formatDateBr } from '../utils/date'
@@ -141,14 +141,18 @@ import WeeklyWorkoutsChart from '../components/WeeklyWorkoutsChart.vue'
 import LatestMeasurementStats from '../components/LatestMeasurementStats.vue'
 import InsightCard from '../components/InsightCard.vue'
 import { useToastStore } from '../stores/toast'
+import { useUnits } from '../composables/useUnits'
 import { openInsightGate } from '../demo/insightGate'
 import { Flame, Scale, TrendingUp, TrendingDown, CalendarCheck, Dumbbell } from 'lucide-vue-next'
 
 const toast = useToastStore()
 
+const settingsStore = useSettingsStore()
+const { toDisplay, label } = useUnits()
+
 const stats = ref(null)
 const loading = ref(true)
-const targetPerWeek = ref(4)
+const targetPerWeek = computed(() => settingsStore.targetWorkoutsPerWeek)
 const thisWeekSessions = ref(0)
 const insight = ref(null)
 const insightLoading = ref(false)
@@ -173,14 +177,13 @@ onMounted(async () => {
     const nextSunday = new Date(sunday)
     nextSunday.setDate(nextSunday.getDate() + 7)
 
-    const [statsRes, settingsRes, heatmapRes] = await Promise.all([
+    const [statsRes, , heatmapRes] = await Promise.all([
       getStats(),
-      getSettings(),
+      settingsStore.load(),
       getHeatmap(toLocalDateStr(sunday), toLocalDateStr(nextSunday))
     ])
 
     stats.value = statsRes.data
-    targetPerWeek.value = settingsRes.data.targetWorkoutsPerWeek ?? 4
     thisWeekSessions.value = heatmapRes.data.reduce((sum, d) => sum + d.workouts.length, 0)
   } catch {
     stats.value = null
@@ -211,9 +214,12 @@ const isNewUser = computed(() =>
   thisWeekSessions.value === 0 && stats.value?.bodyCompositionStats?.totalMeasurements === 0
 )
 
-function formatChange(value) {
+// These are all-time changes, so they convert with the same factor a value does. The DTO's
+// `...ChangeKg` field names stay accurate: they describe the canonical unit, not the display.
+function formatChange(value, metricType) {
   if (value == null) return '—'
-  return value > 0 ? `+${value.toFixed(1)}` : `${value.toFixed(1)}`
+  const converted = Number(toDisplay(value, metricType))
+  return converted > 0 ? `+${converted.toFixed(1)}` : `${converted.toFixed(1)}`
 }
 
 function getChangeDirection(value) {

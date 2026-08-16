@@ -1,6 +1,7 @@
 package com.joaosousa.atlas.dto;
 
 import com.joaosousa.atlas.entity.AppSettings;
+import com.joaosousa.atlas.entity.UnitSystem;
 
 /**
  * What {@code GET /api/settings} serves. The endpoint has no auth by design (self-host plan
@@ -18,17 +19,20 @@ public class AppSettingsDto {
     private final String insightModel;
     private final boolean insightApiKeyConfigured;
     private final String insightApiKeyLast4;
+    private final UnitSystem unitSystem;
 
     public AppSettingsDto(int targetWorkoutsPerWeek,
                           String insightBaseUrl,
                           String insightModel,
                           boolean insightApiKeyConfigured,
-                          String insightApiKeyLast4) {
+                          String insightApiKeyLast4,
+                          UnitSystem unitSystem) {
         this.targetWorkoutsPerWeek = targetWorkoutsPerWeek;
         this.insightBaseUrl = insightBaseUrl;
         this.insightModel = insightModel;
         this.insightApiKeyConfigured = insightApiKeyConfigured;
         this.insightApiKeyLast4 = insightApiKeyLast4;
+        this.unitSystem = unitSystem;
     }
 
     public static AppSettingsDto from(AppSettings settings) {
@@ -39,7 +43,8 @@ public class AppSettingsDto {
                 settings.getInsightBaseUrl(),
                 settings.getInsightModel(),
                 configured,
-                configured ? last4(key) : null
+                configured ? last4(key) : null,
+                settings.getUnitSystem()
         );
     }
 
@@ -53,4 +58,5 @@ public class AppSettingsDto {
     public String getInsightModel() { return insightModel; }
     public boolean isInsightApiKeyConfigured() { return insightApiKeyConfigured; }
     public String getInsightApiKeyLast4() { return insightApiKeyLast4; }
+    public UnitSystem getUnitSystem() { return unitSystem; }
 }

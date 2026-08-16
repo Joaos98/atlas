@@ -182,8 +182,24 @@ depends on a pre-existing row.)
 
 ## 5. Units are hardcoded to metric
 
-**Status: REFINED 2026-08-13 — see [`units-preference-spec.md`](units-preference-spec.md).
-Implementation pending.**
+**Status: DONE 2026-08-16 — see [`units-preference-spec.md`](units-preference-spec.md),
+whose §10 records what the refinement did not anticipate.**
+
+A Metric/Imperial toggle under **Settings → Units**, applied at display time only: the database
+stays canonical metric, so switching back and forth never touches a row. All seven of the spec's
+verifications pass, checked in a running app — including the round-trip, which is the one that
+would corrupt data silently.
+
+Three things worth carrying forward:
+
+- **The spec assumed a settings store that did not exist.** Four components each fetched
+  `/api/settings` independently, which made the toggle un-reactive by construction. One Pinia
+  store now owns settings; a dead `counter.js` scaffold went with it.
+- **The insight prompt's numbers were locale-dependent** — `String.format` with the JVM default
+  rendered `82,3` on a pt-BR machine, so prompt text varied by where the server ran. Pinned to
+  `Locale.ROOT`. Unrelated to units; found by asserting on prompt text for the first time.
+- **`BODY_FAT_KG` stays as-is**, treated as an opaque identifier with a comment on the enum
+  saying so. Renaming it needs a hand-written data fixup the app has no tooling for.
 
 Settled as: **canonical metric in the database, converted at the display boundary**, driven
 by one `unit_system` column on `app_settings`. The API keeps its current shape — no DTO
@@ -290,8 +306,7 @@ stays a documented quirk that the backend is authoritative over.
 
 ## 7. Secrets on disk, and a key logged at startup
 
-**Status: IMPLEMENTED 2026-08-16 — see [`secrets-handling-spec.md`](secrets-handling-spec.md).
-Every code change has landed; key rotation (spec §3.4) is outstanding and owner-only.**
+**Status: DONE 2026-08-16 — see [`secrets-handling-spec.md`](secrets-handling-spec.md).**
 
 What shipped: the startup log line is gone (with its `Logger` import), the key comparison is
 now `MessageDigest.isEqual`, and `application-local.properties` is deleted. By deletion time
@@ -309,10 +324,9 @@ All four of the spec's automated verifications pass, including the one that matt
 justifying the deletion: with `SYNC_API_KEY` unset the app fails at startup naming the missing
 property, so the deleted log line's diagnostic value really was zero.
 
-**Still outstanding, and not something to do on the owner's behalf:** revoke and reissue the
-LLM provider key, and rotate the sync API key. The latter is a shared secret with the phone
-webhook app and the sender transmits a delta, so a fumbled rotation loses a day of workouts
-rather than one request. Render's decommissioning removed the reason to delay it.
+**Rotation was considered and declined** — see the spec's §3.4, where the residual exposure is
+written down as an accepted risk. The leak paths are shut either way; what is declined is
+re-issuing the two keys that passed through them.
 
 The refinement found two of this item's three premises no longer hold, and the leak path
 that does matter was not among them. `application-local.properties` is **not** in the

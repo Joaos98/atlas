@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.joaosousa.atlas.dto.AppSettingsUpdateRequest;
 import com.joaosousa.atlas.entity.BodyMetrics;
+import com.joaosousa.atlas.entity.UnitSystem;
 import com.joaosousa.atlas.repository.BodyMetricsRepository;
 import com.joaosousa.atlas.service.AppSettingsService;
 import com.sun.net.httpserver.HttpServer;
@@ -123,6 +124,8 @@ class InsightProviderClientTest extends AbstractSqliteIntegrationTest {
         // Trailing slash on purpose: it is easy to paste in, and must not produce "//chat".
         settings.setInsightBaseUrl("http://localhost:" + port + "/v1/");
         settings.setInsightModel("stub-model");
+        // Reset explicitly: these tests share a database, and one of them switches to imperial.
+        settings.setUnitSystem(UnitSystem.METRIC);
         appSettingsService.update(settings);
     }
 
@@ -155,6 +158,41 @@ class InsightProviderClientTest extends AbstractSqliteIntegrationTest {
         assertEquals("user", messages.get(1).get("role").asText());
         assertTrue(messages.get(1).get("content").asText().contains("Weight"),
                 "the built prompt should carry the measurement");
+    }
+
+    /**
+     * units-preference-spec.md §7.6, asserted on the built prompt rather than model output.
+     * The prompt is the second conversion site: if it stayed metric while the UI showed
+     * pounds, the insight card would contradict the numbers printed right above it.
+     */
+    @Test
+    void theImperialPreferenceReachesThePrompt() throws Exception {
+        AppSettingsUpdateRequest imperial = new AppSettingsUpdateRequest();
+        imperial.setUnitSystem(UnitSystem.IMPERIAL);
+        appSettingsService.update(imperial);
+
+        queuedResponses.add(new String[]{"200", chatCompletion("VERDICT: Fine\nINSIGHT: Fine.")});
+        mockMvc.perform(post("/api/insights/regenerate")).andExpect(status().isOk());
+
+        String prompt = objectMapper.readTree(received.get(0).body())
+                .get("messages").get(1).get("content").asText();
+
+        assertTrue(prompt.contains(" lb"), "expected pounds in the prompt:\n" + prompt);
+        assertFalse(prompt.contains(" kg"), "prompt still quotes kilograms:\n" + prompt);
+        // 80 kg -> 176.4 lb. The number must move with the label, not just the label.
+        assertTrue(prompt.contains("176.4"), "value was labelled lb but never converted:\n" + prompt);
+    }
+
+    @Test
+    void theMetricPromptIsUnchanged() throws Exception {
+        queuedResponses.add(new String[]{"200", chatCompletion("VERDICT: Fine\nINSIGHT: Fine.")});
+        mockMvc.perform(post("/api/insights/regenerate")).andExpect(status().isOk());
+
+        String prompt = objectMapper.readTree(received.get(0).body())
+                .get("messages").get(1).get("content").asText();
+
+        assertTrue(prompt.contains("- Weight: 80.0 kg"), prompt);
+        assertFalse(prompt.contains("lb"), prompt);
     }
 
     @Test

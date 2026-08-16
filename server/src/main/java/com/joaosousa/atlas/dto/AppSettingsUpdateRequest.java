@@ -1,5 +1,7 @@
 package com.joaosousa.atlas.dto;
 
+import com.joaosousa.atlas.entity.UnitSystem;
+
 /**
  * What {@code PUT /api/settings} accepts. Every field is nullable and <b>absent means
  * unchanged</b>, so a client may send only what it is editing — the settings row is a
@@ -18,6 +20,7 @@ public class AppSettingsUpdateRequest {
     private String insightModel;
     private String insightApiKey;
     private boolean clearInsightApiKey;
+    private UnitSystem unitSystem;
 
     public Integer getTargetWorkoutsPerWeek() { return targetWorkoutsPerWeek; }
     public void setTargetWorkoutsPerWeek(Integer targetWorkoutsPerWeek) { this.targetWorkoutsPerWeek = targetWorkoutsPerWeek; }
@@ -33,4 +36,7 @@ public class AppSettingsUpdateRequest {
 
     public boolean isClearInsightApiKey() { return clearInsightApiKey; }
     public void setClearInsightApiKey(boolean clearInsightApiKey) { this.clearInsightApiKey = clearInsightApiKey; }
+
+    public UnitSystem getUnitSystem() { return unitSystem; }
+    public void setUnitSystem(UnitSystem unitSystem) { this.unitSystem = unitSystem; }
 }

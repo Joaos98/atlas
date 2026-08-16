@@ -56,11 +56,11 @@
         </div>
       </div>
       <div v-if="filteredMetrics.length" class="charts-grid">
-        <MetricChart label="Weight" :entries="chartEntries('weightKg')" color="#4F8DFF" unit="Kg" :goal-target="activeGoalTarget('WEIGHT')" />
-        <MetricChart label="Muscle Mass" :entries="chartEntries('muscleMassKg')" color="#3DD68C" unit="Kg" :goal-target="activeGoalTarget('MUSCLE_MASS')" />
-        <MetricChart label="Body Water" :entries="chartEntries('waterLiters')" color="#2DD4BF" unit="L" :goal-target="activeGoalTarget('WATER')" />
-        <MetricChart label="Body Fat Mass" :entries="chartEntries('bodyFatKg')" color="#FB923C" unit="Kg" :goal-target="activeGoalTarget('BODY_FAT_KG')" />
-        <MetricChart label="Body Fat Percentage" :entries="chartEntries('bodyFatPct')" color="#FB3C3C" unit="%" :goal-target="activeGoalTarget('BODY_FAT_PCT')" />
+        <MetricChart label="Weight" :entries="chartEntries('weightKg')" color="#4F8DFF" :unit="label('WEIGHT')" :goal-target="activeGoalTarget('WEIGHT')" />
+        <MetricChart label="Muscle Mass" :entries="chartEntries('muscleMassKg')" color="#3DD68C" :unit="label('MUSCLE_MASS')" :goal-target="activeGoalTarget('MUSCLE_MASS')" />
+        <MetricChart label="Body Water" :entries="chartEntries('waterLiters')" color="#2DD4BF" :unit="label('WATER')" :goal-target="activeGoalTarget('WATER')" />
+        <MetricChart label="Body Fat Mass" :entries="chartEntries('bodyFatKg')" color="#FB923C" :unit="label('BODY_FAT_KG')" :goal-target="activeGoalTarget('BODY_FAT_KG')" />
+        <MetricChart label="Body Fat Percentage" :entries="chartEntries('bodyFatPct')" color="#FB3C3C" :unit="label('BODY_FAT_PCT')" :goal-target="activeGoalTarget('BODY_FAT_PCT')" />
       </div>
       <EmptyState
         v-else
@@ -89,11 +89,11 @@
             <template v-for="m in [...metrics].reverse()" :key="m.id">
               <tr v-if="editingId !== m.id">
                 <td>{{ formatDateBr(m.measuredOn) }}</td>
-                <td class="data-value">{{ m.weightKg }}Kg</td>
-                <td class="data-value">{{ m.waterLiters }}L</td>
-                <td class="data-value">{{ m.muscleMassKg }}Kg</td>
-                <td class="data-value">{{ m.bodyFatKg }}Kg</td>
-                <td class="data-value">{{ m.bodyFatPct }}%</td>
+                <td class="data-value">{{ formatWithUnit(m.weightKg, 'weightKg') }}</td>
+                <td class="data-value">{{ formatWithUnit(m.waterLiters, 'waterLiters') }}</td>
+                <td class="data-value">{{ formatWithUnit(m.muscleMassKg, 'muscleMassKg') }}</td>
+                <td class="data-value">{{ formatWithUnit(m.bodyFatKg, 'bodyFatKg') }}</td>
+                <td class="data-value">{{ formatWithUnit(m.bodyFatPct, 'bodyFatPct') }}</td>
                 <td class="actions-cell">
                   <button class="btn-icon" title="Edit entry" @click="startEdit(m)"><Pencil :size="14" /></button>
                   <button class="btn-icon" title="Delete entry" @click="deleteEntry(m.id)"><Trash2 :size="14" /></button>
@@ -132,6 +132,7 @@ import { getBodyMetrics, deleteBodyMetrics, updateBodyMetrics } from '../service
 import { getGoals } from '../services/goalsService'
 import { getInsights, regenerateInsights } from '../services/insightService'
 import { useToastStore } from '../stores/toast'
+import { useUnits } from '../composables/useUnits'
 import { openInsightGate } from '../demo/insightGate'
 import BodyMetricsForm from '../components/BodyMetricsForm.vue'
 import MetricChart from '../components/MetricChart.vue'
@@ -144,6 +145,8 @@ import { formatDateBr, toLocalDateStr } from '../utils/date'
 import { Scale, Trash2, Pencil, ChevronRight, ChevronDown, CalendarCheck, Dumbbell, Droplets, ChartPie, Percent } from 'lucide-vue-next'
 
 const toast = useToastStore()
+const { label, toDisplay, format, formatWithUnit, toCanonicalPreservingUnedited } = useUnits()
+
 const loading = ref(true)
 const metrics = ref([])
 const goals = ref([])
@@ -189,15 +192,15 @@ const deltas = computed(() => {
   const first = list[0]
   const last = list[list.length - 1]
   return [
-    { label: 'Weight', field: 'weightKg', unit: ' kg', good: null, icon: Scale },
-    { label: 'Water', field: 'waterLiters', unit: ' L', good: null, icon: Droplets },
-    { label: 'Muscle', field: 'muscleMassKg', unit: ' kg', good: 'up', icon: Dumbbell },
-    { label: 'Body fat kg', field: 'bodyFatKg', unit: ' kg', good: 'down', icon: ChartPie },
-    { label: 'Body fat %', field: 'bodyFatPct', unit: '%', good: 'down', icon: Percent }
-  ].map(({ label, field, unit, good, icon }) => {
+    { label: 'Weight', field: 'weightKg', good: null, icon: Scale },
+    { label: 'Water', field: 'waterLiters', good: null, icon: Droplets },
+    { label: 'Muscle', field: 'muscleMassKg', good: 'up', icon: Dumbbell },
+    { label: 'Body fat mass', field: 'bodyFatKg', good: 'down', icon: ChartPie },
+    { label: 'Body fat %', field: 'bodyFatPct', good: 'down', icon: Percent }
+  ].map(({ label, field, good, icon }) => {
     const diff = (last[field] ?? 0) - (first[field] ?? 0)
     const sign = diff >= 0 ? '+' : ''
-    const deltaStr = `${sign}${diff.toFixed(1)}${unit}`
+    const deltaStr = `${sign}${formatWithUnit(diff, field)}`
     let color = ''
     if (good === 'up') color = diff > 0 ? 'positive' : diff < 0 ? 'negative' : ''
     else if (good === 'down') color = diff < 0 ? 'positive' : diff > 0 ? 'negative' : ''
@@ -217,6 +220,7 @@ const latestInsight = computed(() => {
 })
 
 const editingId = ref(null)
+const editOriginal = ref(null)
 const editForm = ref({
   measuredOn: '',
   weightKg: null,
@@ -268,31 +272,38 @@ async function deleteEntry(id) {
   catch { toast.error('Failed to delete measurement') }
 }
 
+const METRIC_FIELDS = ['weightKg', 'waterLiters', 'muscleMassKg', 'bodyFatKg', 'bodyFatPct']
+
 function startEdit(m) {
   editingId.value = m.id
-  editForm.value = {
-    measuredOn: m.measuredOn,
-    weightKg: m.weightKg,
-    waterLiters: m.waterLiters,
-    muscleMassKg: m.muscleMassKg,
-    bodyFatKg: m.bodyFatKg,
-    bodyFatPct: m.bodyFatPct
+  // Kept so saveEdit can tell an untouched field from an edited one — see below.
+  editOriginal.value = m
+  editForm.value = { measuredOn: m.measuredOn }
+  for (const field of METRIC_FIELDS) {
+    const shown = format(m[field], field)
+    editForm.value[field] = shown == null ? null : Number(shown)
   }
 }
 
-function cancelEdit() { editingId.value = null }
+function cancelEdit() {
+  editingId.value = null
+  editOriginal.value = null
+}
 
 async function saveEdit() {
   try {
-    await updateBodyMetrics(editingId.value, {
-      measuredOn: editForm.value.measuredOn,
-      weightKg: editForm.value.weightKg,
-      waterLiters: editForm.value.waterLiters,
-      muscleMassKg: editForm.value.muscleMassKg,
-      bodyFatKg: editForm.value.bodyFatKg,
-      bodyFatPct: editForm.value.bodyFatPct
-    })
+    const payload = { measuredOn: editForm.value.measuredOn }
+    for (const field of METRIC_FIELDS) {
+      // The form holds displayed values rounded to 1 dp, so converting them straight back
+      // would rewrite every field of an untouched row — 82.3 kg shows as 181.4 lb and
+      // returns as 82.28. Fields the user did not actually change keep their stored value.
+      payload[field] = toCanonicalPreservingUnedited(
+        editForm.value[field], editOriginal.value?.[field], field)
+    }
+
+    await updateBodyMetrics(editingId.value, payload)
     editingId.value = null
+    editOriginal.value = null
     await load()
     toast.success('Measurement updated')
   } catch { toast.error('Failed to update measurement') }
@@ -300,11 +311,14 @@ async function saveEdit() {
 
 function activeGoalTarget(metricType) {
   const goal = goals.value.find(g => g.metricType === metricType && g.status === 'ACTIVE')
-  return goal ? goal.targetValue : null
+  return goal ? toDisplay(goal.targetValue, metricType) : null
 }
 
+// Charts plot whatever they are handed, so the series is converted here rather than in
+// MetricChart. The goal-target line below must use the same conversion or it renders at the
+// wrong height against a converted series.
 function chartEntries(field) {
-  return filteredMetrics.value.map(m => ({ measuredOn: m.measuredOn, value: m[field] }))
+  return filteredMetrics.value.map(m => ({ measuredOn: m.measuredOn, value: toDisplay(m[field], field) }))
 }
 </script>
 

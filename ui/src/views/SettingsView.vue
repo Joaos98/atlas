@@ -8,6 +8,12 @@
       </div>
     </section>
     <section>
+      <h2>Units</h2>
+      <div class="card card-fit">
+        <SkeletonLoader height="2.5rem" width="260px" />
+      </div>
+    </section>
+    <section>
       <h2>Insights</h2>
       <div class="card card-fit">
         <SkeletonLoader height="2.5rem" width="320px" />
@@ -45,6 +51,27 @@
         </form>
         <p v-if="targetMessage" class="form-success">{{ targetMessage }}</p>
         <p v-if="targetError" class="form-error">{{ targetError }}</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Units</h2>
+      <div class="card card-fit">
+        <p class="section-desc">
+          Affects display only. Measurements are always stored in metric, so switching back and
+          forth never changes your data.
+        </p>
+        <div class="unit-toggle">
+          <button
+            v-for="option in ['METRIC', 'IMPERIAL']"
+            :key="option"
+            type="button"
+            class="unit-option"
+            :class="{ active: unitSystem === option }"
+            @click="saveUnitSystem(option)"
+          >{{ option === 'METRIC' ? 'Metric (kg, L)' : 'Imperial (lb)' }}</button>
+        </div>
+        <p v-if="unitError" class="form-error">{{ unitError }}</p>
       </div>
     </section>
 
@@ -177,9 +204,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import SkeletonLoader from '../components/SkeletonLoader.vue'
-import { getSettings, updateSettings } from '../services/settingsService'
+import { useSettingsStore } from '../stores/settings'
 import { useToastStore } from '../stores/toast'
 import { getWorkoutTypes, createWorkoutType, deleteWorkoutType } from '../services/workoutService'
 import { getMappings, addMapping, deleteMapping } from '../services/syncService'
@@ -194,6 +221,7 @@ async function resetDemo() {
 }
 
 const toast = useToastStore()
+const settingsStore = useSettingsStore()
 
 const PALETTE = ['#4F8DFF', '#8B5CF6', '#2DD4BF', '#F472B6', '#FACC15']
 
@@ -204,6 +232,21 @@ const mappings = ref([])
 const target = ref(4)
 const targetMessage = ref('')
 const targetError = ref('')
+
+const unitSystem = computed(() => settingsStore.unitSystem)
+const unitError = ref('')
+
+async function saveUnitSystem(option) {
+  if (option === unitSystem.value) return
+  unitError.value = ''
+  try {
+    // Nothing else to do: every view reads the preference from the store, so the whole app
+    // re-renders in the new units the moment this resolves.
+    await settingsStore.save({ unitSystem: option })
+  } catch {
+    unitError.value = 'Failed to change units'
+  }
+}
 
 const insightBaseUrl = ref('')
 const insightModel = ref('')
@@ -224,13 +267,13 @@ const mappingError = ref('')
 
 async function load() {
   try {
-    const [settingsRes, typesRes, mappingsRes] = await Promise.all([
-      getSettings(),
+    const [settings, typesRes, mappingsRes] = await Promise.all([
+      settingsStore.load({ force: true }),
       getWorkoutTypes(),
       getMappings()
     ])
-    target.value = settingsRes.data.targetWorkoutsPerWeek
-    applyInsightSettings(settingsRes.data)
+    target.value = settings.targetWorkoutsPerWeek
+    applyInsightSettings(settings)
     types.value = typesRes.data
     mappings.value = mappingsRes.data
   } catch {
@@ -256,8 +299,7 @@ async function saveInsights() {
     const payload = { insightBaseUrl: insightBaseUrl.value, insightModel: insightModel.value }
     if (newInsightKey.value.trim()) payload.insightApiKey = newInsightKey.value
 
-    const { data } = await updateSettings(payload)
-    applyInsightSettings(data)
+    applyInsightSettings(await settingsStore.save(payload))
     insightMessage.value = 'Saved'
     setTimeout(() => { insightMessage.value = '' }, 3000)
   } catch {
@@ -270,8 +312,7 @@ async function removeKey() {
   insightMessage.value = ''
   insightError.value = ''
   try {
-    const { data } = await updateSettings({ clearInsightApiKey: true })
-    applyInsightSettings(data)
+    applyInsightSettings(await settingsStore.save({ clearInsightApiKey: true }))
     toast.success('API key removed')
   } catch {
     insightError.value = 'Failed to remove the API key'
@@ -287,7 +328,7 @@ async function saveTarget() {
   targetMessage.value = ''
   targetError.value = ''
   try {
-    await updateSettings({ targetWorkoutsPerWeek: target.value })
+    await settingsStore.save({ targetWorkoutsPerWeek: target.value })
     targetMessage.value = 'Saved'
     setTimeout(() => { targetMessage.value = '' }, 3000)
   } catch {
@@ -410,6 +451,26 @@ onMounted(async () => {
 }
 .type-input {
   width: 160px;
+}
+
+.unit-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.unit-option {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 9px 16px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.unit-option:hover { color: var(--text); }
+.unit-option.active {
+  background: var(--blue);
+  color: var(--bg);
 }
 
 .insight-form {

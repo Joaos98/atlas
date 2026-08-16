@@ -35,4 +35,12 @@ public class AppSettings {
 
     @Column(name = "insight_model")
     private String insightModel;
+
+    /**
+     * Which units to render in. Storage stays canonical metric regardless — this is read at
+     * the display boundary only.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "unit_system")
+    private UnitSystem unitSystem;
 }

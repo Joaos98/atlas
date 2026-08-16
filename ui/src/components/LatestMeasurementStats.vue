@@ -2,10 +2,10 @@
   <div v-if="metrics.length >= 2" class="latest-measurement-grid">
     <StatCard
       label="Weight"
-      :value="`${latest.weightKg} Kg`"
+      :value="formatWithUnit(latest.weightKg, 'weightKg')"
       color="blue"
       :icon="Scale"
-      :subtitle="deltaText('weightKg', 'kg')"
+      :subtitle="deltaText('weightKg')"
     >
       <template v-if="showSparklines" #sparkline>
         <MetricSparkline :data="sparkData('weightKg')" :color="sparkColor('weightKg')" />
@@ -13,10 +13,10 @@
     </StatCard>
     <StatCard
       label="Body Water"
-      :value="`${latest.waterLiters} L`"
+      :value="formatWithUnit(latest.waterLiters, 'waterLiters')"
       color="blue"
       :icon="Droplets"
-      :subtitle="deltaText('waterLiters', 'L')"
+      :subtitle="deltaText('waterLiters')"
     >
       <template v-if="showSparklines" #sparkline>
         <MetricSparkline :data="sparkData('waterLiters')" :color="sparkColor('waterLiters')" />
@@ -24,10 +24,10 @@
     </StatCard>
     <StatCard
       label="Muscle Mass"
-      :value="`${latest.muscleMassKg} Kg`"
+      :value="formatWithUnit(latest.muscleMassKg, 'muscleMassKg')"
       :color="deltaColor('muscleMassKg')"
       :icon="Dumbbell"
-      :subtitle="deltaText('muscleMassKg', 'kg')"
+      :subtitle="deltaText('muscleMassKg')"
     >
       <template v-if="showSparklines" #sparkline>
         <MetricSparkline :data="sparkData('muscleMassKg')" :color="sparkColor('muscleMassKg')" />
@@ -35,10 +35,10 @@
     </StatCard>
     <StatCard
       label="Body Fat Mass"
-      :value="`${latest.bodyFatKg} Kg`"
+      :value="formatWithUnit(latest.bodyFatKg, 'bodyFatKg')"
       :color="deltaColor('bodyFatKg')"
       :icon="ChartPie"
-      :subtitle="deltaText('bodyFatKg', 'kg')"
+      :subtitle="deltaText('bodyFatKg')"
     >
       <template v-if="showSparklines" #sparkline>
         <MetricSparkline :data="sparkData('bodyFatKg')" :color="sparkColor('bodyFatKg')" />
@@ -46,10 +46,10 @@
     </StatCard>
     <StatCard
       label="Body Fat Percentage"
-      :value="`${latest.bodyFatPct} %`"
+      :value="formatWithUnit(latest.bodyFatPct, 'bodyFatPct')"
       :color="deltaColor('bodyFatPct')"
       :icon="Percent"
-      :subtitle="deltaText('bodyFatPct', '%')"
+      :subtitle="deltaText('bodyFatPct')"
     >
       <template v-if="showSparklines" #sparkline>
         <MetricSparkline :data="sparkData('bodyFatPct')" :color="sparkColor('bodyFatPct')" />
@@ -63,6 +63,9 @@ import { computed } from 'vue'
 import StatCard from './StatCard.vue'
 import MetricSparkline from './MetricSparkline.vue'
 import { Scale, Droplets, Dumbbell, ChartPie, Percent } from 'lucide-vue-next'
+import { useUnits } from '@/composables/useUnits'
+
+const { format, label, formatWithUnit } = useUnits()
 
 const props = defineProps({
   metrics: { type: Array, default: () => [] },
@@ -77,11 +80,13 @@ function deltaValue(field) {
   return latest.value[field] - previous.value[field]
 }
 
-function deltaText(field, unit) {
+// A delta converts with the same factor as a value — the scale is linear with no offset —
+// so the difference is converted directly rather than recomputed from converted endpoints.
+function deltaText(field) {
   const diff = deltaValue(field)
   if (diff == null) return ''
   const sign = diff > 0 ? '+' : ''
-  return `${sign}${diff.toFixed(1)} ${unit} since previous`
+  return `${sign}${format(diff, field)} ${label(field)} since previous`
 }
 
 function deltaColor(field) {

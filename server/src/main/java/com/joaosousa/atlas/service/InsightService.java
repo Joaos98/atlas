@@ -7,6 +7,7 @@ import com.joaosousa.atlas.dto.InsightState;
 import com.joaosousa.atlas.entity.AppSettings;
 import com.joaosousa.atlas.entity.BodyMetrics;
 import com.joaosousa.atlas.entity.MetricType;
+import com.joaosousa.atlas.entity.UnitSystem;
 import com.joaosousa.atlas.repository.BodyMetricsRepository;
 import com.joaosousa.atlas.repository.WorkoutLogRepository;
 import org.springframework.data.domain.Sort;
@@ -178,7 +179,36 @@ public class InsightService {
 
     // --- prompt builder ---
 
+    private static final double KG_TO_LB = 2.20462;
+
+    /**
+     * Every number in the prompt is formatted against {@link Locale#ROOT}, not the JVM default.
+     * On a pt-BR machine the default renders 82.3 as "82,3", so the same app produced a
+     * different prompt depending on where it ran — and a comma decimal is ambiguous to a model
+     * that may read it as a thousands separator. Latent since the prompt was written; found
+     * when the unit tests below started asserting on prompt text.
+     */
+
+    /**
+     * The prompt writes units into text a human reads, so it has to follow the display
+     * preference — otherwise the card shows pounds while the insight text talks in kilos.
+     * This is the second of exactly two conversion sites; see units-preference-spec.md §4.
+     */
+    private static double convert(double value, MetricType type, UnitSystem system) {
+        if (system != UnitSystem.IMPERIAL || type == MetricType.BODY_FAT_PCT) return value;
+        return value * KG_TO_LB;
+    }
+
+    private static String unitLabel(MetricType type, UnitSystem system) {
+        if (type == MetricType.BODY_FAT_PCT) return "%";
+        if (system == UnitSystem.IMPERIAL) return "lb";
+        return type == MetricType.WATER ? "L" : "kg";
+    }
+
     private String buildPrompt(BodyMetrics latest, BodyMetrics previous, List<BodyMetrics> allMetrics) {
+        UnitSystem system = appSettingsService.get().getUnitSystem();
+        if (system == null) system = UnitSystem.METRIC;
+
         StringBuilder sb = new StringBuilder();
         sb.append("Here is the user's fitness data for analysis:\n\n");
 
@@ -188,11 +218,11 @@ public class InsightService {
             long daysSince = ChronoUnit.DAYS.between(previous.getMeasuredOn(), latest.getMeasuredOn());
             sb.append("(").append(daysSince).append(" days since the previous measurement)\n");
         }
-        sb.append(metricLine("Weight", latest.getWeightKg(), previous, "kg"));
-        sb.append(metricLine("Muscle mass", latest.getMuscleMassKg(), previous, "kg"));
-        sb.append(metricLine("Body water", latest.getWaterLiters(), previous, "L"));
-        sb.append(metricLine("Body fat mass", latest.getBodyFatKg(), previous, "kg"));
-        sb.append(metricLine("Body fat %", latest.getBodyFatPct(), previous, "%"));
+        sb.append(metricLine("Weight", latest.getWeightKg(), previous, MetricType.WEIGHT, system));
+        sb.append(metricLine("Muscle mass", latest.getMuscleMassKg(), previous, MetricType.MUSCLE_MASS, system));
+        sb.append(metricLine("Body water", latest.getWaterLiters(), previous, MetricType.WATER, system));
+        sb.append(metricLine("Body fat mass", latest.getBodyFatKg(), previous, MetricType.BODY_FAT_KG, system));
+        sb.append(metricLine("Body fat %", latest.getBodyFatPct(), previous, MetricType.BODY_FAT_PCT, system));
 
         // Trends — compute rates over recent window and all time
         if (allMetrics.size() >= 3) {
@@ -203,7 +233,7 @@ public class InsightService {
             long days = ChronoUnit.DAYS.between(first.getMeasuredOn(), last.getMeasuredOn());
             if (days > 0) {
                 for (MetricType type : MetricType.values()) {
-                    appendTrend(sb, type, first, last, days);
+                    appendTrend(sb, type, first, last, days, system);
                 }
             }
 
@@ -213,7 +243,7 @@ public class InsightService {
                 long daysAll = ChronoUnit.DAYS.between(firstAll.getMeasuredOn(), latest.getMeasuredOn());
                 if (daysAll > 0) {
                     for (MetricType type : MetricType.values()) {
-                        appendTrend(sb, type, firstAll, latest, daysAll);
+                        appendTrend(sb, type, firstAll, latest, daysAll, system);
                     }
                 }
             }
@@ -254,11 +284,13 @@ public class InsightService {
         if (!active.isEmpty()) {
             sb.append("\n## Active goals\n");
             for (GoalProgressDto g : active) {
+                MetricType goalType = MetricType.valueOf(g.getMetricType());
                 sb.append("- ").append(goalLabel(g.getMetricType())).append(": target ")
-                  .append(g.getTargetValue()).append(metricUnit(MetricType.valueOf(g.getMetricType())))
-                  .append(", currently ").append(String.format("%.1f", g.getCurrentValue()));
+                  .append(String.format(Locale.ROOT, "%.1f", convert(g.getTargetValue(), goalType, system)))
+                  .append(" ").append(unitLabel(goalType, system))
+                  .append(", currently ").append(String.format(Locale.ROOT, "%.1f", convert(g.getCurrentValue(), goalType, system)));
                 if (g.getStartValue() != null) {
-                    sb.append(" (started at ").append(String.format("%.1f", g.getStartValue()))
+                    sb.append(" (started at ").append(String.format(Locale.ROOT, "%.1f", convert(g.getStartValue(), goalType, system)))
                       .append(", ").append(progressLabel(g.getProgressPercent())).append(" progress)");
                 }
                 if (g.getEta() != null) {
@@ -273,20 +305,26 @@ public class InsightService {
         return sb.toString();
     }
 
-    private void appendTrend(StringBuilder sb, MetricType type, BodyMetrics first, BodyMetrics last, long days) {
-        double v1 = getMetricValue(first, type);
-        double v2 = getMetricValue(last, type);
+    /**
+     * Converted alongside everything else — a rate quoted in kilos beside measurements quoted
+     * in pounds is worse than either on its own. The unit is stated here now; it was implicit
+     * before, which only worked while there was exactly one.
+     */
+    private void appendTrend(StringBuilder sb, MetricType type, BodyMetrics first, BodyMetrics last,
+                             long days, UnitSystem system) {
+        double v1 = convert(getMetricValue(first, type), type, system);
+        double v2 = convert(getMetricValue(last, type), type, system);
         double perMonth = (v2 - v1) / days * 30;
         String symbol = perMonth >= 0 ? "+" : "";
         sb.append("- ").append(type.name()).append(": ")
-          .append(symbol).append(String.format("%.2f", perMonth)).append("/month")
-          .append(" (").append(String.format("%.1f", v1)).append(" → ").append(String.format("%.1f", v2)).append(")\n");
+          .append(symbol).append(String.format(Locale.ROOT, "%.2f", perMonth)).append(" ").append(unitLabel(type, system)).append("/month")
+          .append(" (").append(String.format(Locale.ROOT, "%.1f", v1)).append(" → ").append(String.format(Locale.ROOT, "%.1f", v2)).append(")\n");
     }
 
     private String goalLabel(String metricType) {
         return switch (metricType) {
             case "MUSCLE_MASS" -> "Muscle mass";
-            case "BODY_FAT_KG" -> "Body fat (kg)";
+            case "BODY_FAT_KG" -> "Body fat (mass)";
             case "BODY_FAT_PCT" -> "Body fat %";
             case "WATER" -> "Body water";
             case "WEIGHT" -> "Weight";
@@ -294,15 +332,17 @@ public class InsightService {
         };
     }
 
-    private String metricLine(String label, Double value, BodyMetrics previous, String unit) {
+    private String metricLine(String label, Double value, BodyMetrics previous, MetricType type, UnitSystem system) {
         if (value == null) return "";
-        String line = "- " + label + ": " + String.format("%.1f", value) + " " + unit;
+        String line = "- " + label + ": " + String.format(Locale.ROOT, "%.1f", convert(value, type, system))
+                + " " + unitLabel(type, system);
         if (previous != null) {
             Double prev = getMetricValueByName(previous, label);
             if (prev != null) {
-                double delta = value - prev;
+                // The delta converts directly: the scale is linear with no offset.
+                double delta = convert(value - prev, type, system);
                 String sign = delta >= 0 ? "+" : "";
-                line += " (" + sign + String.format("%.1f", delta) + ")";
+                line += " (" + sign + String.format(Locale.ROOT, "%.1f", delta) + ")";
             }
         }
         return line + "\n";
@@ -310,16 +350,9 @@ public class InsightService {
 
     private String progressLabel(Double pct) {
         if (pct == null) return "no baseline";
-        return String.format("%.0f%%", pct);
+        return String.format(Locale.ROOT, "%.0f%%", pct);
     }
 
-    private String metricUnit(MetricType type) {
-        return switch (type) {
-            case WEIGHT, MUSCLE_MASS, BODY_FAT_KG -> "kg";
-            case WATER -> "L";
-            case BODY_FAT_PCT -> "%";
-        };
-    }
 
     private Double getMetricValue(BodyMetrics bm, MetricType type) {
         return switch (type) {

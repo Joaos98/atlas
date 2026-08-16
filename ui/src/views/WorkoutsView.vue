@@ -205,7 +205,7 @@ import DurationHistogram from '../components/DurationHistogram.vue'
 import EmptyState from '../components/EmptyState.vue'
 import SkeletonLoader from '../components/SkeletonLoader.vue'
 import { getWorkoutTypes, getWorkoutLogs, deleteWorkoutLog, updateWorkoutLog, getHeatmap, getStreaks } from '../services/workoutService'
-import { getSettings } from '../services/settingsService'
+import { useSettingsStore } from '../stores/settings'
 import { toLocalDateStr } from '../utils/date'
 import { formatDateBr } from '../utils/date'
 import DatePicker from '../components/DatePicker.vue'
@@ -213,6 +213,7 @@ import { useToastStore } from '../stores/toast'
 import { Trash2, Pencil, Dumbbell, Flame, Clock, TrendingUp, Zap, CalendarCheck, Activity, Target, ChevronRight, ChevronDown } from 'lucide-vue-next'
 
 const toast = useToastStore()
+const settingsStore = useSettingsStore()
 
 const refreshKey = ref(0)
 const loading = ref(true)
@@ -221,7 +222,7 @@ const logs = ref([])
 const historyCollapsed = ref(true)
 const page = ref(0)
 const totalPages = ref(0)
-const targetPerWeek = ref(4)
+const targetPerWeek = computed(() => settingsStore.targetWorkoutsPerWeek)
 const thisWeekSessions = ref(0)
 const currentStreak = ref(0)
 const longestStreak = ref(0)
@@ -370,12 +371,11 @@ async function loadOverview() {
     const nextSunday = new Date(sunday)
     nextSunday.setDate(nextSunday.getDate() + 7)
 
-    const [settingsRes, heatmapRes, streaksRes] = await Promise.all([
-      getSettings(),
+    const [, heatmapRes, streaksRes] = await Promise.all([
+      settingsStore.load(),
       getHeatmap(toLocalDateStr(sunday), toLocalDateStr(nextSunday)),
       getStreaks()
     ])
-    targetPerWeek.value = settingsRes.data.targetWorkoutsPerWeek ?? 4
     thisWeekSessions.value = heatmapRes.data.reduce((sum, d) => sum + d.workouts.length, 0)
     currentStreak.value = streaksRes.data.currentStreak
     longestStreak.value = streaksRes.data.longestStreak
