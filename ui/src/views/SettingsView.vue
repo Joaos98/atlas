@@ -86,10 +86,24 @@
         <InfoHint text="Works with any OpenAI-compatible provider — OpenAI, Gemini, Groq, OpenRouter, or a local Ollama. The base URL selects which one. Leave the key unset to turn insights off." />
       </h2>
       <div class="card card-fit">
-        <p v-if="isDemo" class="muted-note">
-          Read-only in the demo — generating needs a real backend.
-        </p>
-        <form class="insight-form" @submit.prevent="saveInsights">
+        <!-- A provider is chosen once and then left alone, so the form only appears while it is
+             being changed. Expanded it is three stacked fields — twice the height of anything
+             beside it, permanently, for something touched about once a year. -->
+        <div v-if="!editingInsights" class="insight-summary">
+          <template v-if="keyConfigured">
+            <span class="summary-provider"><Sparkles :size="13" /> {{ providerHost }}</span>
+            <span class="summary-meta">{{ insightModel }} · key ····{{ insightKeyLast4 }}</span>
+          </template>
+          <span v-else class="summary-provider off">
+            <Sparkles :size="13" /> Off — no provider key
+          </span>
+          <button class="btn-small" :disabled="isDemo" @click="editingInsights = true"
+                  :title="isDemo ? 'Read-only in the demo — generating needs a real backend' : ''">
+            {{ keyConfigured ? 'Edit' : 'Set up' }}
+          </button>
+        </div>
+
+        <form v-else class="insight-form" @submit.prevent="saveInsights">
           <div class="form-field">
             <label><Sparkles :size="14" /> Base URL</label>
             <input v-model="insightBaseUrl" type="url" class="wide-input" :disabled="isDemo"
@@ -119,6 +133,7 @@
                     title="Save insight settings" aria-label="Save insight settings">
               <Check :size="15" />
             </button>
+            <button type="button" class="btn-small btn-danger" @click="cancelInsightEdit">Cancel</button>
           </div>
         </form>
         <p v-if="insightMessage" class="form-success">{{ insightMessage }}</p>
@@ -531,6 +546,24 @@ function applyInsightSettings(settings) {
   replacingKey.value = false
 }
 
+const editingInsights = ref(false)
+
+/** The host alone identifies the provider, and fits where a full URL would not. */
+const providerHost = computed(() => {
+  try {
+    return new URL(insightBaseUrl.value).hostname
+  } catch {
+    return insightBaseUrl.value || 'Not set'
+  }
+})
+
+function cancelInsightEdit() {
+  // Discard anything typed by reloading from what is actually stored.
+  applyInsightSettings(settingsStore.settings ?? {})
+  editingInsights.value = false
+  insightError.value = ''
+}
+
 async function saveInsights() {
   insightMessage.value = ''
   insightError.value = ''
@@ -541,6 +574,7 @@ async function saveInsights() {
     if (newInsightKey.value.trim()) payload.insightApiKey = newInsightKey.value
 
     applyInsightSettings(await settingsStore.save(payload))
+    editingInsights.value = false
     insightMessage.value = 'Saved'
     setTimeout(() => { insightMessage.value = '' }, 3000)
   } catch {
@@ -941,6 +975,26 @@ onMounted(async () => {
 .unit-option.active {
   background: var(--blue);
   color: var(--bg);
+}
+
+.insight-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.summary-provider {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88rem;
+  color: var(--text);
+}
+.summary-provider.off { color: var(--text-muted); }
+.summary-meta {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-right: auto;
 }
 
 .insight-form {
