@@ -26,7 +26,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Covers insight-provider-spec.md §10 verifications 1 and 7.
+ * Covers the two states that must not be errors or losses: a fresh install with no key
+ * configured, and a failed generation leaving the previously stored insight intact.
  */
 @AutoConfigureMockMvc
 class InsightApiTest extends AbstractSqliteIntegrationTest {

@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** Covers exercise-type-vocabulary-spec.md §7 case 8. */
+/** Catalog integrity: no duplicate codes, no blank names, a palette colour for every entry. */
 class ExerciseTypeCatalogTest {
 
     @Test

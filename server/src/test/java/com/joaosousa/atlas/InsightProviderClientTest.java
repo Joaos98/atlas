@@ -161,7 +161,8 @@ class InsightProviderClientTest extends AbstractSqliteIntegrationTest {
     }
 
     /**
-     * units-preference-spec.md §7.6, asserted on the built prompt rather than model output.
+     * The imperial prompt carries lb and no kg, asserted on the built prompt rather than
+     * model output.
      * The prompt is the second conversion site: if it stayed metric while the UI showed
      * pounds, the insight card would contradict the numbers printed right above it.
      */

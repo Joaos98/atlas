@@ -10,7 +10,8 @@ import com.joaosousa.atlas.entity.UnitSystem;
  * no field capable of holding the key itself.
  *
  * <p>Serialising the {@link AppSettings} entity directly, as this controller used to, would
- * have leaked the key the moment the column existed. See insight-provider-spec.md §3.2.
+ * have leaked the key the moment the column existed. See the "Insights and providers"
+ * design note on the Saturn docs hub.
  */
 public class AppSettingsDto {
 

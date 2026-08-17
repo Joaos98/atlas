@@ -22,10 +22,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Covers sync-source-allowlist-spec.md §7 cases 1, 2 and 7.
+ * Covers the fresh-install unique index, a payload posted twice sequentially, and two distinct
+ * workouts of the same type on one day.
  *
- * <p><b>Not covered: the concurrent double-fire</b> — the original bug from
- * webhook-sync-deduplication-spec.md §8 case 2. {@code hikari.maximum-pool-size=1} serializes
+ * <p><b>Not covered: the concurrent double-fire</b> — the original bug.
+ * {@code hikari.maximum-pool-size=1} serializes
  * SQLite writes, so two simultaneous requests cannot race on this harness. Protection there is
  * structural — {@code REQUIRES_NEW} plus the database constraint — and a Testcontainers
  * Postgres was rejected as a CI dependency. The gap is stated rather than merely absent.
@@ -91,7 +92,7 @@ class SyncDedupTest extends AbstractSqliteIntegrationTest {
     }
 
     /**
-     * Case 7, carried over from webhook-sync-deduplication-spec.md §8 case 3: two genuinely
+     * Carried over from the original dedup work: two genuinely
      * different workouts of the same type on the same day must both survive. This is the
      * regression guard against ever "fixing" dedup with a rounded-time signature.
      */

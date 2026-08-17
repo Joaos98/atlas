@@ -64,7 +64,7 @@ describe('useUnits', () => {
   })
 
   /**
-   * units-preference-spec.md §5. Display rounds to 1 dp, so 82.3 kg shows as 181.4 lb and
+   * Display rounds to 1 dp, so 82.3 kg shows as 181.4 lb and
    * converting that straight back gives 82.28 — opening a row and saving it untouched would
    * rewrite stored data, and doing it repeatedly would walk the value away.
    */

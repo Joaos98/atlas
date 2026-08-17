@@ -9,7 +9,7 @@ package com.joaosousa.atlas.dto;
  * multiply, and the difference between "you haven't set this up yet" and "something
  * broke" is the difference between a neutral empty state and a red error.
  *
- * <p>See insight-provider-spec.md §5.
+ * <p>See the "Insights and providers" design note on the Saturn docs hub.
  */
 public enum InsightState {
 

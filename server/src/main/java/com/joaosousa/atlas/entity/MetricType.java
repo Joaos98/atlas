@@ -5,8 +5,8 @@ package com.joaosousa.atlas.entity;
  * as a mass"; the unit token in the name is legacy and does not imply the value is displayed
  * in kilograms — under an imperial preference it is shown in pounds.
  *
- * <p>Renaming it to {@code BODY_FAT_MASS} was considered and rejected in
- * units-preference-spec.md §2.2: the value is persisted as a string in {@code goals.metric_type}
+ * <p>Renaming it to {@code BODY_FAT_MASS} was considered and rejected: the value is
+ * persisted as a string in {@code goals.metric_type}
  * and this app has no migration tooling, so the rename costs a hand-written one-shot data fixup,
  * kept forever, for a cosmetic gain. Every user-visible label comes from a lookup, so the
  * identifier never reaches the screen.

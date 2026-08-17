@@ -75,7 +75,8 @@ public class InsightService {
      * <p>The rule lives here because it was originally spelled out at each call site and one
      * of them always got it wrong: a failure written into {@code insight_text} destroys the
      * last good insight, and {@code GET /api/insights} then re-serves that error prose as
-     * though it were an insight, so the loss is invisible. See insight-provider-spec.md §8.
+     * though it were an insight, so the loss is invisible. See the "Insights and providers"
+     * design note on the Saturn docs hub.
      *
      * @return whether anything was written, so callers can skip a pointless save
      */
@@ -192,7 +193,8 @@ public class InsightService {
     /**
      * The prompt writes units into text a human reads, so it has to follow the display
      * preference — otherwise the card shows pounds while the insight text talks in kilos.
-     * This is the second of exactly two conversion sites; see units-preference-spec.md §4.
+     * This is the second of exactly two conversion sites; see the "Units at the display
+     * boundary" design note on the Saturn docs hub.
      */
     private static double convert(double value, MetricType type, UnitSystem system) {
         if (system != UnitSystem.IMPERIAL || type == MetricType.BODY_FAT_PCT) return value;
@@ -380,8 +382,8 @@ public class InsightService {
     /**
      * The provider is whatever {@code insight_base_url} points at. OpenAI, Gemini's compat
      * endpoint, Groq, OpenRouter, Ollama and LM Studio all speak this one wire format, so
-     * changing provider is a settings edit rather than a code change — see
-     * insight-provider-spec.md §2.
+     * changing provider is a settings edit rather than a code change — see the
+     * "Insights and providers" design note on the Saturn docs hub.
      */
     private String callProvider(String prompt, AppSettings settings, String apiKey) throws Exception {
         try {
@@ -452,7 +454,7 @@ public class InsightService {
      * Gemini, which complies reliably — but any model can be selected now, and smaller ones
      * routinely emit {@code **VERDICT:**}. On a near-miss the old parser dumped the entire
      * reply, labels and all, into the insight body, which read as an app bug rather than a
-     * model mismatch. See insight-provider-spec.md §6.
+     * model mismatch. See the "Insights and providers" design note on the Saturn docs hub.
      */
     private static final Pattern VERDICT_INSIGHT = Pattern.compile(
             "^\\s*\\**\\s*verdict\\s*:\\**\\s*(.+?)\\s*\\**\\s*insight\\s*:\\**\\s*(.*)$",

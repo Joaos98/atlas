@@ -6,6 +6,12 @@ and a note on what implementation discovered that the refinement had not — tha
 the most useful thing here, because in every case it was found by running the app rather than
 by reading the spec again.
 
+**The seven specs this document used to link to were deleted on 2026-08-17.** Everything in them
+that was worth keeping — the reasoning, the alternatives rejected, and what implementation found
+that the refinement had not — was rewritten as Atlas's design notes on the Saturn documentation
+hub, which is now where that material lives. Each status line below names the page it went to.
+This document stays as the record of what was asked for and in what order.
+
 What changed, in one line each:
 
 | | | |
@@ -36,8 +42,8 @@ portfolio project.
 
 ## 1. LLM-agnostic insights with user-supplied API keys
 
-**Status: IMPLEMENTED 2026-08-16 — see [`insight-provider-spec.md`](insight-provider-spec.md),
-whose §13 records what the refinement got wrong.**
+**Status: IMPLEMENTED 2026-08-16. The spec has been deleted; its reasoning and what
+implementation found are now the *Insights and providers* design note on the Saturn docs hub.**
 
 Insights now run against any OpenAI-compatible endpoint, configured in the UI under
 **Settings → Insights** and stored in `app_settings`. `GEMINI_API_KEY` is gone from
@@ -112,8 +118,9 @@ and the model is a property with a Gemini default
 
 ## 2. Health Connect exercise types by default — no manual type conversion
 
-**Status: DONE 2026-08-16 — see [`exercise-type-vocabulary-spec.md`](exercise-type-vocabulary-spec.md),
-whose §9 records what the refinement did not anticipate. Shipped as one bundle with §3.**
+**Status: DONE 2026-08-16, as one bundle with §3. The spec has been deleted; its reasoning and
+what implementation found are now the *Activity types that create themselves* design note on the
+Saturn docs hub.**
 
 An unmapped Health Connect code now creates its own type from a 61-entry catalog and logs the
 workout; "unmapped" has stopped being a reason to skip anything. An explicit mapping always
@@ -162,8 +169,9 @@ table before the sync does anything useful.
 
 ## 3. Configurable device origin / recording-method filter
 
-**Status: DONE 2026-08-16 — see [`sync-source-allowlist-spec.md`](sync-source-allowlist-spec.md),
-whose §10 records what the refinement did not anticipate. Shipped as one bundle with §2.**
+**Status: DONE 2026-08-16, as one bundle with §2. The spec has been deleted; its reasoning and
+what implementation found are now the *Sources and quarantine* design note on the Saturn docs
+hub.**
 
 The hardcoded `com.xiaomi.wearable` filter is gone. Sources are discovered from real payloads
 and recorded before they are judged, so an unrecognised device is visible in Settings instead of
@@ -205,8 +213,8 @@ The original finding, kept for history:
 filtered out before dedup even runs. A user with a Samsung Watch, a Garmin or
 Google Fit integration gets zero workouts and no explanation.
 
-The filter exists for a real reason (see `webhook-sync-deduplication-spec.md`
-§2): Google-origin activity-detection records drift between syncs, so an
+The filter exists for a real reason (recorded in the *Sources and quarantine* design note on the
+Saturn docs hub): Google-origin activity-detection records drift between syncs, so an
 instant-based signature cannot dedup them, and Xiaomi records are stable. The
 default can stay Xiaomi-safe, but it must become:
 
@@ -242,8 +250,8 @@ depends on a pre-existing row.)
 
 ## 5. Units are hardcoded to metric
 
-**Status: DONE 2026-08-16 — see [`units-preference-spec.md`](units-preference-spec.md),
-whose §10 records what the refinement did not anticipate.**
+**Status: DONE 2026-08-16. The spec has been deleted; its reasoning and what implementation
+found are now the *Units at the display boundary* design note on the Saturn docs hub.**
 
 A Metric/Imperial toggle under **Settings → Units**, applied at display time only: the database
 stays canonical metric, so switching back and forth never touches a row. All seven of the spec's
@@ -305,14 +313,15 @@ AI insight prompt needs units spelled out either way.
 **Consumer to account for:** `InsightService` builds the AI prompt with metric labels baked
 in (`- Weight: 82.3 kg`, `- Body water: 41.2 L`, goal targets via `metricUnit(...)`). That is
 correct today because the units are stated explicitly, and
-[`insight-provider-spec.md`](insight-provider-spec.md) §7 deliberately left it alone rather
+§1's spec deliberately left it alone rather
 than guess this item's storage decision. Once a display preference exists, the prompt must
 follow it — otherwise the card shows pounds while the insight text says kilos.
 
 ## 6. The Health Connect webhook app is not in the repo
 
-**Status: DONE 2026-08-16 — see [`webhook-sender-spec.md`](webhook-sender-spec.md), whose §9
-records what implementation added. This was the last of the seven.**
+**Status: DONE 2026-08-16. This was the last of the seven. The spec has been deleted; its
+reasoning is now the *The endpoint is the contract* design note on the Saturn docs hub, and the
+contract itself is that hub's *The sync API* guide — the handoff its §5 asked for.**
 
 The README now has a "Syncing workouts from your phone" section: what HC Webhook is and that it
 is third-party, how to point it at Atlas, the two-step first run, and `POST /api/sync` published
@@ -367,8 +376,7 @@ material is not reverse-engineered twice.
 The original finding, kept for history:
 
 The sync pipeline's phone side — the Android app that fires the daily webhook —
-lives outside this repository. The backend spec (`webhook-sync-deduplication-spec.md`)
-documents its behaviour from delivery logs (including that it double-fires most
+lives outside this repository. The dedup spec documented its behaviour from delivery logs (including that it double-fires most
 days, which the backend now dedups), but nobody else can replicate the pipeline
 without the sender app, and its double-fire bug is undocumented as a bug.
 
@@ -378,7 +386,8 @@ stays a documented quirk that the backend is authoritative over.
 
 ## 7. Secrets on disk, and a key logged at startup
 
-**Status: DONE 2026-08-16 — see [`secrets-handling-spec.md`](secrets-handling-spec.md).**
+**Status: DONE 2026-08-16. The spec has been deleted; its reasoning, including the declined
+rotation, is now the *Secrets* design note on the Saturn docs hub.**
 
 What shipped: the startup log line is gone (with its `Logger` import), the key comparison is
 now `MessageDigest.isEqual`, and `application-local.properties` is deleted. By deletion time

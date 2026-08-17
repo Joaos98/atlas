@@ -20,8 +20,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Covers insight-provider-spec.md §10 verifications 2–4, plus the seeding gap the spec
- * assumed away in §3.1.
+ * Covers the settings endpoint's key handling: the key is never served back, an absent key
+ * field leaves the stored one alone, and clearing needs its explicit signal. Plus the seeding
+ * gap the spec assumed away — a new column arrives NULL on every install that already had a
+ * settings row. See the "Insights and providers" design note on the Saturn docs hub.
  */
 @AutoConfigureMockMvc
 class AppSettingsApiTest extends AbstractSqliteIntegrationTest {

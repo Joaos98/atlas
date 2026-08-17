@@ -7,7 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
- * Covers insight-provider-spec.md §10 verification 8. The failure this guards against is
+ * Covers the forgiving parser: markdown-wrapped labels, leading newlines, and unlabelled
+ * prose all produce sane output. The failure this guards against is
  * silent: a near-miss on the labels used to dump the whole reply, labels included, into the
  * insight body — which reads as an app bug rather than a model that formatted its answer
  * slightly differently.

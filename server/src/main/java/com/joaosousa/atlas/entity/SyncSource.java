@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
  * drifting stream. Fresh installs start empty — no vendor ships as a product default, the app
  * learns from real payloads and asks.
  *
- * <p>See sync-source-allowlist-spec.md §1.1 and §4.2.
+ * <p>See the "Sources and quarantine" design note on the Saturn docs hub.
  */
 @Entity
 @Getter

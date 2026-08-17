@@ -8,7 +8,7 @@ import com.joaosousa.atlas.entity.UnitSystem;
  * singleton that several unrelated screens write to, and a partial save must not blank the
  * fields it said nothing about.
  *
- * <p>The API key carries the one extra rule from insight-provider-spec.md §3.2: blank also
+ * <p>The API key carries one extra rule: blank also
  * means unchanged, because the client has no way to read the current key back and would
  * otherwise wipe it on every unrelated save. Clearing therefore needs its own explicit
  * signal, {@link #isClearInsightApiKey()}.

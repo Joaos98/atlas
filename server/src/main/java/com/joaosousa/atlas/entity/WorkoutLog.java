@@ -13,7 +13,8 @@ import java.time.LocalDate;
  * <p>{@code @Table(uniqueConstraints = ...)} was tried first and does nothing on SQLite:
  * Hibernate emits it as {@code ALTER TABLE ... ADD CONSTRAINT}, which SQLite does not support,
  * and {@code ddl-auto=update} logs the failure and carries on — leaving a schema that looks
- * annotated but has no constraint. See sync-source-allowlist-spec.md §1.3 and §10.
+ * annotated but has no constraint. See the "Sources and quarantine" design note on the
+ * Saturn docs hub.
  */
 @Entity
 @Getter

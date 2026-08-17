@@ -27,7 +27,7 @@ the UI under **Settings → Insights** and stored in the database.
 
 There is deliberately no `application-local.properties`. It used to supply the
 dev port and the secrets, and shipped them inside every jar and image it was
-built into — see [`docs/secrets-handling-spec.md`](../docs/secrets-handling-spec.md).
+built into. The reasoning is the *Secrets* design note on the Saturn docs hub.
 
 ## Testing
 

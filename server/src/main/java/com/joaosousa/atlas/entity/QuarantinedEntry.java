@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
  * carries new changes plus the previous sync's newest workout. An entry the backend refuses is
  * in general never sent again — so "reject unknown sources and let the user enable them later"
  * would mean permanent data loss for everything received before the click, not deferred import.
- * Rejection therefore has to be paired with storage. See sync-source-allowlist-spec.md §1.4.
+ * Rejection therefore has to be paired with storage. See the "Sources and quarantine"
+ * design note on the Saturn docs hub.
  *
  * <p>Fields are stored exactly as received, unparsed, so replay makes no assumption this class
  * would have to keep in step with {@code SyncService}.

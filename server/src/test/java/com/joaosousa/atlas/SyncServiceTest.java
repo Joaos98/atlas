@@ -23,8 +23,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Covers sync-source-allowlist-spec.md §7 cases 3, 6 and 8, and
- * exercise-type-vocabulary-spec.md §7 cases 1–5.
+ * Covers the source allow-list — an unknown source quarantined rather than dropped, absent
+ * metadata recorded as {@code (none)}, a double-fired rejection held once — and exercise-type
+ * auto-creation: unmapped codes creating their type, explicit mappings winning, a null mapping
+ * meaning never log, and an unknown code still landing under a generic name.
  */
 @AutoConfigureMockMvc
 class SyncServiceTest extends AbstractSqliteIntegrationTest {

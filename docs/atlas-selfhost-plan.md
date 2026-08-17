@@ -99,7 +99,8 @@ Side effects, all good: first-run user creation stops being a self-hosting block
 - Environment surface shrinks to roughly: `SYNC_API_KEY`, `GEMINI_API_KEY` (optional), `PORT`, database file path.
   **Superseded 2026-08-16:** `GEMINI_API_KEY` is gone. Generalization to-do §1 moved the insight
   provider's URL, key and model into `app_settings`, configured in the UI, so `SYNC_API_KEY` is
-  now the only secret in the environment. See [`insight-provider-spec.md`](insight-provider-spec.md) §3.3.
+  now the only secret in the environment. See the *Insights and providers* design note on the
+  Saturn docs hub.
 - README: quickstart, the not-internet-facing constraint, and "back up by copying the file."
 
 > **Status: delivered.** Multi-stage `dockerfile` (node builds frontend → maven copies `dist/` into `static/` → JRE runtime). `docker-compose.yml` at the workspace root with a named volume, `ATLAS_DB_PATH=/data/atlas.db`. Env surface exactly as planned. SPA history-mode fallback implemented as a servlet filter (`SpaForwardFilter`) — the initial controller-pattern attempt had a bug (regex only guarded the first path segment, so asset requests got forwarded to `index.html` → MIME errors in the browser); the filter forwards only GET, non-`/api`, extension-free paths. Covered by `SpaServingTest`. Backup = copy the file, verified across a container restart.

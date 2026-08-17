@@ -21,7 +21,7 @@ public class AppSettings {
     /**
      * Provider selector for insights: any OpenAI-compatible chat-completions base URL.
      * Seeded to Gemini's compat endpoint rather than left blank so the field documents
-     * its own format — see insight-provider-spec.md §3.1.
+     * its own format — see the "Insights and providers" design note on the Saturn docs hub.
      */
     @Column(name = "insight_base_url")
     private String insightBaseUrl;

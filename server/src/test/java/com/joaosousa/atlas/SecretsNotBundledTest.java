@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
- * Pins secrets-handling-spec.md §3.3/§3.5: the local profile's properties file held a
+ * The local profile's properties file held a
  * database password and two API keys, and Maven and Docker both copy the working tree
  * rather than the git index, so gitignoring it never kept it out of the jar or the image.
  * The file is gone; this fails if it ever returns to the build output.

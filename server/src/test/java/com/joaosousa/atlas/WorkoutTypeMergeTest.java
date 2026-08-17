@@ -22,7 +22,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Covers exercise-type-vocabulary-spec.md §7 cases 6 and 7.
+ * Covers merging a type into another, and rejecting a merge of a type into itself.
  *
  * <p>The orphan assertion is the important one. This schema has <b>no foreign keys at all</b> —
  * {@code workout_logs.workout_type_id} is a bare bigint — so a merge that misses rows produces
