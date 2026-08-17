@@ -39,12 +39,31 @@ public class SqliteIndexes implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
+        backfillNewColumns();
         createSyncSignatureIndex();
 
         // No pre-check needed: this table is introduced with the index, so it cannot already
         // hold rows that would violate it.
         jdbc.execute("CREATE UNIQUE INDEX IF NOT EXISTS " + QUARANTINE_INDEX
                 + " ON quarantined_entries (data_origin, recording_method, type, start_time)");
+    }
+
+    /**
+     * Gives pre-existing rows a value for columns added later.
+     *
+     * <p>{@code ddl-auto=update} adds a column with {@code ALTER TABLE ADD COLUMN}, which leaves
+     * NULL everywhere. That is fine for a nullable field and fatal for anything read as a
+     * primitive — {@code workout_types.pending_review} took out {@code /api/workout-types} and
+     * {@code /api/workout-logs} on the first upgraded install it met, while every fresh-install
+     * test stayed green because a fresh install creates the column and its rows together.
+     *
+     * <p>Runs before anything reads. Any future column added to an existing table belongs here.
+     */
+    private void backfillNewColumns() {
+        int rows = jdbc.update("UPDATE workout_types SET pending_review = 0 WHERE pending_review IS NULL");
+        if (rows > 0) {
+            log.info("Backfilled pending_review on {} pre-existing workout type(s)", rows);
+        }
     }
 
     /**
