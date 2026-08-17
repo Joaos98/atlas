@@ -108,14 +108,31 @@
 
         <form v-else class="insight-form" @submit.prevent="saveInsights">
           <div class="form-field">
-            <label><Sparkles :size="14" /> Base URL</label>
+            <label>
+              <Sparkles :size="14" /> Provider
+              <InfoHint v-if="currentProvider?.note" :text="currentProvider.note" />
+            </label>
+            <select v-model="selectedProvider" class="wide-input" :disabled="isDemo">
+              <option v-for="p in PROVIDERS" :key="p.id" :value="p.id">{{ p.label }}</option>
+              <option value="custom">Custom…</option>
+            </select>
+          </div>
+          <!-- Only shown when it is the thing being edited: for a known provider the URL is
+               a constant, and a field you cannot meaningfully change is one more row to read. -->
+          <div v-if="selectedProvider === CUSTOM" class="form-field">
+            <label>Base URL</label>
             <input v-model="insightBaseUrl" type="url" class="wide-input" :disabled="isDemo"
                    placeholder="https://api.openai.com/v1" required />
           </div>
           <div class="form-field">
             <label><Box :size="14" /> Model</label>
+            <!-- A datalist, not a select: the suggestions age, and typing past them has to
+                 stay ordinary input or a model newer than this list becomes unreachable. -->
             <input v-model="insightModel" class="wide-input" :disabled="isDemo"
-                   placeholder="gpt-4o-mini" required />
+                   list="insight-models" placeholder="gemini-3.7-flash" required />
+            <datalist id="insight-models">
+              <option v-for="m in currentModels" :key="m" :value="m" />
+            </datalist>
           </div>
           <div class="form-field">
             <label><KeyRound :size="14" /> API key</label>
@@ -367,6 +384,7 @@ import {
   getExerciseTypes, getSyncSources, setSyncSourceAllowed, dismissQuarantine, getHeldEntries
 } from '../services/syncService'
 import { formatDateBr } from '../utils/date'
+import { PROVIDERS, CUSTOM, providerIdFor, providerById, applyProviderChoice } from '../utils/insightProviders'
 import {
   Target, X, Sparkles, KeyRound, Box, ChevronRight, Combine, Ruler, Check, Plus, RotateCcw
 } from 'lucide-vue-next'
@@ -629,6 +647,9 @@ function applyInsightSettings(settings) {
   insightKeyLast4.value = settings.insightApiKeyLast4 ?? ''
   newInsightKey.value = ''
   replacingKey.value = false
+  // Re-derive the select from what is actually stored: loading and cancelling both come
+  // through here, and neither should leave the form parked on Custom from a discarded edit.
+  customChosen.value = false
 }
 
 const editingInsights = ref(false)
@@ -641,6 +662,38 @@ const providerHost = computed(() => {
     return insightBaseUrl.value || 'Not set'
   }
 })
+
+/**
+ * Whether Custom was chosen deliberately, as opposed to inferred from an unrecognised URL.
+ *
+ * <p>The one piece of state the URL cannot express: choosing Custom while the URL still
+ * holds a preset's leaves nothing for the getter to see, so the select would snap straight
+ * back to that preset and never reveal the field. Clearing the URL instead would represent
+ * the choice, at the cost of deleting the value you most likely opened Custom to edit.
+ */
+const customChosen = ref(false)
+
+/**
+ * Otherwise derived from the stored base URL rather than held alongside it, so there is no
+ * second copy to keep in sync and applyInsightSettings stays the only writer.
+ */
+const selectedProvider = computed({
+  get: () => (customChosen.value ? CUSTOM : providerIdFor(insightBaseUrl.value)),
+  set: (id) => {
+    const choice = applyProviderChoice(id, insightModel.value)
+    if (!choice) {
+      // Custom — keep the URL as a starting point to edit, and reveal the field.
+      customChosen.value = true
+      return
+    }
+    customChosen.value = false
+    insightBaseUrl.value = choice.baseUrl
+    insightModel.value = choice.model
+  }
+})
+
+const currentProvider = computed(() => providerById(selectedProvider.value))
+const currentModels = computed(() => currentProvider.value?.models ?? [])
 
 function cancelInsightEdit() {
   // Discard anything typed by reloading from what is actually stored.
