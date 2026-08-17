@@ -161,22 +161,15 @@
             <button class="btn-small btn-danger" @click="cancelMerge">Cancel</button>
           </div>
         </div>
-        <div v-if="types.length < PALETTE.length" class="type-add">
-          <div class="color-picker">
-            <button
-              v-for="(hex, i) in PALETTE"
-              :key="i"
-              type="button"
-              class="color-dot"
-              :class="{ selected: newTypeColor === hex }"
-              :style="{ backgroundColor: hex }"
-              @click="newTypeColor = hex"
-            ></button>
-          </div>
-          <input v-model="newTypeName" placeholder="Type name" class="type-input" />
-          <button class="btn-small" @click="addType">Add</button>
+        <!-- No cap. A colour is chosen for you from the next one free, so adding a type is one
+             field and a button; click the swatch only if you want a different one. -->
+        <div class="type-add">
+          <button type="button" class="color-dot chosen" :style="{ backgroundColor: newTypeColor }"
+                  :title="'Colour — click to change'" @click="cycleColor"></button>
+          <input v-model="newTypeName" placeholder="New type name" class="type-input"
+                 @keyup.enter="addType" />
+          <button class="btn-small" @click="addType" :disabled="!newTypeName.trim()">Add</button>
         </div>
-        <p v-else class="muted-note">All 5 types in use.</p>
         <p v-if="typeError" class="form-error">{{ typeError }}</p>
       </div>
     </section>
@@ -190,7 +183,7 @@
         <!-- Only the mappings that represent a decision. A mapping whose type simply carries
              the Health Connect name is what auto-create writes by itself, so listing it beside
              a real relabel buries the one row that says anything. -->
-        <table v-if="decidedMappings.length" class="mappings-table">
+        <table v-if="decidedMappings.length" class="mappings-table mapping-list">
           <tbody>
             <tr v-for="m in decidedMappings" :key="m.healthConnectType">
               <td>
@@ -219,7 +212,7 @@
             {{ defaultMappings.length }}
             {{ defaultMappings.length === 1 ? 'activity uses its' : 'activities use their' }} Health Connect name
           </button>
-          <table v-if="showDefaults" class="mappings-table defaults-table">
+          <table v-if="showDefaults" class="mappings-table mapping-list defaults-table">
             <tbody>
               <tr v-for="m in defaultMappings" :key="m.healthConnectType">
                 <td>
@@ -331,7 +324,16 @@ async function resetDemo() {
 const toast = useToastStore()
 const settingsStore = useSettingsStore()
 
-const PALETTE = ['#4F8DFF', '#8B5CF6', '#2DD4BF', '#F472B6', '#FACC15']
+/**
+ * Mirrors ExerciseTypeCatalog.PALETTE on the backend, so a type you add by hand is coloured
+ * from the same set as one sync creates. It used to be five colours, and the number of colours
+ * doubled as a cap on how many types could exist — reasonable when you picked them all
+ * yourself, wrong now that an unfamiliar activity creates its own.
+ */
+const PALETTE = [
+  '#4F8DFF', '#2A9D8F', '#E9C46A', '#E63946', '#8B5CF6', '#457B9D',
+  '#2DD4BF', '#F472B6', '#FACC15', '#FB923C', '#3DD68C', '#A78BFA'
+]
 
 const loading = ref(true)
 const types = ref([])
@@ -366,8 +368,27 @@ const insightMessage = ref('')
 const insightError = ref('')
 
 const newTypeName = ref('')
-const newTypeColor = ref(PALETTE[0])
 const typeError = ref('')
+
+const newTypeColor = ref(PALETTE[0])
+
+/**
+ * The first colour no type is already using, so consecutive types never look alike.
+ *
+ * <p>Recomputed explicitly whenever the list reloads rather than derived: as a computed it
+ * evaluated correctly on mount and then never again, and an obvious assignment is worth more
+ * here than the reactivity it saves. Compared case-insensitively — seeded types carry lowercase
+ * hex and the palette is uppercase, so a straight === calls every colour free.
+ */
+function suggestTypeColor() {
+  const used = new Set(types.value.map(t => (t.colorHex ?? '').toLowerCase()))
+  newTypeColor.value = PALETTE.find(hex => !used.has(hex.toLowerCase()))
+    ?? PALETTE[types.value.length % PALETTE.length]
+}
+
+function cycleColor() {
+  newTypeColor.value = PALETTE[(PALETTE.indexOf(newTypeColor.value) + 1) % PALETTE.length]
+}
 
 // Sentinel for the mapping dropdown: a mapping to no workout type means "never log this".
 const IGNORE = 'IGNORE'
@@ -480,6 +501,7 @@ async function load() {
     mappings.value = mappingsRes.data
     exerciseTypes.value = catalogRes.data
     sources.value = sourcesRes.data
+    suggestTypeColor()
   } catch {
     targetError.value = 'Failed to load settings'
   }
@@ -690,13 +712,31 @@ onMounted(async () => {
   align-items: center;
   margin-bottom: var(--space-2);
 }
-/* A one-control section does not need a full card's worth of padding around it. */
-.settings-grid section:not(.section-wide) .card-fit {
+/* These cards hold a handful of controls, not a page of content. */
+.settings-grid .card-fit {
   padding: var(--space-3);
+}
+
+.color-dot.chosen {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  flex-shrink: 0;
 }
 .settings-grid .form-row {
   margin: 0;
 }
+
+/* A name → type pair is short. Left to itself the table filled the whole card, throwing the
+   arrow and the delete button to opposite ends of a very wide row. */
+.mapping-list {
+  width: auto;
+  min-width: 320px;
+}
+.mapping-list td { padding-right: var(--space-4); }
+.mapping-list td:last-child { padding-right: 0; }
 
 .pref-row {
   display: flex;
@@ -704,7 +744,7 @@ onMounted(async () => {
   justify-content: space-between;
   gap: var(--space-3);
   flex-wrap: wrap;
-  padding: var(--space-2) 0;
+  padding: 6px 0;
 }
 .pref-row + .pref-row {
   border-top: 1px solid var(--border);
