@@ -452,6 +452,22 @@ function handle(url, method, body, params) {
   }
 
   const quarantineMatch = url.match(/^\/sync\/sources\/([^/]+)\/([^/]+)\/quarantine$/)
+  if (quarantineMatch && method === 'GET') {
+    const origin = decodeURIComponent(quarantineMatch[1])
+    const recording = decodeURIComponent(quarantineMatch[2])
+    // Mirrors HeldEntryDto: the code is resolved to a name, and duration rounded to minutes.
+    return ok(db.quarantined
+      .filter((q) => q.dataOrigin === origin && q.recordingMethod === recording)
+      .sort((a, b) => (a.startTime < b.startTime ? -1 : 1))
+      .map((q) => ({
+        id: q.id,
+        activity: EXERCISE_TYPES.find((t) => t.code === Number(q.type))?.name ?? 'Unrecognised activity',
+        type: q.type,
+        startTime: q.startTime,
+        durationMinutes: Math.ceil(q.durationSeconds / 60),
+        receivedAt: q.receivedAt ?? null
+      })))
+  }
   if (quarantineMatch && method === 'DELETE') {
     const origin = decodeURIComponent(quarantineMatch[1])
     const recording = decodeURIComponent(quarantineMatch[2])

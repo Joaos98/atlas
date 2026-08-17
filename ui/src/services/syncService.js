@@ -26,6 +26,11 @@ export function setSyncSourceAllowed(origin, method, allowed) {
   return api.put(`/sync/sources/${encodeURIComponent(origin)}/${encodeURIComponent(method)}`, { allowed })
 }
 
+/** The workouts currently held for a source, so the user can see before deciding. */
+export function getHeldEntries(origin, method) {
+  return api.get(`/sync/sources/${encodeURIComponent(origin)}/${encodeURIComponent(method)}/quarantine`)
+}
+
 export function dismissQuarantine(origin, method) {
   return api.delete(`/sync/sources/${encodeURIComponent(origin)}/${encodeURIComponent(method)}/quarantine`)
 }

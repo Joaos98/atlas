@@ -2,6 +2,7 @@ package com.joaosousa.atlas.controller;
 
 import com.joaosousa.atlas.dto.SyncRequest;
 import com.joaosousa.atlas.dto.SyncResponse;
+import com.joaosousa.atlas.dto.HeldEntryDto;
 import com.joaosousa.atlas.dto.SyncSourceDto;
 import com.joaosousa.atlas.entity.ExerciseTypeMapping;
 import com.joaosousa.atlas.service.ExerciseTypeCatalog;
@@ -90,6 +91,12 @@ public class SyncController {
                                                            @RequestBody Map<String, Boolean> body) {
         boolean allowed = Boolean.TRUE.equals(body.get("allowed"));
         return syncSourceService.setAllowed(decode(origin), decode(method), allowed);
+    }
+
+    /** What is actually being held, so enabling a source is an informed decision. */
+    @GetMapping("/sources/{origin}/{method}/quarantine")
+    public List<HeldEntryDto> heldEntries(@PathVariable String origin, @PathVariable String method) {
+        return syncSourceService.heldEntries(decode(origin), decode(method));
     }
 
     @DeleteMapping("/sources/{origin}/{method}/quarantine")

@@ -1,5 +1,6 @@
 package com.joaosousa.atlas.service;
 
+import com.joaosousa.atlas.dto.HeldEntryDto;
 import com.joaosousa.atlas.dto.SyncSourceDto;
 import com.joaosousa.atlas.entity.QuarantinedEntry;
 import com.joaosousa.atlas.entity.SyncSource;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,6 +111,31 @@ public class SyncSourceService {
         log.info("Enabled sync source {}/{}: replayed {} entries — {} logged, {} already present, {} unusable",
                 dataOrigin, recordingMethod, held.size(), created, duplicates, malformed);
         return new ReplayResult(created, duplicates, malformed);
+    }
+
+    /** Oldest first, which is the order they would replay in. */
+    public List<HeldEntryDto> heldEntries(String dataOrigin, String recordingMethod) {
+        return quarantineRepository.findByDataOriginAndRecordingMethod(dataOrigin, recordingMethod).stream()
+                .sorted(Comparator.comparing(QuarantinedEntry::getStartTime,
+                        Comparator.nullsLast(Comparator.naturalOrder())))
+                .map(entry -> new HeldEntryDto(
+                        entry.getId(),
+                        activityName(entry.getType()),
+                        entry.getType(),
+                        entry.getStartTime(),
+                        entry.getDurationSeconds() == null ? null
+                                : (int) Math.ceil(entry.getDurationSeconds() / 60.0),
+                        entry.getReceivedAt()))
+                .toList();
+    }
+
+    /** A held entry is unparsed, so its type may not be a number at all. */
+    private static String activityName(String rawType) {
+        try {
+            return ExerciseTypeCatalog.nameFor(Integer.parseInt(rawType));
+        } catch (NumberFormatException e) {
+            return "Unrecognised activity";
+        }
     }
 
     @Transactional
