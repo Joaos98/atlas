@@ -37,6 +37,9 @@
   <div v-else class="page">
     <h1>Settings</h1>
 
+    <!-- Seven sections stacked full-width ran to nearly three screens. The short ones pair up;
+         only the tables need the whole row. -->
+    <div class="settings-grid">
     <section>
       <h2>Workout target</h2>
       <div class="card card-fit">
@@ -163,7 +166,7 @@
       </div>
     </section>
 
-    <section>
+    <section class="section-wide">
       <h2>Health Connect mappings</h2>
       <div class="card card-fit">
         <p class="section-desc">
@@ -171,34 +174,56 @@
           not listed here gets a type of its own the first time it arrives, so nothing is ever
           dropped — add a mapping to group activities together, or to ignore one entirely.
         </p>
-        <table v-if="mappings.length" class="mappings-table">
-          <thead>
-            <tr>
-              <th>Health Connect type</th>
-              <th>Workout type</th>
-              <th></th>
-            </tr>
-          </thead>
+        <!-- Only the mappings that represent a decision. A mapping whose type simply carries
+             the Health Connect name is what auto-create writes by itself, so listing it beside
+             a real relabel buries the one row that says anything. -->
+        <table v-if="decidedMappings.length" class="mappings-table">
           <tbody>
-            <tr v-for="m in mappings" :key="m.healthConnectType">
+            <tr v-for="m in decidedMappings" :key="m.healthConnectType">
               <td>
                 {{ exerciseTypeName(m.healthConnectType) }}
                 <span class="hc-code">{{ m.healthConnectType }}</span>
               </td>
+              <td class="mapping-arrow">→</td>
               <td>
                 <template v-if="m.workoutType">
                   <span class="type-dot" :style="{ backgroundColor: m.workoutType.colorHex }"></span>
                   {{ m.workoutType.name }}
                 </template>
-                <span v-else class="ignored-tag">Ignored</span>
+                <span v-else class="ignored-tag">Never logged</span>
               </td>
               <td>
-                <button class="btn-icon" title="Delete mapping" @click="deleteMappingHandler(m.healthConnectType)"><X :size="12" /></button>
+                <button class="btn-icon" title="Remove mapping" @click="deleteMappingHandler(m.healthConnectType)"><X :size="12" /></button>
               </td>
             </tr>
           </tbody>
         </table>
-        <p v-else class="empty-line">No mappings yet.</p>
+        <p v-else-if="!defaultMappings.length" class="empty-line">No mappings yet.</p>
+
+        <div v-if="defaultMappings.length" class="defaults-block">
+          <button class="defaults-toggle" @click="showDefaults = !showDefaults">
+            <ChevronRight :size="13" :class="{ open: showDefaults }" />
+            {{ defaultMappings.length }}
+            {{ defaultMappings.length === 1 ? 'activity uses its' : 'activities use their' }} Health Connect name
+          </button>
+          <table v-if="showDefaults" class="mappings-table defaults-table">
+            <tbody>
+              <tr v-for="m in defaultMappings" :key="m.healthConnectType">
+                <td>
+                  {{ exerciseTypeName(m.healthConnectType) }}
+                  <span class="hc-code">{{ m.healthConnectType }}</span>
+                </td>
+                <td>
+                  <span class="type-dot" :style="{ backgroundColor: m.workoutType.colorHex }"></span>
+                  {{ m.workoutType.name }}
+                </td>
+                <td>
+                  <button class="btn-icon" title="Remove mapping" @click="deleteMappingHandler(m.healthConnectType)"><X :size="12" /></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
         <div class="mapping-add">
           <select v-model.number="newMappingType" class="wide-input">
@@ -217,7 +242,7 @@
         <p v-if="mappingError" class="form-error">{{ mappingError }}</p>
       </div>
     </section>
-    <section>
+    <section class="section-wide">
       <h2>Sync sources</h2>
       <div class="card card-fit">
         <p class="section-desc">
@@ -225,7 +250,9 @@
           its source; anything received meanwhile is held here rather than discarded, because the
           sender only transmits new changes and will not send them again.
         </p>
-        <table v-if="sources.length" class="mappings-table">
+        <!-- Six columns will not fit a narrow window. Scroll the table, never the page. -->
+        <div v-if="sources.length" class="table-scroll">
+        <table class="mappings-table">
           <thead>
             <tr>
               <th>Source</th><th>Recording</th><th>First seen</th><th>Last seen</th><th>Held</th><th></th>
@@ -248,6 +275,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
         <p v-else class="empty-line">No sources yet — they appear the first time a device sends a workout.</p>
         <p v-if="sourceMessage" class="form-success">{{ sourceMessage }}</p>
         <p v-if="sourceError" class="form-error">{{ sourceError }}</p>
@@ -263,6 +291,7 @@
         <button class="btn-small btn-danger" @click="resetDemo">Reset demo data</button>
       </div>
     </section>
+    </div>
   </div>
 </template>
 
@@ -277,7 +306,7 @@ import {
   getExerciseTypes, getSyncSources, setSyncSourceAllowed, dismissQuarantine
 } from '../services/syncService'
 import { formatDateBr } from '../utils/date'
-import { Target, X, Sparkles, KeyRound, Box } from 'lucide-vue-next'
+import { Target, X, Sparkles, KeyRound, Box, ChevronRight } from 'lucide-vue-next'
 
 const isDemo = import.meta.env.MODE === 'demo'
 
@@ -339,10 +368,19 @@ const exerciseTypes = ref([])
 const sources = ref([])
 const sourceMessage = ref('')
 const sourceError = ref('')
+const showDefaults = ref(false)
 
 function exerciseTypeName(code) {
   return exerciseTypes.value.find(t => t.code === code)?.name ?? `Activity ${code}`
 }
+
+/** A mapping says something only when it renames the activity, or silences it. */
+function isDecision(m) {
+  return !m.workoutType || m.workoutType.name !== exerciseTypeName(m.healthConnectType)
+}
+
+const decidedMappings = computed(() => mappings.value.filter(isDecision))
+const defaultMappings = computed(() => mappings.value.filter(m => !isDecision(m)))
 
 function shortDate(value) {
   return value ? formatDateBr(String(value).split('T')[0]) : '—'
@@ -606,6 +644,56 @@ onMounted(async () => {
 .type-input {
   width: 160px;
 }
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+/* min-width:0 is load-bearing: a grid item defaults to min-width:auto and refuses to shrink
+   below its content, so a wide table stretches the card past the viewport and .table-scroll
+   never engages. */
+.settings-grid > section { margin: 0; min-width: 0; }
+/* .card-fit is display:inline-block, which shrink-wraps to its content and will happily grow
+   past the column — that is what pushed a wide table off-screen. Inside the grid the column
+   sets the width, so the cards line up instead of each being a different size. */
+.settings-grid .card-fit {
+  display: block;
+  width: 100%;
+}
+/* Tables need the row; everything else pairs up. */
+.section-wide { grid-column: 1 / -1; }
+
+/* Wide content scrolls inside its own box so the page body never scrolls sideways. */
+.table-scroll {
+  overflow-x: auto;
+  margin-bottom: var(--space-3);
+}
+.table-scroll .mappings-table { margin-bottom: 0; }
+
+.mapping-arrow {
+  color: var(--text-muted);
+  padding: 0 var(--space-2);
+  width: 1px;
+}
+
+.defaults-block { margin-top: var(--space-2); }
+.defaults-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  padding: 4px 0;
+  cursor: pointer;
+}
+.defaults-toggle:hover { color: var(--text); }
+.defaults-toggle svg { transition: transform 0.15s ease; }
+.defaults-toggle svg.open { transform: rotate(90deg); }
+.defaults-table { margin-top: var(--space-2); opacity: 0.75; }
 
 .hc-code {
   font-family: var(--font-mono, monospace);
