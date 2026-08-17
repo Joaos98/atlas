@@ -1,7 +1,12 @@
 package com.joaosousa.atlas.service;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Health Connect exercise type code → display name. Data, not logic.
@@ -114,9 +119,48 @@ public final class ExerciseTypeCatalog {
         return NAMES.containsKey(healthConnectType);
     }
 
-    /** Cycles, so an install with more types than colors keeps going rather than failing. */
-    public static String colorFor(int existingTypeCount) {
-        return PALETTE[Math.floorMod(existingTypeCount, PALETTE.length)];
+    /**
+     * The first palette colour nobody is using, or a generated one once the palette runs out.
+     *
+     * <p>Twelve curated colours is plenty for a hand-picked list and not for one that grows by
+     * itself: with fine-grained types an install can pass twelve in a year, and simply cycling
+     * the palette would put two activities in the same colour on every chart. Past the palette
+     * the hue circle is walked by the golden angle, which keeps consecutive generated colours
+     * far apart rather than adjacent.
+     */
+    public static String nextColor(Collection<String> colorsInUse) {
+        Set<String> taken = colorsInUse.stream()
+                .filter(Objects::nonNull)
+                .map(color -> color.toLowerCase(Locale.ROOT))
+                .collect(Collectors.toSet());
+
+        for (String hex : PALETTE) {
+            if (!taken.contains(hex.toLowerCase(Locale.ROOT))) return hex;
+        }
+        for (int step = 1; step <= 360; step++) {
+            String hex = generated(step);
+            if (!taken.contains(hex.toLowerCase(Locale.ROOT))) return hex;
+        }
+        return PALETTE[0];
+    }
+
+    private static String generated(int step) {
+        return hsl((step * 137.508) % 360, 0.55, 0.60);
+    }
+
+    private static String hsl(double hue, double saturation, double lightness) {
+        double c = (1 - Math.abs(2 * lightness - 1)) * saturation;
+        double x = c * (1 - Math.abs((hue / 60.0) % 2 - 1));
+        double m = lightness - c / 2;
+        double r, g, b;
+        if (hue < 60)       { r = c; g = x; b = 0; }
+        else if (hue < 120) { r = x; g = c; b = 0; }
+        else if (hue < 180) { r = 0; g = c; b = x; }
+        else if (hue < 240) { r = 0; g = x; b = c; }
+        else if (hue < 300) { r = x; g = 0; b = c; }
+        else                { r = c; g = 0; b = x; }
+        return String.format(Locale.ROOT, "#%02X%02X%02X",
+                Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255));
     }
 
     public static Map<Integer, String> all() {

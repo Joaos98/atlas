@@ -318,12 +318,6 @@
     </section>
 
     </div>
-
-    <!-- A heading and a card around one button was more furniture than the button deserved. -->
-    <button v-if="isDemo" class="btn-small btn-danger demo-reset" @click="resetDemo"
-            title="Your changes are stored in this browser only. This restores the seeded data.">
-      <RotateCcw :size="13" /> Reset demo data
-    </button>
   </div>
 </template>
 
@@ -344,12 +338,6 @@ import {
 } from 'lucide-vue-next'
 
 const isDemo = import.meta.env.MODE === 'demo'
-
-async function resetDemo() {
-  if (!confirm('Reset all demo data to the seeded state?')) return
-  const { resetDemoData } = await import('../demo/demoApi')
-  resetDemoData()
-}
 
 const toast = useToastStore()
 const settingsStore = useSettingsStore()
@@ -413,11 +401,37 @@ const newTypeColor = ref(PALETTE[0])
 function suggestTypeColor() {
   const used = new Set(types.value.map(t => (t.colorHex ?? '').toLowerCase()))
   newTypeColor.value = PALETTE.find(hex => !used.has(hex.toLowerCase()))
-    ?? PALETTE[types.value.length % PALETTE.length]
+    ?? generatedColor(used)
+}
+
+/**
+ * Past the twelve curated colours, walk the hue circle by the golden angle. Cycling the
+ * palette instead would hand two activities the same colour on every chart, which an install
+ * with fine-grained types reaches within a year. Mirrors ExerciseTypeCatalog.nextColor.
+ */
+function generatedColor(used) {
+  for (let step = 1; step <= 360; step++) {
+    const hex = hslHex((step * 137.508) % 360, 0.55, 0.6)
+    if (!used.has(hex.toLowerCase())) return hex
+  }
+  return PALETTE[0]
+}
+
+function hslHex(hue, saturation, lightness) {
+  const c = (1 - Math.abs(2 * lightness - 1)) * saturation
+  const x = c * (1 - Math.abs(((hue / 60) % 2) - 1))
+  const m = lightness - c / 2
+  const [r, g, b] =
+    hue < 60 ? [c, x, 0] : hue < 120 ? [x, c, 0] : hue < 180 ? [0, c, x]
+      : hue < 240 ? [0, x, c] : hue < 300 ? [x, 0, c] : [c, 0, x]
+  const hex = (v) => Math.round((v + m) * 255).toString(16).padStart(2, '0').toUpperCase()
+  return `#${hex(r)}${hex(g)}${hex(b)}`
 }
 
 function cycleColor() {
-  newTypeColor.value = PALETTE[(PALETTE.indexOf(newTypeColor.value) + 1) % PALETTE.length]
+  const index = PALETTE.indexOf(newTypeColor.value)
+  // A generated colour is not in the palette, so cycling from it starts the palette over.
+  newTypeColor.value = PALETTE[(index + 1) % PALETTE.length]
 }
 
 // Sentinel for the mapping dropdown: a mapping to no workout type means "never log this".
@@ -782,13 +796,6 @@ onMounted(async () => {
   padding: 8px;
   line-height: 0;
 }
-.demo-reset {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: var(--space-4);
-}
-
 .color-dot.chosen {
   width: 22px;
   height: 22px;
@@ -829,10 +836,13 @@ onMounted(async () => {
   color: var(--text);
 }
 
+/* Sits between the tag list and the add-type row, so it needs separating from both — with
+   only a top border it butted straight into the row below. */
 .merge-panel {
   border-top: 1px solid var(--border);
-  margin-top: var(--space-3);
-  padding-top: var(--space-3);
+  border-bottom: 1px solid var(--border);
+  margin: var(--space-3) 0;
+  padding: var(--space-3) 0;
 }
 .merge-explain {
   font-size: 0.82rem;
@@ -911,6 +921,9 @@ onMounted(async () => {
   padding: 1px 6px;
 }
 .sources-table td { vertical-align: middle; }
+/* td carries a bottom border globally, which on the final row draws a line under a table with
+   nothing beneath it. */
+.mappings-table tbody tr:last-child td { border-bottom: none; }
 .source-method {
   display: block;
   font-size: 0.72rem;

@@ -3,7 +3,9 @@ package com.joaosousa.atlas;
 import com.joaosousa.atlas.service.ExerciseTypeCatalog;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -58,11 +60,36 @@ class ExerciseTypeCatalogTest {
         }
     }
 
+    /**
+     * The palette holds twelve. An install with fine-grained types passes that within a year,
+     * and two activities sharing a colour on every chart is exactly what a colour is for.
+     */
     @Test
-    void everyTypeGetsAColorHoweverManyExist() {
-        for (int count = 0; count < ExerciseTypeCatalog.all().size() + 5; count++) {
-            String color = ExerciseTypeCatalog.colorFor(count);
-            assertTrue(color.matches("#[0-9A-Fa-f]{6}"), "bad color at index " + count + ": " + color);
+    void colorsStayDistinctWellPastTheCuratedPalette() {
+        List<String> assigned = new ArrayList<>();
+        for (int i = 0; i < 60; i++) {
+            String color = ExerciseTypeCatalog.nextColor(assigned);
+            assertTrue(color.matches("#[0-9A-F]{6}"), "not a hex colour at " + i + ": " + color);
+            assertFalse(assigned.contains(color), "colour " + color + " reused at type " + i);
+            assigned.add(color);
         }
+        assertEquals(60, new HashSet<>(assigned).size());
+    }
+
+    @Test
+    void theCuratedColorsComeFirstAndGapsAreReused() {
+        assertEquals("#4F8DFF", ExerciseTypeCatalog.nextColor(List.of()));
+        assertEquals("#2A9D8F", ExerciseTypeCatalog.nextColor(List.of("#4F8DFF")));
+        // Case-insensitively, since hand-entered and seeded colours are not consistently cased.
+        assertEquals("#2A9D8F", ExerciseTypeCatalog.nextColor(List.of("#4f8dff")));
+        // A freed colour is handed out again rather than skipped.
+        assertEquals("#4F8DFF", ExerciseTypeCatalog.nextColor(List.of("#2A9D8F", "#E9C46A")));
+    }
+
+    @Test
+    void aNullColorOnAnExistingTypeIsIgnored() {
+        List<String> withNull = new ArrayList<>();
+        withNull.add(null);
+        assertEquals("#4F8DFF", ExerciseTypeCatalog.nextColor(withNull));
     }
 }

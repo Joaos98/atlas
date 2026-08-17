@@ -50,7 +50,8 @@ public class WorkoutTypeAutoCreator {
         WorkoutType type = workoutTypeRepository.findByNameIgnoreCase(name).orElseGet(() -> {
             WorkoutType created = new WorkoutType();
             created.setName(name);
-            created.setColorHex(ExerciseTypeCatalog.colorFor((int) workoutTypeRepository.count()));
+            created.setColorHex(ExerciseTypeCatalog.nextColor(
+                    workoutTypeRepository.findAll().stream().map(WorkoutType::getColorHex).toList()));
             created.setPendingReview(true);
             return workoutTypeRepository.save(created);
         });
