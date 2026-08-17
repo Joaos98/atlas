@@ -124,7 +124,7 @@ silently.
 
 **The owner chose fine-grained types over preserving the `Cardio` grouping.** Splitting the
 existing history turned out to be impossible: the HC code survives inside `sync_signature`, but
-only 6 of 442 rows have one and none of them are cardio. `Cardio` keeps its 436 rows as a
+only 6 of 442 rows have one and none of them are cardio. `Cardio` keeps its 140 rows as a
 historical bucket with no mapping; fine-grained types apply from the upgrade forward. `Gym` was
 renamed to the catalog's `Strength training`; `0 → Crossfit` stays, because the watch chooses
 the code and Health Connect has no CrossFit constant.

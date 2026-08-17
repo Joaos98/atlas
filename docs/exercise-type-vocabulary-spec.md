@@ -267,9 +267,15 @@ Elliptical as its own example.
 `sync_signature` (`startEpochMillis|healthConnectType`), so signed rows can in principle be
 repointed. Only **6 of 442** rows carry one, and they are codes 70 and 0 — no cardio row has a
 signature at all, because signatures only began on 2026-08-04 and the history starts 2023-10-02.
-`Cardio` therefore keeps its 436 rows permanently as a historical bucket with no mapping, and
+`Cardio` therefore keeps its 140 rows permanently as a historical bucket with no mapping, and
 fine-grained types apply from the upgrade forward. The operator script for that lives with the
 deployment tooling, not in this repo.
+
+**Run 2026-08-16, and the result is the final distribution:** `Cardio` 140 logs / 0 mappings,
+`Strength training` 274 / 1, `Crossfit` 28 / 1, and the four new types 0 / 1 each — 442 in
+total. The new types start empty because nothing was convertible; they fill from the next sync
+onward. `Cardio` holding no mapping is what makes it closed: it can never receive another
+workout.
 
 Also decided: `Gym` was renamed to the catalog's `Strength training` (a type-level rename, no
 rows moved), while `0→Crossfit` stays — Health Connect has no CrossFit constant, and the code is

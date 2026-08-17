@@ -1,0 +1,76 @@
+-- Atlas — split the Cardio grouping into fine-grained Health Connect types.
+--
+-- Deployment-specific data surgery for one install. Deliberately NOT in the Atlas repo:
+-- the repo is the app, and nothing about how one person's database reached its current
+-- shape belongs in it. Keep this alongside the cutover tooling.
+--
+-- Written 2026-08-16. Safe to run more than once — every statement is idempotent.
+--
+-- What it does:
+--   * renames Gym -> Strength training (type-level, so all its rows follow at once)
+--   * creates Biking (stationary) / Elliptical / Running (treadmill) / Walking
+--   * repoints mappings 9, 25, 57, 79 away from Cardio to those new types
+--   * leaves Cardio in place holding its 436 historical rows, now with no mapping
+--
+-- What it deliberately does NOT do: move any workout_logs row. None can be moved —
+-- only 6 of 442 rows carry a sync_signature, and none of those are cardio, so there is
+-- no record anywhere of which activity the historical Cardio rows actually were.
+--
+-- Names and colors match ExerciseTypeCatalog exactly, so a type created here is
+-- indistinguishable from one auto-create would have made.
+
+BEGIN;
+
+-- 1. Gym was a relabel of a single code, so the catalog name is simply better.
+UPDATE workout_types SET name = 'Strength training' WHERE name = 'Gym';
+
+-- 2. The four types Cardio used to cover. INSERT ... SELECT WHERE NOT EXISTS keeps this
+--    re-runnable; ON CONFLICT is unavailable because name has no unique index.
+INSERT INTO workout_types (name, color_hex)
+SELECT 'Biking (stationary)', '#2A9D8F'
+ WHERE NOT EXISTS (SELECT 1 FROM workout_types WHERE name = 'Biking (stationary)');
+
+INSERT INTO workout_types (name, color_hex)
+SELECT 'Elliptical', '#E9C46A'
+ WHERE NOT EXISTS (SELECT 1 FROM workout_types WHERE name = 'Elliptical');
+
+INSERT INTO workout_types (name, color_hex)
+SELECT 'Running (treadmill)', '#E63946'
+ WHERE NOT EXISTS (SELECT 1 FROM workout_types WHERE name = 'Running (treadmill)');
+
+INSERT INTO workout_types (name, color_hex)
+SELECT 'Walking', '#8B5CF6'
+ WHERE NOT EXISTS (SELECT 1 FROM workout_types WHERE name = 'Walking');
+
+-- 3. Point each Health Connect code at its own type. After this, Cardio has no mapping
+--    and therefore never receives another workout.
+UPDATE exercise_type_mapping
+   SET workout_type_id = (SELECT id FROM workout_types WHERE name = 'Biking (stationary)')
+ WHERE health_connect_type = 9;
+
+UPDATE exercise_type_mapping
+   SET workout_type_id = (SELECT id FROM workout_types WHERE name = 'Elliptical')
+ WHERE health_connect_type = 25;
+
+UPDATE exercise_type_mapping
+   SET workout_type_id = (SELECT id FROM workout_types WHERE name = 'Running (treadmill)')
+ WHERE health_connect_type = 57;
+
+UPDATE exercise_type_mapping
+   SET workout_type_id = (SELECT id FROM workout_types WHERE name = 'Walking')
+ WHERE health_connect_type = 79;
+
+COMMIT;
+
+-- Verification: mappings should read 0->Crossfit, 9->Biking (stationary),
+-- 25->Elliptical, 57->Running (treadmill), 70->Strength training, 79->Walking.
+SELECT m.health_connect_type AS code, w.name AS type
+  FROM exercise_type_mapping m
+  LEFT JOIN workout_types w ON w.id = m.workout_type_id
+ ORDER BY 1;
+
+-- Cardio should still exist, still hold its history, and map to nothing.
+SELECT w.name,
+       (SELECT COUNT(*) FROM workout_logs l WHERE l.workout_type_id = w.id) AS logs,
+       (SELECT COUNT(*) FROM exercise_type_mapping m WHERE m.workout_type_id = w.id) AS mappings
+  FROM workout_types w ORDER BY w.name;
