@@ -25,12 +25,38 @@ against this real backend rather than merely resembling it.
 
 ## Screenshots
 
-> Coming soon — capture the app running and drop the images into
-> `docs/screenshots/`, then link them here.
+Shot against the demo's seeded data, except Settings — the demo has no backend
+to configure. See [`docs/screenshots/`](docs/screenshots/) for how to retake them.
 
-To capture: build and run the app (Quickstart below), then screenshot the
-Dashboard, Workouts, Body Metrics, Goals, and Settings pages. Full-page
-captures work best with a dark theme.
+### Dashboard
+
+The latest insight, all-time totals, the workout heatmap, and weekly activity.
+
+![Atlas dashboard: insight card, streak and weight tiles, a year-long workout heatmap, and a weekly activity chart](docs/screenshots/dashboard.png)
+
+### Workouts
+
+Logging, streaks, and a breakdown over a range you choose.
+
+![Atlas workouts page: log form, weekly target progress, workout heatmap, range tabs, summary tiles, activity chart, and type donut](docs/screenshots/workouts.png)
+
+### Body Metrics
+
+Five measurements per entry, each with its own trend.
+
+![Atlas body metrics page: entry form, latest measurement cards with deltas, insight card, all-time summary, and weight, muscle mass and body water trend charts](docs/screenshots/body-metrics.png)
+
+### Goals
+
+Progress, pace, and a projected date from your own rate of change.
+
+![Atlas goals page: three active weight goals showing progress bars, remaining amount, on-track or behind-pace status and target dates, plus one achieved goal](docs/screenshots/goals.png)
+
+### Settings
+
+Weekly target, units, insight provider, workout types, and sync.
+
+![Atlas settings page: weekly target and unit preference, the insight provider form with a provider dropdown and model suggestions, workout types, Health Connect mappings, and sync sources](docs/screenshots/settings.png)
 
 ## Quickstart (Docker)
 
