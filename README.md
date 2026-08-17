@@ -10,9 +10,14 @@ Caddy, Authelia — whatever you already use). Do not expose it publicly.
 
 ## Try the demo
 
-A static demo with seeded data runs entirely in your browser, with no
-backend of any kind. It's not hosted anywhere yet — for now, build it
-locally:
+**<https://atlas-fitness-tracker.vercel.app>**
+
+A static demo with seeded data, running entirely in your browser with no backend
+of any kind — nothing you do in it leaves the tab, and there is no server to send
+it to. Insights are the one thing it cannot show: generating one means calling a
+provider, which needs a backend, so that section reads as unavailable.
+
+To run the same build locally:
 
 ```bash
 cd ui
