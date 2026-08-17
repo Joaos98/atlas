@@ -104,7 +104,9 @@ To restore, replace the file and restart.
 `SYNC_API_KEY` is the only secret in the environment. AI insights are configured in
 the app under **Settings → Insights**, not here: provider URL, model and API key are
 stored in the database, so switching provider needs no redeploy. Any OpenAI-compatible
-endpoint works — OpenAI, Gemini, Groq, OpenRouter, Ollama, LM Studio — and without a
+endpoint works — OpenAI, Gemini, Groq, OpenRouter, Ollama, LM Studio. The form offers
+the common ones as presets and suggests models for each, but both fields accept
+anything you type, so a provider or model it has never heard of still works. Without a
 key configured, insights are simply off.
 
 ## Syncing workouts from your phone

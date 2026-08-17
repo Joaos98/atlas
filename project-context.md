@@ -20,8 +20,8 @@ Two builds ship from one codebase:
 - **Demo build** — the same frontend against browser storage, seeded with
   realistic data, hosted statically. This is the portfolio artifact and the way
   anyone tries the app before self-hosting. AI insight *generation* is
-  unavailable in the demo and says so — it requires the real backend with a
-  Gemini API key.
+  unavailable in the demo and says so — it requires the real backend calling a
+  provider you configure.
 
 ---
 
@@ -33,7 +33,8 @@ Two builds ship from one codebase:
 - **SQLite** via `sqlite-jdbc` + the Hibernate community dialect — one file,
   `ddl-auto=update`, no auth, no CORS
 - **Lombok** for boilerplate reduction on entities (`@Getter`, `@Setter`)
-- **Google Gemini API** — AI insight generation (optional; without a key the
+- **Any OpenAI-compatible chat-completions endpoint** — AI insight generation,
+  configured in the UI rather than the environment (optional; without a key the
   insight falls back to an error message)
 - REST API, serves the built frontend from `static/`
 
@@ -259,7 +260,11 @@ The demo is verified against the real backend, not just "similar to" it:
 - **Insight provider:** configured in `app_settings` (`insight_base_url`,
   `insight_api_key`, `insight_model`), not the environment. One
   OpenAI-compatible client, so the base URL *is* the provider selector —
-  seeded to Gemini's compat endpoint. The key is never served over HTTP:
+  seeded to Gemini's compat endpoint. Settings offers five known providers as
+  presets (`ui/src/utils/insightProviders.js`) and suggests models per provider,
+  but derives the selection from the stored URL rather than storing it, so an
+  unrecognised URL shows as Custom and is never rewritten. The key is never
+  served over HTTP:
   `GET /api/settings` returns a configured flag and last-4 only. If no key is
   set, insight generation returns an error message (the UI surfaces it as
   unavailable). In the demo, the regenerate action is gated with a warning modal.
