@@ -52,7 +52,9 @@
           <form class="inline-form" @submit.prevent="saveTarget">
             <input v-model.number="target" type="number" min="1" max="7" required class="target-input" aria-label="Target workouts per week" />
             <span class="inline-label">per week</span>
-            <button type="submit" class="btn-small">Save</button>
+            <button type="submit" class="btn-small btn-square" title="Save" aria-label="Save workout target">
+              <Check :size="15" />
+            </button>
           </form>
         </div>
         <p v-if="targetMessage" class="form-success">{{ targetMessage }}</p>
@@ -113,7 +115,10 @@
             </div>
           </div>
           <div class="form-actions">
-            <button type="submit" class="btn-primary" :disabled="isDemo">Save</button>
+            <button type="submit" class="btn-small btn-square" :disabled="isDemo"
+                    title="Save insight settings" aria-label="Save insight settings">
+              <Check :size="15" />
+            </button>
           </div>
         </form>
         <p v-if="insightMessage" class="form-success">{{ insightMessage }}</p>
@@ -168,7 +173,10 @@
                   :title="'Colour — click to change'" @click="cycleColor"></button>
           <input v-model="newTypeName" placeholder="New type name" class="type-input"
                  @keyup.enter="addType" />
-          <button class="btn-small" @click="addType" :disabled="!newTypeName.trim()">Add</button>
+          <button class="btn-small btn-square" @click="addType" :disabled="!newTypeName.trim()"
+                  title="Add type" aria-label="Add workout type">
+            <Plus :size="15" />
+          </button>
         </div>
         <p v-if="typeError" class="form-error">{{ typeError }}</p>
       </div>
@@ -243,7 +251,11 @@
             <option v-for="type in types" :key="type.id" :value="type.id">{{ type.name }}</option>
             <option :value="IGNORE">Ignore this activity</option>
           </select>
-          <button class="btn-small" @click="addMappingHandler" :disabled="newMappingType === null || !newMappingWorkoutTypeId">Add</button>
+          <button class="btn-small btn-square" @click="addMappingHandler"
+                  :disabled="newMappingType === null || !newMappingWorkoutTypeId"
+                  title="Add mapping" aria-label="Add mapping">
+            <Plus :size="15" />
+          </button>
         </div>
         <p v-if="mappingError" class="form-error">{{ mappingError }}</p>
       </div>
@@ -290,16 +302,13 @@
       </div>
     </section>
 
-    <section v-if="isDemo">
-      <h2>
-        Demo data
-        <InfoHint text="This is a demo — your changes are stored in this browser only, and never leave it." />
-      </h2>
-      <div class="card card-fit">
-        <button class="btn-small btn-danger" @click="resetDemo">Reset demo data</button>
-      </div>
-    </section>
     </div>
+
+    <!-- A heading and a card around one button was more furniture than the button deserved. -->
+    <button v-if="isDemo" class="btn-small btn-danger demo-reset" @click="resetDemo"
+            title="Your changes are stored in this browser only. This restores the seeded data.">
+      <RotateCcw :size="13" /> Reset demo data
+    </button>
   </div>
 </template>
 
@@ -315,7 +324,9 @@ import {
   getExerciseTypes, getSyncSources, setSyncSourceAllowed, dismissQuarantine
 } from '../services/syncService'
 import { formatDateBr } from '../utils/date'
-import { Target, X, Sparkles, KeyRound, Box, ChevronRight, Combine, Ruler } from 'lucide-vue-next'
+import {
+  Target, X, Sparkles, KeyRound, Box, ChevronRight, Combine, Ruler, Check, Plus, RotateCcw
+} from 'lucide-vue-next'
 
 const isDemo = import.meta.env.MODE === 'demo'
 
@@ -726,6 +737,22 @@ onMounted(async () => {
 /* These cards hold a handful of controls, not a page of content. */
 .settings-grid .card-fit {
   padding: var(--space-3);
+}
+
+/* Square icon buttons for the safe, repeated actions — save and add. Enable, Disable, Dismiss
+   and Combine keep their words: an icon alone is a poor label for something consequential. */
+.btn-square {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  line-height: 0;
+}
+.demo-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--space-4);
 }
 
 .color-dot.chosen {
