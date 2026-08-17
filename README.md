@@ -111,35 +111,41 @@ key configured, insights are simply off.
 
 ## Syncing workouts from your phone
 
-Atlas can log workouts automatically from **Health Connect** (Android) or Apple
-Health (iOS), so sessions recorded by a watch appear without typing anything.
+Atlas can log workouts automatically from **Health Connect** on Android, so
+sessions recorded by a watch appear without typing anything.
 
 ### What sends the data
 
-Atlas does not ship a phone app. It receives from **HC Webhook** — a third-party
-app that reads Health Connect and posts it to a URL you choose:
+Atlas does not ship a phone app and does not require any particular one. It
+exposes `POST /api/sync` — see the contract below — and **anything that can send
+that shape works**, including thirty lines of your own script. What you need on
+the phone is only something that can read your workouts and make an HTTP request.
 
-- App and setup: <https://hcwebhook.com/> (Android syncs in the background; iOS
-  goes through the Shortcuts app)
-- Source, AGPL-3.0: <https://github.com/mcnaveen/health-connect-webhook>
-- Payload reference: [`docs/webhook.md`](https://github.com/mcnaveen/health-connect-webhook/blob/main/docs/webhook.md)
-  in that repository
+The author uses **HC Webhook** (<https://hcwebhook.com/>), a third-party Android
+app that syncs in the background, open source under
+[AGPL-3.0](https://github.com/mcnaveen/health-connect-webhook) with a
+[payload reference](https://github.com/mcnaveen/health-connect-webhook/blob/main/docs/webhook.md).
+It is what the sync was built and tested against, so its behaviour is what shaped
+the endpoint — the rolling window, the retries, and the guarantee that re-sending
+is free. It is an example that satisfies the contract, not a requirement, which is
+what keeps the pipeline from depending on software nobody here controls.
 
-**This is a dependency on software nobody here controls.** It could change its
-payload, its price, or disappear. What bounds that risk is that `POST /api/sync`
-is a published interface — see below — so anything that can send the right shape
-works, including thirty lines of your own script.
+**Only Android is tested.** iOS would need something reading Apple Health and
+posting the same shape; nothing prevents it, but nobody has tried it.
 
-### Pointing it at Atlas
-
-In HC Webhook, add a webhook with:
+### Pointing a sender at Atlas
 
 | Setting | Value |
 |---|---|
-| URL | `http://<your-atlas-host>:8080/api/sync` |
+| URL | `https://<your-atlas-host>/api/sync` |
 | Method | `POST` |
 | Custom header | `X-API-Key: <your SYNC_API_KEY>` |
-| Schedule | Daily is plenty — it sends a 48-hour window each time |
+| Schedule | Daily is plenty for a sender that carries a rolling window |
+
+**HTTPS is required from a phone**, not preferred: Android blocks cleartext
+requests from apps, so an `http://` URL fails before a packet leaves the device.
+Put Atlas behind something that terminates TLS on a real hostname — `tailscale
+serve` does it in one step, using the full tailnet name.
 
 There is no built-in signature or auth, which is why the key goes in a custom
 header, and why Atlas should not be internet-facing.
@@ -200,8 +206,9 @@ Content-Type: application/json
 | `metadata.data_origin` | Recommended | Identifies the source in Settings; absent becomes `(none)` |
 | `metadata.recording_method` | Recommended | Part of the source identity, with `data_origin` |
 
-Anything else in the payload is ignored, including fields HC Webhook sends that
-Atlas does not model (`end_time`, `distance_meters`, `steps`, device details).
+Anything else in the payload is ignored rather than rejected, including fields
+senders commonly include that Atlas does not model (`end_time`,
+`distance_meters`, `steps`, device details).
 
 **The guarantee: re-send freely.** The endpoint deduplicates on start time plus
 exercise type, so repeat deliveries are safe. A sender needs no delivery tracking,
