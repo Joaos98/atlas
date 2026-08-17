@@ -6,6 +6,13 @@ import { addDays } from './derived.js'
 
 export const STORAGE_KEY = 'atlas-demo-db'
 
+/**
+ * Bump whenever a collection is added to or removed from the object materialize() returns.
+ * A returning visitor's stored copy is otherwise kept forever — it matches on seed data,
+ * which has not changed — and silently lacks whatever is new.
+ */
+const SHAPE_VERSION = 2
+
 export function materialize(seed, anchor) {
   const settings = { id: 1, targetWorkoutsPerWeek: seed.appSettings.targetWorkoutsPerWeek }
 
@@ -50,6 +57,7 @@ export function materialize(seed, anchor) {
 
   return {
     seedVersion: seed.version,
+    shapeVersion: SHAPE_VERSION,
     anchor,
     settings,
     workoutTypes,
@@ -102,12 +110,12 @@ export function loadOrInit(seed) {
   if (stored) {
     try {
       const db = JSON.parse(stored)
-      // Collections added after a visitor's copy was stored would otherwise be undefined —
-      // the seed version only changes when the *data* is regenerated, not when the shape grows.
-      if (db.seedVersion === seed.version) {
-        db.syncSources ??= []
-        db.quarantined ??= []
-        db.mappings ??= []
+      // Both versions have to match. seedVersion tracks the *data*, which only changes when
+      // SeedGenerator reruns; SHAPE_VERSION tracks the structure, which changes whenever a
+      // collection is added here. Checking data alone left an existing visitor holding a db
+      // with no syncSources or mappings — and filling those in as empty arrays turned a crash
+      // into something worse, a demo permanently missing the features it exists to show.
+      if (db.seedVersion === seed.version && db.shapeVersion === SHAPE_VERSION) {
         return db
       }
     } catch {

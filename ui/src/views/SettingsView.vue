@@ -43,14 +43,13 @@
     <section>
       <h2>Workout target</h2>
       <div class="card card-fit">
-        <form class="form-row" @submit.prevent="saveTarget">
-          <div class="form-field">
-            <label><Target :size="14" /> Target workouts per week</label>
-            <input v-model.number="target" type="number" min="1" max="7" required />
-          </div>
-          <div class="form-actions">
-            <button type="submit" class="btn-primary">Save</button>
-          </div>
+        <!-- The heading already says "Workout target", so a stacked label repeating it just
+             made a one-digit field twice as tall as it needed to be. -->
+        <form class="inline-form" @submit.prevent="saveTarget">
+          <Target :size="14" class="inline-icon" />
+          <input v-model.number="target" type="number" min="1" max="7" required class="target-input" aria-label="Target workouts per week" />
+          <span class="inline-label">per week</span>
+          <button type="submit" class="btn-small">Save</button>
         </form>
         <p v-if="targetMessage" class="form-success">{{ targetMessage }}</p>
         <p v-if="targetError" class="form-error">{{ targetError }}</p>
@@ -58,12 +57,11 @@
     </section>
 
     <section>
-      <h2>Units</h2>
+      <h2>
+        Units
+        <InfoHint text="Display only. Measurements are always stored in metric, so switching back and forth never changes your data." />
+      </h2>
       <div class="card card-fit">
-        <p class="section-desc">
-          Affects display only. Measurements are always stored in metric, so switching back and
-          forth never changes your data.
-        </p>
         <div class="unit-toggle">
           <button
             v-for="option in ['METRIC', 'IMPERIAL']"
@@ -79,14 +77,13 @@
     </section>
 
     <section>
-      <h2>Insights</h2>
+      <h2>
+        Insights
+        <InfoHint text="Works with any OpenAI-compatible provider — OpenAI, Gemini, Groq, OpenRouter, or a local Ollama. The base URL selects which one. Leave the key unset to turn insights off." />
+      </h2>
       <div class="card card-fit">
-        <p class="section-desc">
-          AI insights work with any OpenAI-compatible provider — OpenAI, Gemini, Groq, OpenRouter,
-          or a local Ollama. The base URL selects the provider. Leave the key unset to turn insights off.
-        </p>
         <p v-if="isDemo" class="muted-note">
-          Insight settings are read-only in the demo — regeneration needs a real backend.
+          Read-only in the demo — generating needs a real backend.
         </p>
         <form class="insight-form" @submit.prevent="saveInsights">
           <div class="form-field">
@@ -167,13 +164,11 @@
     </section>
 
     <section class="section-wide">
-      <h2>Health Connect mappings</h2>
+      <h2>
+        Health Connect mappings
+        <InfoHint text="Which of your workout types each Health Connect activity is logged as. Anything not listed gets a type of its own the first time it arrives, so nothing is ever dropped — map activities to group them together, or to ignore one entirely." />
+      </h2>
       <div class="card card-fit">
-        <p class="section-desc">
-          Choose which of your workout types each Health Connect activity is logged as. Anything
-          not listed here gets a type of its own the first time it arrives, so nothing is ever
-          dropped — add a mapping to group activities together, or to ignore one entirely.
-        </p>
         <!-- Only the mappings that represent a decision. A mapping whose type simply carries
              the Health Connect name is what auto-create writes by itself, so listing it beside
              a real relabel buries the one row that says anything. -->
@@ -243,13 +238,11 @@
       </div>
     </section>
     <section class="section-wide">
-      <h2>Sync sources</h2>
+      <h2>
+        Sync sources
+        <InfoHint text="Devices and apps that have sent workouts to Atlas. Nothing is logged until you enable its source. Anything received meanwhile is held rather than discarded, because the sender only transmits new changes and will not send them again." />
+      </h2>
       <div class="card card-fit">
-        <p class="section-desc">
-          Devices and apps that have sent workouts to Atlas. Nothing is logged until you enable
-          its source; anything received meanwhile is held here rather than discarded, because the
-          sender only transmits new changes and will not send them again.
-        </p>
         <!-- Six columns will not fit a narrow window. Scroll the table, never the page. -->
         <div v-if="sources.length" class="table-scroll">
         <table class="mappings-table">
@@ -283,11 +276,11 @@
     </section>
 
     <section v-if="isDemo">
-      <h2>Demo data</h2>
+      <h2>
+        Demo data
+        <InfoHint text="This is a demo — your changes are stored in this browser only, and never leave it." />
+      </h2>
       <div class="card card-fit">
-        <p class="section-desc">
-          This is a demo — your changes are stored in this browser only. Reset to restore the seeded data.
-        </p>
         <button class="btn-small btn-danger" @click="resetDemo">Reset demo data</button>
       </div>
     </section>
@@ -298,6 +291,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import SkeletonLoader from '../components/SkeletonLoader.vue'
+import InfoHint from '../components/InfoHint.vue'
 import { useSettingsStore } from '../stores/settings'
 import { useToastStore } from '../stores/toast'
 import { getWorkoutTypes, createWorkoutType, deleteWorkoutType, mergeWorkoutType } from '../services/workoutService'
@@ -661,6 +655,36 @@ onMounted(async () => {
 .settings-grid .card-fit {
   display: block;
   width: 100%;
+}
+
+/* Headings carry their own explanation now, so they sit tighter to the card. */
+.settings-grid h2 {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+/* A one-control section does not need a full card's worth of padding around it. */
+.settings-grid section:not(.section-wide) .card-fit {
+  padding: var(--space-3);
+}
+.settings-grid .form-row {
+  margin: 0;
+}
+
+.inline-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.inline-icon { color: var(--text-muted); flex-shrink: 0; }
+.target-input {
+  width: 56px;
+  text-align: center;
+}
+.inline-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-right: auto;
 }
 /* Tables need the row; everything else pairs up. */
 .section-wide { grid-column: 1 / -1; }
