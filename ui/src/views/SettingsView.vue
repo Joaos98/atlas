@@ -126,13 +126,22 @@
           </div>
           <div class="form-field">
             <label><Box :size="14" /> Model</label>
-            <!-- A datalist, not a select: the suggestions age, and typing past them has to
-                 stay ordinary input or a model newer than this list becomes unreachable. -->
+            <!-- Free text, not a select: the suggestions age, and typing past them has to
+                 stay ordinary input or a model newer than this list becomes unreachable.
+                 The datalist alone was invisible — Chrome renders `list` as a bare text box
+                 with no affordance — so the same names are also offered as buttons. -->
             <input v-model="insightModel" class="wide-input" :disabled="isDemo"
                    list="insight-models" placeholder="gemini-3.7-flash" required />
             <datalist id="insight-models">
               <option v-for="m in currentModels" :key="m" :value="m" />
             </datalist>
+            <div v-if="currentModels.length" class="model-suggestions">
+              <button v-for="m in currentModels" :key="m" type="button" class="model-chip"
+                      :class="{ active: m === insightModel }" :disabled="isDemo"
+                      @click="insightModel = m">
+                {{ m }}
+              </button>
+            </div>
           </div>
           <div class="form-field">
             <label><KeyRound :size="14" /> API key</label>
@@ -1176,6 +1185,42 @@ onMounted(async () => {
 .wide-input {
   width: 340px;
   max-width: 100%;
+}
+/* The suggestions have to be visible to be suggestions: a datalist shows nothing until
+   the field is focused, which is indistinguishable from having none. Buttons, not a
+   select, so the field above stays plain free text for a model no list of ours knows. */
+.model-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 340px;
+  max-width: 100%;
+  margin-top: 6px;
+}
+.model-chip {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.75rem;
+  /* --font-mono is not actually defined; the fallback is what does the work, as in .hc-code. */
+  font-family: var(--font-mono, monospace);
+  cursor: pointer;
+}
+.model-chip:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--blue);
+}
+/* The one already in the field, so the row reads as "these, and you are on this one". */
+.model-chip.active {
+  color: var(--bg);
+  background: var(--blue);
+  border-color: var(--blue);
+}
+.model-chip:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 .key-state {
   display: flex;
