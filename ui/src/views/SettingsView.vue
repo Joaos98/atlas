@@ -254,21 +254,25 @@
         <InfoHint text="Devices and apps that have sent workouts to Atlas. Nothing is logged until you enable its source. Anything received meanwhile is held rather than discarded, because the sender only transmits new changes and will not send them again." />
       </h2>
       <div class="card card-fit">
-        <!-- Six columns will not fit a narrow window. Scroll the table, never the page. -->
+        <!-- Four columns, not six. The recording method sits under the origin rather than in
+             a column of its own, and the two dates share one — at half width the old shape
+             pushed Enable and Disable off the edge, behind a horizontal scroll. -->
+        <!-- Fits without scrolling at half-width now, but a single-column phone layout is
+             narrower still, so the box stays. -->
         <div v-if="sources.length" class="table-scroll">
-        <table class="mappings-table">
-          <thead>
-            <tr>
-              <th>Source</th><th>Recording</th><th>First seen</th><th>Last seen</th><th>Held</th><th></th>
-            </tr>
-          </thead>
+        <table class="mappings-table sources-table">
           <tbody>
             <tr v-for="s in sources" :key="s.dataOrigin + s.recordingMethod">
-              <td class="data-value">{{ s.dataOrigin }}</td>
-              <td>{{ s.recordingMethod }}</td>
-              <td>{{ shortDate(s.firstSeen) }}</td>
-              <td>{{ shortDate(s.lastSeen) }}</td>
-              <td class="data-value">{{ s.quarantinedCount || '—' }}</td>
+              <td>
+                <span class="data-value">{{ s.dataOrigin }}</span>
+                <span class="source-method">{{ s.recordingMethod }}</span>
+              </td>
+              <td class="source-seen">{{ shortDate(s.firstSeen) }} – {{ shortDate(s.lastSeen) }}</td>
+              <td>
+                <span v-if="s.quarantinedCount" class="held-badge" :title="s.quarantinedCount + ' workout(s) held'">
+                  {{ s.quarantinedCount }} held
+                </span>
+              </td>
               <!-- Live in the demo on purpose: enabling a held source and watching the backfill
                    arrive is the only way the quarantine design is visible at all. -->
               <td class="source-actions">
@@ -683,8 +687,9 @@ onMounted(async () => {
   width: 160px;
 }
 
-/* Two columns at most. auto-fit gave three on a wide screen, which left the one-line
-   sections stranded beside a tall neighbour with a column of dead space under them. */
+/* Six base columns so both row shapes divide evenly: three settings cards across the top
+   (spanning 2 each), then the two tables side by side (spanning 3 each). Narrower screens
+   fall back to two-up and then to a single column. */
 .settings-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -692,7 +697,13 @@ onMounted(async () => {
   align-items: start;
 }
 @media (min-width: 900px) {
-  .settings-grid { grid-template-columns: 1fr 1fr; }
+  .settings-grid { grid-template-columns: repeat(6, 1fr); }
+  .settings-grid > section { grid-column: span 3; }
+  .settings-grid > section.section-wide { grid-column: span 6; }
+}
+@media (min-width: 1280px) {
+  .settings-grid > section { grid-column: span 2; }
+  .settings-grid > section.section-wide { grid-column: span 3; }
 }
 /* min-width:0 is load-bearing: a grid item defaults to min-width:auto and refuses to shrink
    below its content, so a wide table stretches the card past the viewport and .table-scroll
@@ -838,10 +849,30 @@ onMounted(async () => {
   border-radius: 4px;
   padding: 1px 6px;
 }
+.sources-table td { vertical-align: middle; }
+.source-method {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.source-seen {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.held-badge {
+  font-size: 0.72rem;
+  color: var(--orange);
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  padding: 1px 6px;
+  white-space: nowrap;
+}
 .source-actions {
   display: flex;
   gap: 6px;
   white-space: nowrap;
+  justify-content: flex-end;
 }
 .type-tag.pending-review {
   border-color: var(--blue);
