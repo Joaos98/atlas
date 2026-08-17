@@ -40,29 +40,30 @@
     <!-- Seven sections stacked full-width ran to nearly three screens. The short ones pair up;
          only the tables need the whole row. -->
     <div class="settings-grid">
+    <!-- Two one-line controls that each had their own heading and card, leaving a column of
+         dead space beside anything taller. -->
     <section>
-      <h2>Workout target</h2>
+      <h2>Preferences</h2>
       <div class="card card-fit">
-        <!-- The heading already says "Workout target", so a stacked label repeating it just
-             made a one-digit field twice as tall as it needed to be. -->
-        <form class="inline-form" @submit.prevent="saveTarget">
-          <Target :size="14" class="inline-icon" />
-          <input v-model.number="target" type="number" min="1" max="7" required class="target-input" aria-label="Target workouts per week" />
-          <span class="inline-label">per week</span>
-          <button type="submit" class="btn-small">Save</button>
-        </form>
+        <div class="pref-row">
+          <span class="pref-label">
+            <Target :size="14" class="inline-icon" /> Workout target
+          </span>
+          <form class="inline-form" @submit.prevent="saveTarget">
+            <input v-model.number="target" type="number" min="1" max="7" required class="target-input" aria-label="Target workouts per week" />
+            <span class="inline-label">per week</span>
+            <button type="submit" class="btn-small">Save</button>
+          </form>
+        </div>
         <p v-if="targetMessage" class="form-success">{{ targetMessage }}</p>
         <p v-if="targetError" class="form-error">{{ targetError }}</p>
-      </div>
-    </section>
 
-    <section>
-      <h2>
-        Units
-        <InfoHint text="Display only. Measurements are always stored in metric, so switching back and forth never changes your data." />
-      </h2>
-      <div class="card card-fit">
-        <div class="unit-toggle">
+        <div class="pref-row">
+          <span class="pref-label">
+            <Ruler :size="14" class="inline-icon" /> Units
+            <InfoHint text="Display only. Measurements are always stored in metric, so switching back and forth never changes your data." />
+          </span>
+          <div class="unit-toggle">
           <button
             v-for="option in ['METRIC', 'IMPERIAL']"
             :key="option"
@@ -71,6 +72,7 @@
             :class="{ active: unitSystem === option }"
             @click="saveUnitSystem(option)"
           >{{ option === 'METRIC' ? 'Metric (kg, L)' : 'Imperial (lb)' }}</button>
+          </div>
         </div>
         <p v-if="unitError" class="form-error">{{ unitError }}</p>
       </div>
@@ -120,28 +122,44 @@
     </section>
 
     <section>
-      <h2>Workout types</h2>
+      <h2>
+        Workout types
+        <InfoHint text="Your own labels for workouts. Sync adds one automatically the first time it sees an unfamiliar activity — combine two if you end up with near-duplicates, or if a new one should have joined an existing group." />
+      </h2>
       <div class="card card-fit">
         <div class="types-list">
-          <span v-for="type in types" :key="type.id" class="type-tag" :class="{ 'pending-review': type.pendingReview }">
+          <span v-for="type in types" :key="type.id" class="type-tag"
+                :class="{ 'pending-review': type.pendingReview, merging: mergeSource?.id === type.id }">
             <span class="type-dot" :style="{ backgroundColor: type.colorHex }"></span>
             {{ type.name }}
             <span v-if="type.pendingReview" class="new-badge" title="Created automatically by sync">new</span>
-            <select
-              v-if="types.length > 1"
-              class="merge-select"
-              title="Merge into another type"
-              :value="''"
-              @change="mergeType(type, $event)"
-            >
-              <option value="" disabled>Merge into…</option>
-              <option v-for="other in types.filter(t => t.id !== type.id)" :key="other.id" :value="other.id">
-                {{ other.name }}
-              </option>
-            </select>
+            <button v-if="types.length > 1" class="btn-icon" title="Combine with another type"
+                    @click="mergeSource = mergeSource?.id === type.id ? null : type">
+              <Combine :size="12" />
+            </button>
             <button class="btn-icon" title="Delete type" @click="deleteType(type)"><X :size="12" /></button>
           </span>
           <span v-if="types.length === 0" class="empty-line">No types yet.</span>
+        </div>
+
+        <!-- Shown only for the type being combined, so the explanation appears once and at the
+             moment it is needed, rather than as a dropdown on every tag saying nothing. -->
+        <div v-if="mergeSource" class="merge-panel">
+          <p class="merge-explain">
+            Combine <strong>{{ mergeSource.name }}</strong> into another type. Its workouts and
+            Health Connect mappings move across, and <strong>{{ mergeSource.name }}</strong> is
+            removed. Nothing is deleted.
+          </p>
+          <div class="merge-actions">
+            <select v-model="mergeTargetId" class="type-input">
+              <option :value="null" disabled>Keep as…</option>
+              <option v-for="other in types.filter(t => t.id !== mergeSource.id)" :key="other.id" :value="other.id">
+                {{ other.name }}
+              </option>
+            </select>
+            <button class="btn-small" :disabled="!mergeTargetId" @click="confirmMerge">Combine</button>
+            <button class="btn-small btn-danger" @click="cancelMerge">Cancel</button>
+          </div>
         </div>
         <div v-if="types.length < PALETTE.length" class="type-add">
           <div class="color-picker">
@@ -300,7 +318,7 @@ import {
   getExerciseTypes, getSyncSources, setSyncSourceAllowed, dismissQuarantine
 } from '../services/syncService'
 import { formatDateBr } from '../utils/date'
-import { Target, X, Sparkles, KeyRound, Box, ChevronRight } from 'lucide-vue-next'
+import { Target, X, Sparkles, KeyRound, Box, ChevronRight, Combine, Ruler } from 'lucide-vue-next'
 
 const isDemo = import.meta.env.MODE === 'demo'
 
@@ -425,21 +443,25 @@ async function dismissHeld(source) {
   }
 }
 
-async function mergeType(type, event) {
-  const targetId = Number(event.target.value)
-  event.target.value = ''
-  if (!targetId) return
+// The panel states what will happen, so a second confirm() dialog restating it adds nothing.
+const mergeSource = ref(null)
+const mergeTargetId = ref(null)
 
-  const target = types.value.find(t => t.id === targetId)
-  if (!confirm(`Merge "${type.name}" into "${target.name}"? Its workouts and mappings move across, and "${type.name}" is removed.`)) return
+function cancelMerge() {
+  mergeSource.value = null
+  mergeTargetId.value = null
+}
 
+async function confirmMerge() {
+  const target = types.value.find(t => t.id === mergeTargetId.value)
   typeError.value = ''
   try {
-    await mergeWorkoutType(type.id, targetId)
+    await mergeWorkoutType(mergeSource.value.id, mergeTargetId.value)
+    cancelMerge()
     await load()
-    toast.success(`Merged into ${target.name}`)
+    toast.success(`Combined into ${target.name}`)
   } catch {
-    typeError.value = 'Could not merge types.'
+    typeError.value = 'Could not combine types.'
   }
 }
 
@@ -639,11 +661,16 @@ onMounted(async () => {
   width: 160px;
 }
 
+/* Two columns at most. auto-fit gave three on a wide screen, which left the one-line
+   sections stranded beside a tall neighbour with a column of dead space under them. */
 .settings-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  grid-template-columns: 1fr;
   gap: var(--space-4);
   align-items: start;
+}
+@media (min-width: 900px) {
+  .settings-grid { grid-template-columns: 1fr 1fr; }
 }
 /* min-width:0 is load-bearing: a grid item defaults to min-width:auto and refuses to shrink
    below its content, so a wide table stretches the card past the viewport and .table-scroll
@@ -669,6 +696,45 @@ onMounted(async () => {
 }
 .settings-grid .form-row {
   margin: 0;
+}
+
+.pref-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding: var(--space-2) 0;
+}
+.pref-row + .pref-row {
+  border-top: 1px solid var(--border);
+}
+.pref-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.merge-panel {
+  border-top: 1px solid var(--border);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+}
+.merge-explain {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: 0 0 var(--space-2);
+  max-width: 46ch;
+}
+.merge-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.type-tag.merging {
+  border-color: var(--blue);
 }
 
 .inline-form {
