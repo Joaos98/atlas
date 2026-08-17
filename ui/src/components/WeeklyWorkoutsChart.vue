@@ -46,18 +46,16 @@ function formatWeekLabel(date) {
 async function load() {
   loading.value = true
   try {
-    let start, end, chartEnd
+    let start, end
     if (props.startDate && props.endDate) {
       start = new Date(props.startDate + 'T00:00:00')
       end = new Date(props.endDate + 'T00:00:00')
-      chartEnd = new Date(props.endDate + 'T00:00:00')
     } else {
       end = new Date()
       end.setDate(end.getDate() - ((end.getDay() + 1) % 7 || 7))
       start = new Date(end)
       start.setDate(start.getDate() - end.getDay())
       start.setDate(start.getDate() - (WEEKS_DEFAULT - 1) * 7)
-      chartEnd = new Date(end)
     }
     const sundayStart = new Date(start)
     sundayStart.setDate(sundayStart.getDate() - sundayStart.getDay())

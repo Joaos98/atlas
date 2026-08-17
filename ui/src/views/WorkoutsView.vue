@@ -401,7 +401,7 @@ async function deleteLog(log) {
     refreshKey.value++
     await loadLogs()
     toast.success('Workout deleted')
-  } catch (err) {
+  } catch {
     toast.error('Failed to delete workout')
   }
 }

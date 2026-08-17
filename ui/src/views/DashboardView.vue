@@ -228,11 +228,6 @@ function formatChange(value, metricType) {
   return converted > 0 ? `+${converted.toFixed(1)}` : `${converted.toFixed(1)}`
 }
 
-function getChangeDirection(value) {
-  if (value == null || value === 0) return null
-  return value > 0 ? 'up' : 'down'
-}
-
 function compColor(value, good) {
   if (value == null || value === 0) return ''
   const isUp = value > 0

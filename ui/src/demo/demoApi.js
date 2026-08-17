@@ -3,11 +3,10 @@
 // the demo is entirely static — no network, nothing to go down.
 
 import seedJson from './demo-seed.json'
-import { loadOrInit, persist, resetDemo, mostRecentSunday, todayLocal, nextId } from './seed.js'
+import { loadOrInit, persist, resetDemo, todayLocal, nextId } from './seed.js'
 import { calculateStreaks, getHeatmapData, getStats, getGoalsProgress, parseInsightText } from './derived.js'
 
 let db = loadOrInit(seedJson)
-const anchor = db.anchor
 
 function page(content, total, number, size) {
   const totalPages = size > 0 ? Math.ceil(total / size) : 0

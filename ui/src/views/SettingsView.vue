@@ -386,7 +386,7 @@ import {
 import { formatDateBr } from '../utils/date'
 import { PROVIDERS, CUSTOM, providerIdFor, providerById, applyProviderChoice } from '../utils/insightProviders'
 import {
-  Target, X, Sparkles, KeyRound, Box, ChevronRight, Combine, Ruler, Check, Plus, RotateCcw
+  Target, X, Sparkles, KeyRound, Box, ChevronRight, Combine, Ruler, Check, Plus
 } from 'lucide-vue-next'
 
 const isDemo = import.meta.env.MODE === 'demo'
