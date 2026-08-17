@@ -1,6 +1,8 @@
 # Spec: Documenting the Sync Pipeline's Phone Side
 
-**Status:** Refined, ready for implementation
+**Status:** Implemented 2026-08-16. All four verifications in §7 pass. The README carries the
+section; the doc-site page in §5 remains Saturn work, not an Atlas to-do. See §9 for what
+implementation added.
 **Date:** 2026-08-13
 **Implements:** `atlas-generalization-todos.md` §6
 **Builds on:** [`webhook-sync-deduplication-spec.md`](webhook-sync-deduplication-spec.md) §2 (observed sender behaviour), [`sync-source-allowlist-spec.md`](sync-source-allowlist-spec.md) §5 (quarantine)
@@ -257,3 +259,34 @@ Behind the cutover freeze with everything else, and last among the to-dos: it do
 behaviour that `sync-source-allowlist-spec.md` and `exercise-type-vocabulary-spec.md` change.
 Writing it before those land means documenting a pipeline that is about to behave
 differently — in particular the quarantine two-step in §4, which does not exist yet.
+
+**Vindicated 2026-08-16.** Both shipped the same day this was written, and the README section
+describes the quarantine two-step and auto-created types as ordinary behaviour. Written a week
+earlier it would have documented an app that skipped unmapped types and accepted exactly one
+hardcoded device.
+
+---
+
+## 9. What implementation added — 2026-08-16
+
+**The contract is tested, not just written.** §2.1 makes `POST /api/sync` a published interface
+and invites strangers to write their own sender — which makes it code with a documentation
+front end, not prose. `SyncContractTest` asserts every claim the README makes in writing: both
+timestamp formats, `type` as a JSON string *or* number, unmodelled fields ignored rather than
+rejected, re-sending safe, all four response counters present, missing metadata becoming
+`(none)`, an unknown device returning `200` with nothing logged, and a bad key returning `401`.
+An interface nobody tests is a promise that quietly stops being true.
+
+That test also settled a claim written on assumption: the README says `type` is accepted "string
+or number", which relies on Jackson coercing a JSON number into a `String` field. It does — but
+that was worth verifying before telling strangers to depend on it.
+
+**§3's warning about example payloads was followed and is worth restating.** Every example in
+the README is invented — `com.example.wearable`, a 2024 timestamp, `<your-atlas-host>`. Real
+deliveries encode the owner's device, workout times and daily schedule, which together describe
+when the house is empty. Checked before committing that no real origin, host or 2026 timestamp
+appears anywhere in the README.
+
+**Scope note:** the README also gained the new endpoints from §3 and §2 in its API table, and
+`sync_sources` / `quarantined_entries` in its entity list. Not called for here, but the table
+would have been silently wrong without it.

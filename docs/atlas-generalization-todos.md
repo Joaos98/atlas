@@ -1,5 +1,30 @@
 # Atlas — Generalization To-Dos
 
+**All seven are complete as of 2026-08-16.** This document is now a record of what was done
+and why, not a work list. Each item keeps its original finding, the refinement that followed,
+and a note on what implementation discovered that the refinement had not — that last part is
+the most useful thing here, because in every case it was found by running the app rather than
+by reading the spec again.
+
+What changed, in one line each:
+
+| | | |
+|---|---|---|
+| §1 | Insight provider | Any OpenAI-compatible endpoint, configured in the UI, key never served over HTTP |
+| §2 | Exercise vocabulary | Unmapped Health Connect codes create their own type instead of being dropped |
+| §3 | Sync sources | Any device is accepted; unknown ones are held and recoverable, not silently filtered |
+| §4 | First-run bootstrap | `app_settings` seeds itself, and now backfills columns added later |
+| §5 | Units | Metric/imperial at the display boundary, canonical metric in the database |
+| §6 | Webhook sender | Documented and third-party; `POST /api/sync` published as a tested contract |
+| §7 | Secrets | Leak paths closed; rotation considered and declined as an accepted risk |
+
+Four defects were found along the way that pre-dated all of this: a missing unique index that
+had silently disabled cross-sync dedup, a duplicate-catch that never matched what SQLite throws,
+a settings seeder that skipped every install holding real data, and a demo that broke its own
+dashboard as soon as a workout was logged.
+
+The original framing, kept because it is what the items were written against:
+
 To-dos to be refined and implemented **after** the self-hosting transition
 (`atlas-selfhost-plan.md`, now complete — see the plan's §8 "Still pending"
 for cutover status), before Atlas counts as finished. Today the app is
@@ -286,8 +311,20 @@ follow it — otherwise the card shows pounds while the insight text says kilos.
 
 ## 6. The Health Connect webhook app is not in the repo
 
-**Status: REFINED 2026-08-13 — see [`webhook-sender-spec.md`](webhook-sender-spec.md).
-Implementation pending.**
+**Status: DONE 2026-08-16 — see [`webhook-sender-spec.md`](webhook-sender-spec.md), whose §9
+records what implementation added. This was the last of the seven.**
+
+The README now has a "Syncing workouts from your phone" section: what HC Webhook is and that it
+is third-party, how to point it at Atlas, the two-step first run, and `POST /api/sync` published
+as a contract anyone can satisfy — so the dependency is bounded rather than absolute.
+
+**The contract is tested.** `SyncContractTest` pins every claim the README makes in writing, on
+the principle that an interface strangers are invited to build against is code with a
+documentation front end, not prose. It caught nothing broken, but it did verify one claim
+written on assumption: `type` really is accepted as a JSON number as well as a string.
+
+Every example payload is invented. Real deliveries encode the owner's device, workout times and
+daily schedule — collectively, when the house is empty.
 
 **This item's premise was wrong.** The sender is not the author's app to open-source: it is
 **HC Webhook** (<https://hcwebhook.com/>), a third-party product on the Play Store and App
